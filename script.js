@@ -5,8 +5,17 @@
 const SHEET_URL =
   "https://opensheet.elk.sh/1cV5sqtp73WazgB6og_d4aOG4y9HYo3EGePMrBuXAbRs/R%C3%A9pertoire";
 
-let fullData = [];
-let currentDay = "";
+function selectDay(day) {
+  currentDay = day;
+
+  const eventsForDay = fullData.filter((item) => {
+    const jour = (item.jour || "").toLowerCase().trim();
+    return jour === day.toLowerCase();
+  });
+
+  renderEvents(eventsForDay);
+}
+
 
 // Chargement initial
 async function loadData() {
@@ -289,5 +298,15 @@ function renderEvents(events) {
 // ------------------------------------------------------
 // 6. Lancer le site
 // ------------------------------------------------------
+function selectDay(day) {
+  currentDay = day;
+
+  const eventsForDay = fullData.filter((item) => {
+    const jour = (item.jour || "").toLowerCase().trim();
+    return jour === day.toLowerCase();
+  });
+
+  renderEvents(eventsForDay);
+}
 
 loadData().then(() => selectDay("lundi"));
