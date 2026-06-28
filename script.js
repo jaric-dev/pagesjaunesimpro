@@ -78,22 +78,18 @@ function computeNextDate(item) {
   // 4. Autre → on analyse "détails_fréquence"
   if (freq.includes("autre")) {
 
-    // un X sur deux
     if (details.includes("sur deux") || details.includes("2 semaines")) {
       return computeBiweekly(item);
     }
 
-    // un X sur trois
     if (details.includes("sur trois")) {
       return computeEveryThreeWeeks(item);
     }
 
-    // dernier X du mois
     if (details.includes("dernier")) {
       return computeLastWeekdayOfMonth(item);
     }
 
-    // 1er / 2e / 3e / 4e X du mois
     const nthMatch = details.match(/(1er|premier|2e|deuxième|3e|troisième|4e|quatrième)/);
     if (nthMatch) {
       const nthMap = {
@@ -111,12 +107,10 @@ function computeNextDate(item) {
     }
   }
 
-  // 5. À confirmer
   if (freq.includes("confirmer")) {
     return "À confirmer";
   }
 
-  // 6. Valeur par défaut
   return "À confirmer";
 }
 
@@ -149,6 +143,7 @@ function computeMonthly(item) {
   return next.toLocaleDateString("fr-CA");
 }
 
+// ⭐ VERSION CORRIGÉE — SANS RÉCURSION, SANS DOUBLONS
 function computeLastWeekdayOfMonth(item) {
   const today = new Date();
   const start = new Date(item.date_debut || today);
@@ -161,7 +156,6 @@ function computeLastWeekdayOfMonth(item) {
   while (true) {
     let last = null;
 
-    // Trouver le dernier X du mois
     for (let d = 1; d <= 31; d++) {
       const date = new Date(year, month, d);
       if (date.getMonth() !== month) break;
@@ -170,76 +164,55 @@ function computeLastWeekdayOfMonth(item) {
 
     if (!last) return "À confirmer";
 
-    // Si la date trouvée est dans le futur → on la retourne
     if (last >= today) {
       return last.toLocaleDateString("fr-CA");
     }
 
-    // Sinon → passer au mois suivant
     month++;
     if (month > 11) {
       month = 0;
       year++;
     }
   }
-}
-
-    if (!last) return "À confirmer";
-
-    // Si la date trouvée est dans le futur → on la retourne
-    if (last >= today) {
-      return last.toLocaleDateString("fr-CA");
-    }
-
-    // Sinon → passer au mois suivant
-    month++;
-    if (month > 11) {
-      month = 0;
-      year++;
-    }
-  }
-}
-
-  if (!last) return "À confirmer";
-
-  if (last < today) {
-    const nextMonthItem = { ...item };
-    return computeLastWeekdayOfMonth(nextMonthItem);
-  }
-
-  return last.toLocaleDateString("fr-CA");
 }
 
 function computeNthWeekdayOfMonth(item, n) {
   const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth();
+  const start = new Date(item.date_debut || today);
+
+  let year = start.getFullYear();
+  let month = start.getMonth();
   const targetDay = weekdayMap[(item.jour || "").toLowerCase()];
   if (targetDay === undefined) return "À confirmer";
 
-  let count = 0;
-  let nth = null;
+  while (true) {
+    let count = 0;
+    let nth = null;
 
-  for (let d = 1; d <= 31; d++) {
-    const date = new Date(year, month, d);
-    if (date.getMonth() !== month) break;
-    if (date.getDay() === targetDay) {
-      count++;
-      if (count === n) {
-        nth = date;
-        break;
+    for (let d = 1; d <= 31; d++) {
+      const date = new Date(year, month, d);
+      if (date.getMonth() !== month) break;
+      if (date.getDay() === targetDay) {
+        count++;
+        if (count === n) {
+          nth = date;
+          break;
+        }
       }
     }
+
+    if (!nth) return "À confirmer";
+
+    if (nth >= today) {
+      return nth.toLocaleDateString("fr-CA");
+    }
+
+    month++;
+    if (month > 11) {
+      month = 0;
+      year++;
+    }
   }
-
-  if (!nth) return "À confirmer";
-
-  if (nth < today) {
-    const nextMonthItem = { ...item };
-    return computeNthWeekdayOfMonth(nextMonthItem, n);
-  }
-
-  return nth.toLocaleDateString("fr-CA");
 }
 
 function computeBiweekly(item) {
@@ -308,7 +281,7 @@ function renderEvents(events) {
         <p><strong>Prochaine date :</strong> ${nextDate}</p>
         <p><strong>Lieu :</strong> ${item.lieu}</p>
         <p><strong>Ville :</strong> ${item.ville}</p>
-        <p>${item.description || ""}</p>
+        <p>${item.description?.trim() || "(Aucune description)"}</p>
       </div>
     `;
 
@@ -323,10 +296,10 @@ function renderEvents(events) {
 function normalize(str) {
   return (str || "")
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")   // accents
-    .replace(/\u00A0/g, " ")           // espace insécable
-    .replace(/[\r\n]+/g, "")           // retours de ligne
-    .replace(/\s+/g, " ")              // espaces multiples
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\u00A0/g, " ")
+    .replace(/[\r\n]+/g, "")
+    .replace(/\s+/g, " ")
     .trim()
     .toLowerCase();
 }
@@ -336,16 +309,13 @@ function selectDay(day) {
 
   const eventsForDay = fullData.filter((item) => {
     const jour = normalize(item.jour);
-
-    // LOG pour debug
-    console.log("Jour reçu :", JSON.stringify(item.jour));
-
     return jour === normalizedDay;
   });
 
   renderEvents(eventsForDay);
 }
 
+// ------------------------------------------------------
 // 7. Lancer le site
 // ------------------------------------------------------
 
