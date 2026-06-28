@@ -286,13 +286,13 @@ function renderEvents(events) {
 
 function normalize(str) {
   return (str || "")
-    .normalize("NFD")                     // enlève les accents
-    .replace(/[\u0300-\u036f]/g, "")      // enlève les diacritiques
-    .replace(/\u00A0/g, " ")              // remplace espace insécable
-    .replace(/[\r\n]+/g, "")              // enlève retours de ligne
-    .replace(/\s+/g, " ")                 // normalise les espaces
-    .trim()                               // enlève espaces début/fin
-    .toLowerCase();                       // uniformise
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")   // accents
+    .replace(/\u00A0/g, " ")           // espace insécable
+    .replace(/[\r\n]+/g, "")           // retours de ligne
+    .replace(/\s+/g, " ")              // espaces multiples
+    .trim()
+    .toLowerCase();
 }
 
 function selectDay(day) {
@@ -300,13 +300,16 @@ function selectDay(day) {
 
   const eventsForDay = fullData.filter((item) => {
     const jour = normalize(item.jour);
+
+    // LOG CORRECT : placé AVANT le return
+    console.log("Jour reçu :", JSON.stringify(item.jour));
+
     return jour === normalizedDay;
   });
 
   renderEvents(eventsForDay);
 }
 
-// ------------------------------------------------------
 // 7. Lancer le site
 // ------------------------------------------------------
 
