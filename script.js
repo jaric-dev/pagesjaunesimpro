@@ -6,7 +6,6 @@ const SHEET_URL =
   "https://opensheet.elk.sh/1cV5sqtp73WazgB6og_d4aOG4y9HYo3EGePMrBuXAbRs/R%C3%A9pertoire";
 
 let fullData = [];
-let currentDay = "";
 
 // Chargement initial
 async function loadData() {
@@ -37,20 +36,24 @@ function computeNextDate(item) {
   const freq = (item["fréquence"] || "").toLowerCase().trim();
   const details = (item["détails_fréquence"] || "").toLowerCase().trim();
 
+  // Extraire le jour depuis les détails si présent
+  const weekdayFromDetails = details.match(/lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche/);
+  if (weekdayFromDetails) {
+    item.jour = weekdayFromDetails[0];
+  }
+
   // 1. Hebdomadaire
-  if (freq.includes("hebdo") || freq.includes("hebdomadaire")) {
+  if (freq.includes("hebdo")) {
     return computeWeekly(item);
   }
 
   // 2. Mensuel
   if (freq.includes("mensuel")) {
 
-    // Dernier X du mois
     if (details.includes("dernier")) {
       return computeLastWeekdayOfMonth(item);
     }
 
-    // 1er / 2e / 3e / 4e X du mois
     const nthMatch = details.match(/(1er|premier|2e|deuxième|3e|troisième|4e|quatrième)/);
     if (nthMatch) {
       const nthMap = {
@@ -63,8 +66,7 @@ function computeNextDate(item) {
         "4e": 4,
         "quatrième": 4
       };
-      const n = nthMap[nthMatch[0]];
-      return computeNthWeekdayOfMonth(item, n);
+      return computeNthWeekdayOfMonth(item, nthMap[nthMatch[0]]);
     }
 
     return computeMonthly(item);
@@ -75,7 +77,7 @@ function computeNextDate(item) {
     return computeYearly(item);
   }
 
-  // 4. Autre → on analyse "détails_fréquence"
+  // 4. Autre → irréguliers
   if (freq.includes("autre")) {
 
     if (details.includes("sur deux") || details.includes("2 semaines")) {
@@ -102,13 +104,8 @@ function computeNextDate(item) {
         "4e": 4,
         "quatrième": 4
       };
-      const n = nthMap[nthMatch[0]];
-      return computeNthWeekdayOfMonth(item, n);
+      return computeNthWeekdayOfMonth(item, nthMap[nthMatch[0]]);
     }
-  }
-
-  if (freq.includes("confirmer")) {
-    return "À confirmer";
   }
 
   return "À confirmer";
@@ -143,7 +140,7 @@ function computeMonthly(item) {
   return next.toLocaleDateString("fr-CA");
 }
 
-// ⭐ VERSION CORRIGÉE — SANS RÉCURSION, SANS DOUBLONS
+// ⭐ VERSION CORRIGÉE — SANS RÉCURSION
 function computeLastWeekdayOfMonth(item) {
   const today = new Date();
   const start = new Date(item.date_debut || today);
