@@ -15,58 +15,22 @@ async function loadData() {
   return fullData;
 }
 
-// ------------------------------------------------------
-// 2. Filtre : jour uniquement
-// ------------------------------------------------------
+// ------------------------------
+// Mapping des jours
+// ------------------------------
+const weekdayMap = {
+  lundi: 1,
+  mardi: 2,
+  mercredi: 3,
+  jeudi: 4,
+  vendredi: 5,
+  samedi: 6,
+  dimanche: 0,
+};
 
-function filterData() {
-  let events = fullData;
-
-  // Désactivé pour test
-  // if (currentDay) {
-  //   events = events.filter(
-  //     (item) => item.jour?.trim().toLowerCase() === currentDay.toLowerCase()
-  //   );
-  // }
-
-  // Désactivé pour test
-  // events = events.filter(isEventActive);
-
-  renderEvents(events);
-}
-
-// Highlight + filtre jour
-function selectDay(day) {
-  currentDay = day;
-  filterData();
-
-  document.querySelectorAll('.day-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.day === day);
-  });
-}
-
-// ------------------------------------------------------
-// 3. Gestion de date_fin
-// ------------------------------------------------------
-
-function isEventActive(item) {
-  const fin = item.date_fin?.trim();
-
-  if (!fin) return true;
-  if (fin.toLowerCase() === "à confirmer") return true;
-  if (fin.toLowerCase() === "pause") return false;
-  if (fin.toLowerCase() === "saison") return true;
-
-  const today = new Date();
-  const endDate = new Date(fin);
-
-  return today <= endDate;
-}
-
-// ------------------------------------------------------
-// 4. Calcul des dates récurrentes
-// ------------------------------------------------------
-
+// ------------------------------
+// Détection intelligente des récurrences
+// ------------------------------
 function computeNextDate(item) {
   const freq = (item["fréquence"] || "").toLowerCase().trim();
   const details = (item["détails_fréquence"] || "").toLowerCase().trim();
@@ -79,7 +43,7 @@ function computeNextDate(item) {
   // 2. Mensuel
   if (freq.includes("mensuel")) {
 
-    // Détails plus précis
+    // Dernier X du mois
     if (details.includes("dernier")) {
       return computeLastWeekdayOfMonth(item);
     }
@@ -154,7 +118,9 @@ function computeNextDate(item) {
   return "À confirmer";
 }
 
+// ------------------------------
 // Hebdomadaire
+// ------------------------------
 function computeWeekly(item) {
   const today = new Date();
   const target = weekdayMap[item.jour.toLowerCase()];
@@ -166,17 +132,9 @@ function computeWeekly(item) {
   return next.toLocaleDateString("fr-CA");
 }
 
- const weekdayMap = {
-  lundi: 1,
-  mardi: 2,
-  mercredi: 3,
-  jeudi: 4,
-  vendredi: 5,
-  samedi: 6,
-  dimanche: 0,
-};
-
-// Mensuel
+// ------------------------------
+// Mensuel (même date chaque mois)
+// ------------------------------
 function computeMonthly(item) {
   const today = new Date();
   const start = new Date(item["date_debut"]);
@@ -187,8 +145,11 @@ function computeMonthly(item) {
   }
 
   return next.toLocaleDateString("fr-CA");
-  
+}
+
+// ------------------------------
 // Dernier X du mois
+// ------------------------------
 function computeLastWeekdayOfMonth(item) {
   const today = new Date();
   const year = today.getFullYear();
@@ -213,8 +174,9 @@ function computeLastWeekdayOfMonth(item) {
   return last.toLocaleDateString("fr-CA");
 }
 
-
-// Nᵉ X du mois 
+// ------------------------------
+// Nᵉ X du mois (1er, 2e, 3e, 4e)
+// ------------------------------
 function computeNthWeekdayOfMonth(item, n) {
   const today = new Date();
   const year = today.getFullYear();
@@ -246,7 +208,9 @@ function computeNthWeekdayOfMonth(item, n) {
   return nth.toLocaleDateString("fr-CA");
 }
 
-// Bi-hebdomadaire
+// ------------------------------
+// Bi‑hebdomadaire (un X sur deux)
+// ------------------------------
 function computeBiweekly(item) {
   const today = new Date();
   const start = new Date(item["date_debut"]);
@@ -259,7 +223,10 @@ function computeBiweekly(item) {
 
   return next.toLocaleDateString("fr-CA");
 }
+
+// ------------------------------
 // Toutes les 3 semaines
+// ------------------------------
 function computeEveryThreeWeeks(item) {
   const today = new Date();
   const start = new Date(item["date_debut"]);
@@ -273,8 +240,10 @@ function computeEveryThreeWeeks(item) {
   return next.toLocaleDateString("fr-CA");
 }
 
+// ------------------------------
 // Annuel
-  function computeYearly(item) {
+// ------------------------------
+function computeYearly(item) {
   const today = new Date();
   const start = new Date(item["date_debut"]);
 
