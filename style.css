@@ -1,0 +1,84 @@
+body {
+  background-color: #121212;
+  color: #f5f5f5;
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+}
+
+header {
+  background-color: #1e1e1e;
+  padding: 1rem 2rem;
+}
+
+.logo {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.8rem;
+  color: #ffcc00;
+}
+
+.logo span {
+  color: #ff6b00;
+}
+
+main {
+  padding: 2rem;
+  max-width: 1000px;
+  margin: auto;
+}
+
+.filters {
+  margin-bottom: 2rem;
+}
+
+.filter-group {
+  margin-bottom: 1rem;
+}
+
+.days button,
+.types button,
+.city-btn {
+  background-color: #2a2a2a;
+  color: #f5f5f5;
+  border: none;
+  margin: 0.2rem;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.days button:hover,
+.types button:hover,
+.city-btn:hover {
+  background-color: #ffcc00;
+  color: #000;
+}
+
+.event-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.event-card {
+  background-color: #1e1e1e;
+  border-radius: 8px;
+  padding: 1rem;
+  width: 300px;
+}
+
+.event-card h2 {
+  margin-top: 0;
+}
+
+.tag {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  margin-right: 0.3rem;
+}
+
+.tag.Spectacle { background-color: #00bcd4; color: #000; }
+.tag.Match { background-color: #ffcc00; color: #000; }
+.tag.Formation { background-color: #4caf50; color: #000; }
+.tag.Jam { background-color: #ff6b00; color: #000; }
