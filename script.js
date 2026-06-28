@@ -78,13 +78,29 @@ function computeNextDate(item) {
 
   // 2. Mensuel
   if (freq.includes("mensuel")) {
-    // Si les détails précisent un type de mensuel, on priorise les détails
+
+    // Détails plus précis
     if (details.includes("dernier")) {
       return computeLastWeekdayOfMonth(item);
     }
-    if (details.includes("3e") || details.includes("troisième")) {
-      return computeNthWeekdayOfMonth(item, 3);
+
+    // 1er / 2e / 3e / 4e X du mois
+    const nthMatch = details.match(/(1er|premier|2e|deuxième|3e|troisième|4e|quatrième)/);
+    if (nthMatch) {
+      const nthMap = {
+        "1er": 1,
+        "premier": 1,
+        "2e": 2,
+        "deuxième": 2,
+        "3e": 3,
+        "troisième": 3,
+        "4e": 4,
+        "quatrième": 4
+      };
+      const n = nthMap[nthMatch[0]];
+      return computeNthWeekdayOfMonth(item, n);
     }
+
     return computeMonthly(item);
   }
 
@@ -96,9 +112,14 @@ function computeNextDate(item) {
   // 4. Autre → on analyse "détails_fréquence"
   if (freq.includes("autre")) {
 
-    // un mercredi sur deux
+    // un X sur deux
     if (details.includes("sur deux") || details.includes("2 semaines")) {
       return computeBiweekly(item);
+    }
+
+    // un X sur trois
+    if (details.includes("sur trois")) {
+      return computeEveryThreeWeeks(item);
     }
 
     // dernier X du mois
@@ -106,14 +127,21 @@ function computeNextDate(item) {
       return computeLastWeekdayOfMonth(item);
     }
 
-    // 3e X du mois
-    if (details.includes("3e") || details.includes("troisième")) {
-      return computeNthWeekdayOfMonth(item, 3);
-    }
-
-    // un mardi sur trois
-    if (details.includes("sur trois")) {
-      return computeEveryThreeWeeks(item);
+    // 1er / 2e / 3e / 4e X du mois
+    const nthMatch = details.match(/(1er|premier|2e|deuxième|3e|troisième|4e|quatrième)/);
+    if (nthMatch) {
+      const nthMap = {
+        "1er": 1,
+        "premier": 1,
+        "2e": 2,
+        "deuxième": 2,
+        "3e": 3,
+        "troisième": 3,
+        "4e": 4,
+        "quatrième": 4
+      };
+      const n = nthMap[nthMatch[0]];
+      return computeNthWeekdayOfMonth(item, n);
     }
   }
 
@@ -129,25 +157,24 @@ function computeNextDate(item) {
 // Hebdomadaire
 function computeWeekly(item) {
   const today = new Date();
-  const days = {
-    lundi: 1,
-    mardi: 2,
-    mercredi: 3,
-    jeudi: 4,
-    vendredi: 5,
-    samedi: 6,
-    dimanche: 0,
-  };
-
-  const target = days[item.jour.toLowerCase()];
+  const target = weekdayMap[item.jour.toLowerCase()];
   const next = new Date(today);
 
   next.setDate(today.getDate() + ((target - today.getDay() + 7) % 7));
-
   if (next < today) next.setDate(next.getDate() + 7);
 
   return next.toLocaleDateString("fr-CA");
 }
+
+ const weekdayMap = {
+  lundi: 1,
+  mardi: 2,
+  mercredi: 3,
+  jeudi: 4,
+  vendredi: 5,
+  samedi: 6,
+  dimanche: 0,
+};
 
 // Mensuel
 function computeMonthly(item) {
@@ -160,59 +187,103 @@ function computeMonthly(item) {
   }
 
   return next.toLocaleDateString("fr-CA");
-}
-
-// 3e jeudi
-function computeThirdThursday(item) {
+  
+// Dernier X du mois
+function computeLastWeekdayOfMonth(item) {
   const today = new Date();
   const year = today.getFullYear();
   const month = today.getMonth();
+  const targetDay = weekdayMap[item.jour.toLowerCase()];
 
-  let count = 0;
-  let next = null;
+  let last = null;
 
   for (let d = 1; d <= 31; d++) {
     const date = new Date(year, month, d);
     if (date.getMonth() !== month) break;
-    if (date.getDay() === 4) count++;
-    if (count === 3) {
-      next = date;
-      break;
-    }
+    if (date.getDay() === targetDay) last = date;
   }
 
-  if (next < today) {
-    return computeThirdThursday({
+  if (last < today) {
+    return computeLastWeekdayOfMonth({
       ...item,
       date_debut: new Date(year, month + 1, 1),
     });
+  }
+
+  return last.toLocaleDateString("fr-CA");
+}
+
+
+// Nᵉ X du mois 
+function computeNthWeekdayOfMonth(item, n) {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = today.getMonth();
+  const targetDay = weekdayMap[item.jour.toLowerCase()];
+
+  let count = 0;
+  let nth = null;
+
+  for (let d = 1; d <= 31; d++) {
+    const date = new Date(year, month, d);
+    if (date.getMonth() !== month) break;
+    if (date.getDay() === targetDay) {
+      count++;
+      if (count === n) {
+        nth = date;
+        break;
+      }
+    }
+  }
+
+  if (nth < today) {
+    return computeNthWeekdayOfMonth({
+      ...item,
+      date_debut: new Date(year, month + 1, 1),
+    }, n);
+  }
+
+  return nth.toLocaleDateString("fr-CA");
+}
+
+// Bi-hebdomadaire
+function computeBiweekly(item) {
+  const today = new Date();
+  const start = new Date(item["date_debut"]);
+
+  let next = new Date(start);
+
+  while (next < today) {
+    next.setDate(next.getDate() + 14);
+  }
+
+  return next.toLocaleDateString("fr-CA");
+}
+// Toutes les 3 semaines
+function computeEveryThreeWeeks(item) {
+  const today = new Date();
+  const start = new Date(item["date_debut"]);
+
+  let next = new Date(start);
+
+  while (next < today) {
+    next.setDate(next.getDate() + 21);
   }
 
   return next.toLocaleDateString("fr-CA");
 }
 
-// Dernier vendredi
-function computeLastFriday(item) {
+// Annuel
+  function computeYearly(item) {
   const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth();
+  const start = new Date(item["date_debut"]);
 
-  let lastFriday = null;
-
-  for (let d = 1; d <= 31; d++) {
-    const date = new Date(year, month, d);
-    if (date.getMonth() !== month) break;
-    if (date.getDay() === 5) lastFriday = date;
+  let next = new Date(today.getFullYear(), start.getMonth(), start.getDate());
+  if (next < today) {
+    next = new Date(today.getFullYear() + 1, start.getMonth(), start.getDate());
   }
 
-  if (lastFriday < today) {
-    return computeLastFriday({
-      ...item,
-      date_debut: new Date(year, month + 1, 1),
-    });
-  }
-
-  return lastFriday.toLocaleDateString("fr-CA");
+  return next.toLocaleDateString("fr-CA");
 }
 
 // ------------------------------------------------------
