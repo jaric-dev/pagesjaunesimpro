@@ -284,12 +284,23 @@ function renderEvents(events) {
 // 6. Sélection d’un jour
 // ------------------------------------------------------
 
+function normalize(str) {
+  return (str || "")
+    .normalize("NFD")                     // enlève les accents
+    .replace(/[\u0300-\u036f]/g, "")      // enlève les diacritiques
+    .replace(/\u00A0/g, " ")              // remplace espace insécable
+    .replace(/[\r\n]+/g, "")              // enlève retours de ligne
+    .replace(/\s+/g, " ")                 // normalise les espaces
+    .trim()                               // enlève espaces début/fin
+    .toLowerCase();                       // uniformise
+}
+
 function selectDay(day) {
-  currentDay = day;
+  const normalizedDay = normalize(day);
 
   const eventsForDay = fullData.filter((item) => {
-    const jour = (item.jour || "").toLowerCase().trim();
-    return jour === day.toLowerCase();
+    const jour = normalize(item.jour);
+    return jour === normalizedDay;
   });
 
   renderEvents(eventsForDay);
