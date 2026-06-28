@@ -1,1 +1,60 @@
-<div id="events"></div>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pages Jaunes Impro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Montserrat:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">🎭 PagesJaunes<span>Impro</span></div>
+  </header>
+
+  <!-- MAIN -->
+  <main>
+    <h1>Événements d’impro au Québec</h1>
+
+    <!-- FILTERS -->
+    <section class="filters">
+      <div class="filter-group">
+        <label>Jour</label>
+        <div class="days">
+          <button onclick="init('lundi')">Lundi</button>
+          <button onclick="init('mardi')">Mardi</button>
+          <button onclick="init('mercredi')">Mercredi</button>
+          <button onclick="init('jeudi')">Jeudi</button>
+          <button onclick="init('vendredi')">Vendredi</button>
+          <button onclick="init('samedi')">Samedi</button>
+          <button onclick="init('dimanche')">Dimanche</button>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label>Type</label>
+        <div class="types">
+          <button onclick="filterType('Spectacle')">Spectacle</button>
+          <button onclick="filterType('Match')">Match</button>
+          <button onclick="filterType('Formation')">Formation</button>
+          <button onclick="filterType('Jam')">Jam</button>
+          <button onclick="filterType('')">Tous</button>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label>Ville</label>
+        <div id="city-buttons"></div>
+      </div>
+    </section>
+
+    <!-- EVENTS -->
+    <div id="events" class="event-grid"></div>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
