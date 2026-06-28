@@ -12,15 +12,16 @@
 
   <!-- HEADER -->
   <header>
-    <div class="logo">🎭 PagesJaunes<span>Impro</span></div>
+    <h1 class="site-title">Pages Jaunes Impro</h1>
   </header>
 
-  <!-- MAIN -->
-  <main>
-    <h1>Événements d’impro au Québec</h1>
+  <!-- LAYOUT -->
+  <div class="layout">
 
-    <!-- FILTERS -->
-    <section class="filters">
+    <!-- SIDEBAR (FILTRES) -->
+    <aside class="sidebar">
+      <h3>Filtres</h3>
+
       <div class="filter-group">
         <label>Jour</label>
         <div class="days">
@@ -49,11 +50,14 @@
         <label>Ville</label>
         <div id="city-buttons"></div>
       </div>
-    </section>
+    </aside>
 
-    <!-- EVENTS -->
-    <div id="events" class="event-grid"></div>
-  </main>
+    <!-- MAIN CONTENT -->
+    <main class="content">
+      <div id="events" class="event-grid"></div>
+    </main>
+
+  </div>
 
   <script src="script.js"></script>
 </body>
