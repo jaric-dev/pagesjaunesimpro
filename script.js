@@ -22,13 +22,15 @@ async function loadData() {
 function filterData() {
   let events = fullData;
 
-  if (currentDay) {
-    events = events.filter(
-      (item) => item.jour?.trim().toLowerCase() === currentDay.toLowerCase()
-    );
-  }
+  // Désactivé pour test
+  // if (currentDay) {
+  //   events = events.filter(
+  //     (item) => item.jour?.trim().toLowerCase() === currentDay.toLowerCase()
+  //   );
+  // }
 
-  events = events.filter(isEventActive);
+  // Désactivé pour test
+  // events = events.filter(isEventActive);
 
   renderEvents(events);
 }
