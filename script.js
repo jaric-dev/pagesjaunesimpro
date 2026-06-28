@@ -78,6 +78,13 @@ function computeNextDate(item) {
 
   // 2. Mensuel
   if (freq.includes("mensuel")) {
+    // Si les détails précisent un type de mensuel, on priorise les détails
+    if (details.includes("dernier")) {
+      return computeLastWeekdayOfMonth(item);
+    }
+    if (details.includes("3e") || details.includes("troisième")) {
+      return computeNthWeekdayOfMonth(item, 3);
+    }
     return computeMonthly(item);
   }
 
@@ -86,20 +93,20 @@ function computeNextDate(item) {
     return computeYearly(item);
   }
 
-  // 4. Personnalisé → on analyse "détails_fréquence"
-  if (freq.includes("personalisé") || freq.includes("personnalisé")) {
+  // 4. Autre → on analyse "détails_fréquence"
+  if (freq.includes("autre")) {
 
     // un mercredi sur deux
     if (details.includes("sur deux") || details.includes("2 semaines")) {
       return computeBiweekly(item);
     }
 
-    // dernier mercredi du mois
+    // dernier X du mois
     if (details.includes("dernier")) {
       return computeLastWeekdayOfMonth(item);
     }
 
-    // 3e jeudi du mois
+    // 3e X du mois
     if (details.includes("3e") || details.includes("troisième")) {
       return computeNthWeekdayOfMonth(item, 3);
     }
@@ -118,7 +125,6 @@ function computeNextDate(item) {
   // 6. Valeur par défaut
   return "À confirmer";
 }
-
 
 // Hebdomadaire
 function computeWeekly(item) {
