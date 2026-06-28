@@ -152,6 +152,7 @@ function computeMonthly(item) {
 function computeLastWeekdayOfMonth(item) {
   const today = new Date();
   const start = new Date(item.date_debut || today);
+
   let year = start.getFullYear();
   let month = start.getMonth();
   const targetDay = weekdayMap[(item.jour || "").toLowerCase()];
@@ -166,6 +167,22 @@ function computeLastWeekdayOfMonth(item) {
       if (date.getMonth() !== month) break;
       if (date.getDay() === targetDay) last = date;
     }
+
+    if (!last) return "À confirmer";
+
+    // Si la date trouvée est dans le futur → on la retourne
+    if (last >= today) {
+      return last.toLocaleDateString("fr-CA");
+    }
+
+    // Sinon → passer au mois suivant
+    month++;
+    if (month > 11) {
+      month = 0;
+      year++;
+    }
+  }
+}
 
     if (!last) return "À confirmer";
 
