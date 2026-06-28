@@ -66,7 +66,7 @@ function isEventActive(item) {
 // ------------------------------------------------------
 
 function computeNextDate(item) {
-  const recurrence = item.récurrence?.toLowerCase() || "";
+  const recurrence = item["récurrence"]?.toLowerCase() || "";
 
   if (recurrence.includes("hebdo")) return computeWeekly(item);
   if (recurrence.includes("mensuel")) return computeMonthly(item);
