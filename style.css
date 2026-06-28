@@ -1,7 +1,4 @@
-/* ------------------------------
-   GLOBAL
------------------------------- */
-
+/* GLOBAL */
 body {
   background-color: #121212;
   color: #f5f5f5;
@@ -9,10 +6,7 @@ body {
   margin: 0;
 }
 
-/* ------------------------------
-   HEADER
------------------------------- */
-
+/* HEADER */
 header {
   background-color: #1e1e1e;
   padding: 1rem 2rem;
@@ -28,79 +22,44 @@ header {
   font-weight: 700;
 }
 
-/* ------------------------------
-   LAYOUT
------------------------------- */
-
-.layout {
+/* NAVIGATION DES JOURS */
+.days-nav {
   display: flex;
-  margin-top: 1rem;
-}
-
-/* ------------------------------
-   SIDEBAR (FILTRES)
------------------------------- */
-
-.sidebar {
-  width: 250px;
-  background-color: #1e1e1e;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
   padding: 1rem;
-  border-right: 1px solid #333;
-  height: calc(100vh - 100px);
-  overflow-y: auto;
-  position: sticky;
-  top: 100px;
+  background-color: #1e1e1e;
+  border-bottom: 1px solid #333;
 }
 
-.sidebar h3 {
-  margin-top: 0;
-  font-size: 1.2rem;
-  color: #ffcc00;
-}
-
-.filter-group {
-  margin-bottom: 1.5rem;
-}
-
-.filter-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-}
-
-/* ------------------------------
-   BOUTONS DE FILTRE
------------------------------- */
-
-.days button,
-.types button,
-.city-btn {
+.day-btn {
   background-color: #2a2a2a;
   color: #f5f5f5;
   border: none;
-  margin: 0.2rem 0;
-  padding: 0.5rem 1rem;
+  padding: 0.6rem 1.2rem;
   border-radius: 4px;
   cursor: pointer;
-  width: 100%;
-  text-align: left;
-  font-size: 0.95rem;
+  font-size: 1rem;
 }
 
-.days button:hover,
-.types button:hover,
-.city-btn:hover {
+.day-btn:hover {
   background-color: #ffcc00;
   color: #000;
 }
 
-/* ------------------------------
-   ZONE PRINCIPALE (ÉVÉNEMENTS)
------------------------------- */
+/* Highlight du jour sélectionné */
+.day-btn.active {
+  background-color: #ffcc00;
+  color: #000;
+  font-weight: 700;
+}
 
-.content {
-  flex: 1;
-  padding: 1rem 2rem;
+/* ÉVÉNEMENTS */
+main {
+  padding: 2rem;
+  max-width: 1000px;
+  margin: auto;
 }
 
 .event-grid {
@@ -108,10 +67,6 @@ header {
   flex-wrap: wrap;
   gap: 1rem;
 }
-
-/* ------------------------------
-   CARTES D'ÉVÉNEMENTS
------------------------------- */
 
 .event-card {
   background-color: #1e1e1e;
@@ -123,13 +78,9 @@ header {
 
 .event-card h2 {
   margin-top: 0;
-  font-size: 1.3rem;
 }
 
-/* ------------------------------
-   TAGS (TYPE D'ÉVÉNEMENT)
------------------------------- */
-
+/* TAGS */
 .tag {
   display: inline-block;
   padding: 0.2rem 0.6rem;
@@ -140,48 +91,7 @@ header {
   font-weight: 600;
 }
 
-.tag.Spectacle {
-  background-color: #00bcd4;
-  color: #000;
-}
-
-.tag.Match {
-  background-color: #ffcc00;
-  color: #000;
-}
-
-.tag.Formation {
-  background-color: #4caf50;
-  color: #000;
-}
-
-.tag.Jam {
-  background-color: #ff6b00;
-  color: #000;
-}
-
-/* ------------------------------
-   RESPONSIVE (MOBILE)
------------------------------- */
-
-@media (max-width: 800px) {
-  .layout {
-    flex-direction: column;
-  }
-
-  .sidebar {
-    width: 100%;
-    height: auto;
-    position: relative;
-    border-right: none;
-    border-bottom: 1px solid #333;
-  }
-
-  .content {
-    padding: 1rem;
-  }
-
-  .event-card {
-    width: 100%;
-  }
-}
+.tag.Spectacle { background-color: #00bcd4; color: #000; }
+.tag.Match { background-color: #ffcc00; color: #000; }
+.tag.Formation { background-color: #4caf50; color: #000; }
+.tag.Jam { background-color: #ff6b00; color: #000; }
