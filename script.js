@@ -151,18 +151,37 @@ function computeMonthly(item) {
 
 function computeLastWeekdayOfMonth(item) {
   const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth();
+  const start = new Date(item.date_debut || today);
+  let year = start.getFullYear();
+  let month = start.getMonth();
   const targetDay = weekdayMap[(item.jour || "").toLowerCase()];
   if (targetDay === undefined) return "À confirmer";
 
-  let last = null;
+  while (true) {
+    let last = null;
 
-  for (let d = 1; d <= 31; d++) {
-    const date = new Date(year, month, d);
-    if (date.getMonth() !== month) break;
-    if (date.getDay() === targetDay) last = date;
+    // Trouver le dernier X du mois
+    for (let d = 1; d <= 31; d++) {
+      const date = new Date(year, month, d);
+      if (date.getMonth() !== month) break;
+      if (date.getDay() === targetDay) last = date;
+    }
+
+    if (!last) return "À confirmer";
+
+    // Si la date trouvée est dans le futur → on la retourne
+    if (last >= today) {
+      return last.toLocaleDateString("fr-CA");
+    }
+
+    // Sinon → passer au mois suivant
+    month++;
+    if (month > 11) {
+      month = 0;
+      year++;
+    }
   }
+}
 
   if (!last) return "À confirmer";
 
@@ -301,7 +320,7 @@ function selectDay(day) {
   const eventsForDay = fullData.filter((item) => {
     const jour = normalize(item.jour);
 
-    // LOG CORRECT : placé AVANT le return
+    // LOG pour debug
     console.log("Jour reçu :", JSON.stringify(item.jour));
 
     return jour === normalizedDay;
