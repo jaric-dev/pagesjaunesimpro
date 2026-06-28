@@ -1,4 +1,0 @@
-fetch("https://opensheet.elk.sh/1cV5sqtp73WazgB6og_d4aOG4y9HYo3EGePMrBuXAbRs/R%C3%A9pertoire")
-  .then(r => r.json())
-  .then(data => console.log(data))
-
