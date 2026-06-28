@@ -102,7 +102,7 @@ function computeWeekly(item) {
 // Mensuel
 function computeMonthly(item) {
   const today = new Date();
-  const start = new Date(item.date_debut);
+  const start = new Date(item["date_debut"]);
 
   let next = new Date(today.getFullYear(), today.getMonth(), start.getDate());
   if (next < today) {
