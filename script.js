@@ -68,15 +68,57 @@ function isEventActive(item) {
 // ------------------------------------------------------
 
 function computeNextDate(item) {
-  const recurrence = item["récurrence"]?.toLowerCase() || "";
+  const freq = (item["fréquence"] || "").toLowerCase().trim();
+  const details = (item["détails_fréquence"] || "").toLowerCase().trim();
 
-  if (recurrence.includes("hebdo")) return computeWeekly(item);
-  if (recurrence.includes("mensuel")) return computeMonthly(item);
-  if (recurrence.includes("3e jeudi")) return computeThirdThursday(item);
-  if (recurrence.includes("dernier vendredi")) return computeLastFriday(item);
+  // 1. Hebdomadaire
+  if (freq.includes("hebdo") || freq.includes("hebdomadaire")) {
+    return computeWeekly(item);
+  }
 
+  // 2. Mensuel
+  if (freq.includes("mensuel")) {
+    return computeMonthly(item);
+  }
+
+  // 3. À l'année
+  if (freq.includes("année")) {
+    return computeYearly(item);
+  }
+
+  // 4. Personnalisé → on analyse "détails_fréquence"
+  if (freq.includes("personalisé") || freq.includes("personnalisé")) {
+
+    // un mercredi sur deux
+    if (details.includes("sur deux") || details.includes("2 semaines")) {
+      return computeBiweekly(item);
+    }
+
+    // dernier mercredi du mois
+    if (details.includes("dernier")) {
+      return computeLastWeekdayOfMonth(item);
+    }
+
+    // 3e jeudi du mois
+    if (details.includes("3e") || details.includes("troisième")) {
+      return computeNthWeekdayOfMonth(item, 3);
+    }
+
+    // un mardi sur trois
+    if (details.includes("sur trois")) {
+      return computeEveryThreeWeeks(item);
+    }
+  }
+
+  // 5. À confirmer
+  if (freq.includes("confirmer")) {
+    return "À confirmer";
+  }
+
+  // 6. Valeur par défaut
   return "À confirmer";
 }
+
 
 // Hebdomadaire
 function computeWeekly(item) {
