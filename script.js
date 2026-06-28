@@ -5,17 +5,8 @@
 const SHEET_URL =
   "https://opensheet.elk.sh/1cV5sqtp73WazgB6og_d4aOG4y9HYo3EGePMrBuXAbRs/R%C3%A9pertoire";
 
-function selectDay(day) {
-  currentDay = day;
-
-  const eventsForDay = fullData.filter((item) => {
-    const jour = (item.jour || "").toLowerCase().trim();
-    return jour === day.toLowerCase();
-  });
-
-  renderEvents(eventsForDay);
-}
-
+let fullData = [];
+let currentDay = "";
 
 // Chargement initial
 async function loadData() {
@@ -24,9 +15,10 @@ async function loadData() {
   return fullData;
 }
 
-// ------------------------------
-// Mapping des jours
-// ------------------------------
+// ------------------------------------------------------
+// 2. Mapping des jours
+// ------------------------------------------------------
+
 const weekdayMap = {
   lundi: 1,
   mardi: 2,
@@ -37,9 +29,10 @@ const weekdayMap = {
   dimanche: 0,
 };
 
-// ------------------------------
-// Détection intelligente des récurrences
-// ------------------------------
+// ------------------------------------------------------
+// 3. Détection intelligente des récurrences
+// ------------------------------------------------------
+
 function computeNextDate(item) {
   const freq = (item["fréquence"] || "").toLowerCase().trim();
   const details = (item["détails_fréquence"] || "").toLowerCase().trim();
@@ -127,26 +120,26 @@ function computeNextDate(item) {
   return "À confirmer";
 }
 
-// ------------------------------
-// Hebdomadaire
-// ------------------------------
+// ------------------------------------------------------
+// 4. Fonctions de calcul des dates
+// ------------------------------------------------------
+
 function computeWeekly(item) {
   const today = new Date();
-  const target = weekdayMap[item.jour.toLowerCase()];
-  const next = new Date(today);
+  const target = weekdayMap[(item.jour || "").toLowerCase()];
+  if (target === undefined) return "À confirmer";
 
+  const next = new Date(today);
   next.setDate(today.getDate() + ((target - today.getDay() + 7) % 7));
   if (next < today) next.setDate(next.getDate() + 7);
 
   return next.toLocaleDateString("fr-CA");
 }
 
-// ------------------------------
-// Mensuel (même date chaque mois)
-// ------------------------------
 function computeMonthly(item) {
   const today = new Date();
   const start = new Date(item["date_debut"]);
+  if (isNaN(start)) return "À confirmer";
 
   let next = new Date(today.getFullYear(), today.getMonth(), start.getDate());
   if (next < today) {
@@ -156,14 +149,12 @@ function computeMonthly(item) {
   return next.toLocaleDateString("fr-CA");
 }
 
-// ------------------------------
-// Dernier X du mois
-// ------------------------------
 function computeLastWeekdayOfMonth(item) {
   const today = new Date();
   const year = today.getFullYear();
   const month = today.getMonth();
-  const targetDay = weekdayMap[item.jour.toLowerCase()];
+  const targetDay = weekdayMap[(item.jour || "").toLowerCase()];
+  if (targetDay === undefined) return "À confirmer";
 
   let last = null;
 
@@ -173,24 +164,22 @@ function computeLastWeekdayOfMonth(item) {
     if (date.getDay() === targetDay) last = date;
   }
 
+  if (!last) return "À confirmer";
+
   if (last < today) {
-    return computeLastWeekdayOfMonth({
-      ...item,
-      date_debut: new Date(year, month + 1, 1),
-    });
+    const nextMonthItem = { ...item };
+    return computeLastWeekdayOfMonth(nextMonthItem);
   }
 
   return last.toLocaleDateString("fr-CA");
 }
 
-// ------------------------------
-// Nᵉ X du mois (1er, 2e, 3e, 4e)
-// ------------------------------
 function computeNthWeekdayOfMonth(item, n) {
   const today = new Date();
   const year = today.getFullYear();
   const month = today.getMonth();
-  const targetDay = weekdayMap[item.jour.toLowerCase()];
+  const targetDay = weekdayMap[(item.jour || "").toLowerCase()];
+  if (targetDay === undefined) return "À confirmer";
 
   let count = 0;
   let nth = null;
@@ -207,22 +196,20 @@ function computeNthWeekdayOfMonth(item, n) {
     }
   }
 
+  if (!nth) return "À confirmer";
+
   if (nth < today) {
-    return computeNthWeekdayOfMonth({
-      ...item,
-      date_debut: new Date(year, month + 1, 1),
-    }, n);
+    const nextMonthItem = { ...item };
+    return computeNthWeekdayOfMonth(nextMonthItem, n);
   }
 
   return nth.toLocaleDateString("fr-CA");
 }
 
-// ------------------------------
-// Bi‑hebdomadaire (un X sur deux)
-// ------------------------------
 function computeBiweekly(item) {
   const today = new Date();
   const start = new Date(item["date_debut"]);
+  if (isNaN(start)) return "À confirmer";
 
   let next = new Date(start);
 
@@ -233,12 +220,10 @@ function computeBiweekly(item) {
   return next.toLocaleDateString("fr-CA");
 }
 
-// ------------------------------
-// Toutes les 3 semaines
-// ------------------------------
 function computeEveryThreeWeeks(item) {
   const today = new Date();
   const start = new Date(item["date_debut"]);
+  if (isNaN(start)) return "À confirmer";
 
   let next = new Date(start);
 
@@ -249,12 +234,10 @@ function computeEveryThreeWeeks(item) {
   return next.toLocaleDateString("fr-CA");
 }
 
-// ------------------------------
-// Annuel
-// ------------------------------
 function computeYearly(item) {
   const today = new Date();
   const start = new Date(item["date_debut"]);
+  if (isNaN(start)) return "À confirmer";
 
   let next = new Date(today.getFullYear(), start.getMonth(), start.getDate());
   if (next < today) {
@@ -270,6 +253,8 @@ function computeYearly(item) {
 
 function renderEvents(events) {
   const container = document.getElementById("events");
+  if (!container) return;
+
   container.innerHTML = "";
 
   if (events.length === 0) {
@@ -291,13 +276,14 @@ function renderEvents(events) {
       </div>
     `;
 
-    container.innerHTML += html;
+    container.insertAdjacentHTML("beforeend", html);
   });
 }
 
 // ------------------------------------------------------
-// 6. Lancer le site
+// 6. Sélection d’un jour
 // ------------------------------------------------------
+
 function selectDay(day) {
   currentDay = day;
 
@@ -308,5 +294,9 @@ function selectDay(day) {
 
   renderEvents(eventsForDay);
 }
+
+// ------------------------------------------------------
+// 7. Lancer le site
+// ------------------------------------------------------
 
 loadData().then(() => selectDay("lundi"));
