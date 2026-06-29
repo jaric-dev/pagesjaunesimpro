@@ -273,12 +273,37 @@ function renderEvents(events) {
 
     const html = `
       <div class="event-card">
+
         <h2>${item.nom}</h2>
-        <span class="tag ${item.type}">${item.type}</span>
+
+        <span class="tag ${item.type}">
+          ${item.type}
+        </span>
+
+        <span class="tag ville">
+          ${item.ville}
+        </span>
+
         <p><strong>Prochaine date :</strong> ${nextDate}</p>
-        <p><strong>Lieu :</strong> ${item.lieu}</p>
-        <p><strong>Ville :</strong> ${item.ville}</p>
-        <p>${item.description?.trim() || "(Aucune description)"}</p>
+
+        <p><strong>Heure :</strong> ${item.heure || "À confirmer"}</p>
+
+        <p><strong>Description :</strong><br>
+          ${item.description?.trim() || "(Aucune description)"}
+        </p>
+
+        <p><strong>Fréquence :</strong> ${item.fréquence || "Non spécifiée"}</p>
+
+        <p><strong>Billet :</strong> ${item.billet?.toLowerCase() === "oui" ? "Oui" : "Non"}</p>
+
+        <p><strong>Liens :</strong><br>
+          ${item.liens ? `<a href="${item.liens}" target="_blank">Voir le lien</a>` : "Aucun lien"}
+        </p>
+
+        <p><strong>Lieu :</strong> ${item.lieu || "Non spécifié"}</p>
+
+        <p><strong>Adresse :</strong> ${item.adresse || "Non spécifiée"}</p>
+
       </div>
     `;
 
