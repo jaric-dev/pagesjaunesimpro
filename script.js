@@ -140,7 +140,7 @@ function computeMonthly(item) {
   return next.toLocaleDateString("fr-CA");
 }
 
-// ⭐ VERSION CORRIGÉE — SANS RÉCURSION
+//  SANS RÉCURSION
 function computeLastWeekdayOfMonth(item) {
   const today = new Date();
   const start = new Date(item.date_debut || today);
@@ -296,9 +296,29 @@ function renderEvents(events) {
 
         <p><strong>Billet :</strong> ${item.billet?.toLowerCase() === "oui" ? "Oui" : "Non"}</p>
 
-        <p><strong>Liens :</strong><br>
-          ${item.liens ? `<a href="${item.liens}" target="_blank">Voir le lien</a>` : "Aucun lien"}
-        </p>
+       <p><strong>Liens :</strong><br>
+  ${
+    item.instagram
+      ? `<a href="${item.instagram}" target="_blank">Instagram</a><br>`
+      : ""
+  }
+  ${
+    item.facebook
+      ? `<a href="${item.facebook}" target="_blank">Facebook</a><br>`
+      : ""
+  }
+  ${
+    item.site
+      ? `<a href="${item.site}" target="_blank">Site web</a><br>`
+      : ""
+  }
+  ${
+    !item.instagram && !item.facebook && !item.site && !item.billetterie
+      ? "Aucun lien disponible"
+      : ""
+  }
+</p>
+
 
         <p><strong>Lieu :</strong> ${item.lieu || "Non spécifié"}</p>
 
