@@ -347,7 +347,7 @@ events.sort((a, b) => {
 
         <p><strong>Billet :</strong> ${item.billet?.toLowerCase() === "oui" ? "Oui" : "Non"}</p>
 
-       <p><strong>Liens :</strong><br>
+      <p><strong>Liens :</strong><br>
   ${
     item.instagram
       ? `<a href="${item.instagram}" target="_blank">Instagram</a><br>`
@@ -364,12 +364,11 @@ events.sort((a, b) => {
       : ""
   }
   ${
-    !item.instagram && !item.facebook && !item.site && !item.billetterie
+    !item.instagram && !item.facebook && !item.site
       ? "Aucun lien disponible"
       : ""
   }
 </p>
-
 
         <p><strong>Lieu :</strong> 
   <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.adresse)}" 
