@@ -90,11 +90,21 @@ function renderEvents(events) {
     const description = item.description || item["description"] || "";
     const heure = item.heure || item["heure"] || "";
 
+    // Détection des badges
+    const isPonctuel = item.jour_semaine !== undefined && item.jour_semaine !== "";
+    const isHorsSaison = nextDate === "Hors saison";
+
     const card = document.createElement("div");
     card.className = "event-card";
 
     card.innerHTML = `
+      <div class="badges">
+        ${isPonctuel ? `<span class="badge badge-ponctuel">Ponctuel</span>` : ""}
+        ${isHorsSaison ? `<span class="badge badge-hors-saison">Hors saison</span>` : ""}
+      </div>
+
       <h3>${title}</h3>
+
       <p><strong>Date :</strong> ${nextDate}</p>
       ${heure ? `<p><strong>Heure :</strong> ${heure}</p>` : ""}
       ${ville ? `<p><strong>Ville :</strong> ${ville}</p>` : ""}
