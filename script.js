@@ -31,16 +31,6 @@ const weekdayMap = {
 // ------------------------------------------------------
 // 3. Détection intelligente des récurrences
 // ------------------------------------------------------
-function parseNextDate(item) {
-  const next = computeNextDate(item);
-
-  if (!next || next === "À confirmer") {
-    return null;
-  }
-
-  const d = new Date(next);
-  return isNaN(d) ? null : d;
-}
 
 function computeNextDate(item) {
   const freq = (item["fréquence"] || "").toLowerCase().trim();
@@ -316,6 +306,20 @@ events.sort((a, b) => {
   if (!da && db) return 1;
 
   // Cas 4 : aucun n'a de date → garder l'ordre
+  return 0;
+});
+
+  // Trier les événements par date
+events.sort((a, b) => {
+  const na = computeNextDate(a);
+  const nb = computeNextDate(b);
+
+  const da = na && na !== "À confirmer" ? new Date(na) : null;
+  const db = nb && nb !== "À confirmer" ? new Date(nb) : null;
+
+  if (da && db) return da - db;
+  if (da && !db) return -1;
+  if (!da && db) return 1;
   return 0;
 });
 
