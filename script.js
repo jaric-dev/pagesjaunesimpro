@@ -320,9 +320,12 @@ function renderEvents(events) {
 </p>
 
 
-        <p><strong>Lieu :</strong> ${item.lieu || "Non spécifié"}</p>
-
-        <p><strong>Adresse :</strong> ${item.adresse || "Non spécifiée"}</p>
+        <p><strong>Lieu :</strong> 
+  <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.adresse)}" 
+     target="_blank">
+     ${item.lieu}
+  </a>
+</p>
 
       </div>
     `;
