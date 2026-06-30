@@ -77,7 +77,27 @@ function computeNextDate(item) {
     return computeYearly(item);
   }
 
-  // 4. Autre → irréguliers
+  // 4. Ponctuel → liste de dates
+  if (freq.includes("ponctuel")) {
+    const raw = details.split(",");
+    const dates = raw
+      .map(d => new Date(d.trim()))
+      .filter(d => !isNaN(d)); // garder seulement les dates valides
+
+    const today = new Date();
+
+    // garder seulement les dates futures
+    const futureDates = dates.filter(d => d >= today);
+
+    if (futureDates.length === 0) return "À confirmer";
+
+    // trouver la date la plus proche
+    futureDates.sort((a, b) => a - b);
+
+    return futureDates[0].toLocaleDateString("fr-CA");
+  }
+
+  // 5. Autre → irréguliers
   if (freq.includes("autre")) {
 
     if (details.includes("sur deux") || details.includes("2 semaines")) {
