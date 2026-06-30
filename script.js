@@ -31,20 +31,17 @@ const weekdayMap = {
 // ------------------------------------------------------
 // 3. Détection intelligente des récurrences
 // ------------------------------------------------------
-function parseNextDate(item) {
-  const next = computeNextDate(item);
-
-  if (!next || next === "À confirmer") {
-    return null; // pour mettre à la fin
-  }
-
-  const d = new Date(next);
-  return isNaN(d) ? null : d;
-}
-
 function computeNextDate(item) {
   const freq = (item["fréquence"] || "").toLowerCase().trim();
   const details = (item["détails_fréquence"] || "").toLowerCase().trim();
+
+  // Si aucune date_debut → ne rien calculer
+  if (!item.date_debut || item.date_debut.trim() === "") {
+    // Exception : fréquence Ponctuel utilise une liste de dates
+    if (!freq.includes("ponctuel")) {
+      return "À confirmer";
+    }
+  }
 
   // Extraire le jour depuis les détails si présent
   const weekdayFromDetails = details.match(/lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche/);
@@ -52,12 +49,28 @@ function computeNextDate(item) {
     item.jour = weekdayFromDetails[0];
   }
 
-  // 1. Hebdomadaire
+  // 1. Ponctuel → liste de dates
+  if (freq.includes("ponctuel")) {
+    const raw = details.split(",");
+    const dates = raw
+      .map(d => new Date(d.trim()))
+      .filter(d => !isNaN(d));
+
+    const today = new Date();
+    const futureDates = dates.filter(d => d >= today);
+
+    if (futureDates.length === 0) return "À confirmer";
+
+    futureDates.sort((a, b) => a - b);
+    return futureDates[0].toLocaleDateString("fr-CA");
+  }
+
+  // 2. Hebdomadaire
   if (freq.includes("hebdo")) {
     return computeWeekly(item);
   }
 
-  // 2. Mensuel
+  // 3. Mensuel
   if (freq.includes("mensuel")) {
 
     if (details.includes("dernier")) {
@@ -82,29 +95,9 @@ function computeNextDate(item) {
     return computeMonthly(item);
   }
 
-  // 3. À l'année
+  // 4. À l'année
   if (freq.includes("année")) {
     return computeYearly(item);
-  }
-
-  // 4. Ponctuel → liste de dates
-  if (freq.includes("ponctuel")) {
-    const raw = details.split(",");
-    const dates = raw
-      .map(d => new Date(d.trim()))
-      .filter(d => !isNaN(d)); // garder seulement les dates valides
-
-    const today = new Date();
-
-    // garder seulement les dates futures
-    const futureDates = dates.filter(d => d >= today);
-
-    if (futureDates.length === 0) return "À confirmer";
-
-    // trouver la date la plus proche
-    futureDates.sort((a, b) => a - b);
-
-    return futureDates[0].toLocaleDateString("fr-CA");
   }
 
   // 5. Autre → irréguliers
