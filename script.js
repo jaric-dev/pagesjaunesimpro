@@ -31,13 +31,24 @@ const weekdayMap = {
 // ------------------------------------------------------
 // 3. Détection intelligente des récurrences
 // ------------------------------------------------------
+function parseNextDate(item) {
+  const next = computeNextDate(item);
+
+  if (!next || next === "À confirmer") {
+    return null;
+  }
+
+  const d = new Date(next);
+  return isNaN(d) ? null : d;
+}
+
 function computeNextDate(item) {
   const freq = (item["fréquence"] || "").toLowerCase().trim();
   const details = (item["détails_fréquence"] || "").toLowerCase().trim();
+  const dateDebut = (item.date_debut || "").trim();
 
-  // Si aucune date_debut → ne rien calculer
-  if (!item.date_debut || item.date_debut.trim() === "") {
-    // Exception : fréquence Ponctuel utilise une liste de dates
+  // Si aucune date_debut → ne rien calculer (sauf Ponctuel)
+  if (dateDebut === "") {
     if (!freq.includes("ponctuel")) {
       return "À confirmer";
     }
