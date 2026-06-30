@@ -293,19 +293,15 @@ function renderEvents(events) {
   }
 // Trier les événements par date
 events.sort((a, b) => {
-  const da = parseNextDate(a);
-  const db = parseNextDate(b);
+  const na = computeNextDate(a);
+  const nb = computeNextDate(b);
 
-  // Cas 1 : les deux dates sont valides
+  const da = na && na !== "À confirmer" ? new Date(na) : null;
+  const db = nb && nb !== "À confirmer" ? new Date(nb) : null;
+
   if (da && db) return da - db;
-
-  // Cas 2 : a a une date, b n'en a pas → a en premier
   if (da && !db) return -1;
-
-  // Cas 3 : b a une date, a n'en a pas → b en premier
   if (!da && db) return 1;
-
-  // Cas 4 : aucun n'a de date → garder l'ordre
   return 0;
 });
 
