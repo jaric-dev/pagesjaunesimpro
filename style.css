@@ -103,3 +103,26 @@ main {
 .tag.Match { background-color: #ffcc00; color: #000; }
 .tag.Formation { background-color: #4caf50; color: #000; }
 .tag.Jam { background-color: #ff6b00; color: #000; }
+
+.badges {
+  margin-bottom: 8px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-right: 6px;
+  color: white;
+}
+
+.badge-ponctuel {
+  background-color: #0077cc;
+}
+
+.badge-hors-saison {
+  background-color: #777;
+}
+
