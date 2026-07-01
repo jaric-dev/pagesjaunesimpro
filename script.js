@@ -1,6 +1,7 @@
 // ------------------------------------------------------
 // CONFIG
 // ------------------------------------------------------
+document.addEventListener("DOMContentLoaded", () => {
 let currentDayEvents = [];
 const SPREADSHEET_ID = "1cV5sqtp73WazgB6og_d4aOG4y9HYo3EGePMrBuXAbRs";
 
@@ -215,3 +216,4 @@ document.getElementById("filter-type").addEventListener("change", updateDisplay)
 document.getElementById("filter-ville").addEventListener("change", updateDisplay);
 
 selectDay("lundi");
+  });
