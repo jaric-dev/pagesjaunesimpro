@@ -11,8 +11,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Charger les événements
- fetch("https://opensheet.elk.sh/1cV5sqtp73WazgB6og_d4aOG4y9HYo3EGePMrBuXAbRs/995834860")
+  // Charger les événements depuis Google Sheets via OpenSheet
+  fetch("https://opensheet.elk.sh/1cV5sqtp73WazgB6og_d4aOG4y9HYo3EGePMrBuXAbRs/995834860")
     .then(r => r.json())
     .then(data => {
       window.eventsData = data;
@@ -33,9 +33,9 @@ document.addEventListener("DOMContentLoaded", () => {
     fillSelect(document.getElementById("filter-type"), types);
     fillSelect(document.getElementById("filter-ville"), villes);
 
-    // Mobile
-    fillSelect(document.querySelector(".mobile-type"), types);
-    fillSelect(document.querySelector(".mobile-ville"), villes);
+    // Mobile (OPTION A — mêmes selects)
+    fillSelect(document.querySelector("#filters-mobile select:nth-child(1)"), types);
+    fillSelect(document.querySelector("#filters-mobile select:nth-child(2)"), villes);
   }
 
   function fillSelect(select, values) {
