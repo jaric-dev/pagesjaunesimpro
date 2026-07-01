@@ -104,8 +104,9 @@ function renderEvents(events) {
     const description = item.description || "";
     const heure = item.heure || "";
     const type = item.type || "";
+    const billet = item.billet || ""; // oui / non
 
-    // Génération du lien Google Maps
+    // Génération du lien Google Maps (adresse non affichée)
     const mapsLink = adresse
       ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(adresse)}`
       : "";
@@ -136,7 +137,8 @@ function renderEvents(events) {
           : ""
       }
 
-      ${adresse ? `<p><strong>Adresse :</strong> ${adresse}</p>` : ""}
+      <p><strong>Billet :</strong> ${billet || "?"}</p>
+
       ${description ? `<p class="desc">${description}</p>` : ""}
     `;
 
