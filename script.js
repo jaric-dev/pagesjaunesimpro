@@ -272,12 +272,16 @@ loadAllDataOnce().then(data => {
 // ------------------------------------------------------
 // ACCORDÉON MOBILE (Filtres)
 // ------------------------------------------------------
-const filtersToggle = document.getElementById("filters-toggle");
-const filtersContent = document.getElementById("filters-content");
+document.addEventListener("DOMContentLoaded", () => {
+  const filtersToggle = document.getElementById("filters-toggle");
+  const filtersContent = document.getElementById("filters-content");
 
-filtersToggle.addEventListener("click", () => {
-  const isOpen = filtersContent.classList.toggle("open");
-  filtersToggle.classList.toggle("open");
+  if (!filtersToggle || !filtersContent) return;
+
+  filtersToggle.addEventListener("click", () => {
+    filtersContent.classList.toggle("open");
+    filtersToggle.classList.toggle("open");
+  });
 });
 
 // Rendre la fonction accessible aux boutons HTML
