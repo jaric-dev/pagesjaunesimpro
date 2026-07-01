@@ -81,6 +81,14 @@ function populateFilters(events) {
   const typeSelect = document.getElementById("filter-type");
   const villeSelect = document.getElementById("filter-ville");
 
+  // Effacer les options sans remplacer le <select>
+  typeSelect.options.length = 0;
+  villeSelect.options.length = 0;
+
+  // Ajouter l’option "Tous"
+  typeSelect.add(new Option("Type : Tous", ""));
+  villeSelect.add(new Option("Ville : Toutes", ""));
+
   const types = new Set();
   const villes = new Set();
 
@@ -89,13 +97,9 @@ function populateFilters(events) {
     if (ev.ville) villes.add((ev.ville || "").trim());
   });
 
-  typeSelect.innerHTML =
-    `<option value="">Type : Tous</option>` +
-    [...types].map(t => `<option value="${t}">${t}</option>`).join("");
-
-  villeSelect.innerHTML =
-    `<option value="">Ville : Toutes</option>` +
-    [...villes].map(v => `<option value="${v}">${v}</option>`).join("");
+  // Ajouter les options une par une
+  [...types].forEach(t => typeSelect.add(new Option(t, t)));
+  [...villes].forEach(v => villeSelect.add(new Option(v, v)));
 }
 
 // ------------------------------------------------------
