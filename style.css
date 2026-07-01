@@ -131,13 +131,9 @@ main {
    INFO BOX (Date, Heure, Lieu, Billet)
 ------------------------------ */
 
-/* ------------------------------
-   INFO BOX (Date, Heure, Lieu, Billet)
------------------------------- */
-
 .info-box {
-  background-color: #d8d3c7; /* beige-gris doux, harmonieux avec le jaune */
-  color: #2e2e2e;            /* gris foncé, pas noir */
+  background-color: #ffe687; 
+  color: #2e2e2e;            
   padding: 1rem 1.2rem;
   border-radius: 10px;
   margin: 1.2rem 0;
@@ -225,4 +221,30 @@ main {
   .days-nav {
     gap: 1rem;
   }
+}
+/* ------------------------------
+   FILTRES COMBINABLES
+------------------------------ */
+
+#filters {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin: 1.5rem 0;
+  flex-wrap: wrap;
+}
+
+#filters select {
+  background-color: #2a2a2a;
+  color: #f5f5f5;
+  border: 1px solid #444;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+#filters select:hover {
+  background-color: #ffcc00;
+  color: #000;
 }
