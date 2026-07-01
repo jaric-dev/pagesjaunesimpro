@@ -1,39 +1,34 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pages Jaunes Impro</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Montserrat:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
-  <link rel="icon" href="favicon.png">
-</head>
+<!-- JOURS EN HAUT -->
+<nav class="days-nav">
+  <button class="day-btn" id="btn-lundi" onclick="selectDay('lundi')">Lundi</button>
+  <button class="day-btn" id="btn-mardi" onclick="selectDay('mardi')">Mardi</button>
+  <button class="day-btn" id="btn-mercredi" onclick="selectDay('mercredi')">Mercredi</button>
+  <button class="day-btn" id="btn-jeudi" onclick="selectDay('jeudi')">Jeudi</button>
+  <button class="day-btn" id="btn-vendredi" onclick="selectDay('vendredi')">Vendredi</button>
+  <button class="day-btn" id="btn-samedi" onclick="selectDay('samedi')">Samedi</button>
+  <button class="day-btn" id="btn-dimanche" onclick="selectDay('dimanche')">Dimanche</button>
+</nav>
 
-<body>
-  <!-- HEADER -->
-  <header>
-    <h1 class="site-title">La Boussole de l'Impro</h1>
-  </header>
+<!-- FILTRES DESKTOP -->
+<div id="filters">
+  <select id="filter-type"></select>
+  <select id="filter-ville"></select>
+  <select id="filter-hs">
+    <option value="">Hors saison : Tous</option>
+    <option value="hide">Cacher les hors saison</option>
+    <option value="only">Afficher seulement hors saison</option>
+  </select>
+</div>
 
-  <!-- JOURS EN HAUT -->
-  <nav class="days-nav">
-    <button class="day-btn" id="btn-lundi" onclick="selectDay('lundi')">Lundi</button>
-    <button class="day-btn" id="btn-mardi" onclick="selectDay('mardi')">Mardi</button>
-    <button class="day-btn" id="btn-mercredi" onclick="selectDay('mercredi')">Mercredi</button>
-    <button class="day-btn" id="btn-jeudi" onclick="selectDay('jeudi')">Jeudi</button>
-    <button class="day-btn" id="btn-vendredi" onclick="selectDay('vendredi')">Vendredi</button>
-    <button class="day-btn" id="btn-samedi" onclick="selectDay('samedi')">Samedi</button>
-    <button class="day-btn" id="btn-dimanche" onclick="selectDay('dimanche')">Dimanche</button>
-  </nav>
-
-  <div class="accordion-wrapper">
+<!-- ACCORDÉON MOBILE -->
+<div class="accordion-wrapper">
   <div class="accordion-header" id="filters-toggle">
     Filtres
     <span class="arrow">▶</span>
   </div>
 
   <div class="accordion-content" id="filters-content">
- <div id="filters-mobile">
+    <div id="filters-mobile">
       <select id="filter-type"></select>
       <select id="filter-ville"></select>
       <select id="filter-hs">
@@ -44,13 +39,3 @@
     </div>
   </div>
 </div>
-
-  <!-- ÉVÉNEMENTS -->
-  <main>
-    <div id="events" class="event-grid"></div>
-  </main>
-
-  <!-- SCRIPT À LA FIN -->
-  <script src="script.js"></script>
-</body>
-</html>
