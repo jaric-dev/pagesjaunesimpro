@@ -212,7 +212,7 @@ main {
 }
 
 /* ------------------------------
-   RESPONSIVE (Mobile)
+   ACCORDÉON MOBILE
 ------------------------------ */
 
 @media (max-width: 600px) {
@@ -222,40 +222,7 @@ main {
     display: none;
   }
 
-  main {
-    padding: 1rem;
-  }
-
-  .event-card {
-    padding: 1.2rem;
-    max-width: none;
-  }
-
-  .event-card h3 {
-    font-size: 1.6rem;
-  }
-
-  .info-box {
-    font-size: 1.05rem;
-    padding: 1rem;
-  }
-
-  .tag {
-    font-size: 0.95rem;
-    padding: 0.35rem 0.75rem;
-  }
-
-  .day-btn {
-    width: 100%;
-    font-size: 1.2rem;
-    padding: 1rem;
-  }
-
-  .days-nav {
-    gap: 1rem;
-  }
-
-  /* Accordéon mobile */
+  /* Afficher l’accordéon */
   .accordion-wrapper {
     display: block;
     background-color: #1e1e1e;
@@ -302,6 +269,12 @@ main {
   #filters-mobile select {
     width: 100%;
     margin-bottom: 1rem;
+    background-color: #2a2a2a;
+    color: #f5f5f5;
+    border: 1px solid #444;
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    font-size: 1rem;
   }
 }
 
