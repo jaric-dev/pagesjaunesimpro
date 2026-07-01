@@ -1,5 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // ------------------------------
   // Accordéon mobile
+  // ------------------------------
   const filtersToggle = document.getElementById("filters-toggle");
   const filtersContent = document.getElementById("filters-content");
   if (filtersToggle && filtersContent) {
@@ -9,7 +11,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Charger les événements depuis les 8 onglets Google Sheets via OpenSheet
+  // ------------------------------
+  // Chargement des données (8 onglets Google Sheets via OpenSheet)
+  // ------------------------------
   const SHEET_ID = "1cV5sqtp73WazgB6og_d4aOG4y9HYo3EGePMrBuXAbRs";
   const ONGLETS = {
     lundi: "Impro_Lundi",
@@ -22,49 +26,132 @@ document.addEventListener("DOMContentLoaded", () => {
     ponctuel: "Impro_Ponctuel"
   };
 
+  let currentDay = "lundi";
+
   const requetes = Object.entries(ONGLETS).map(([jour, onglet]) =>
     fetch(`https://opensheet.elk.sh/${SHEET_ID}/${onglet}`)
       .then(r => r.json())
-      .then(rows => rows.map(ev => ({ ...ev, jour: ev.jour || jour })))
+      .then(rows => rows.map(ev => normalizeEvent(ev, jour)))
+      .catch(err => {
+        console.error(`Erreur de chargement de l'onglet ${onglet}:`, err);
+        return [];
+      })
   );
 
   Promise.all(requetes)
     .then(resultats => {
-      window.eventsData = resultats.flat();
+      window.eventsData = resultats.flat().filter(ev => ev.titre); // ignore lignes vides
       populateFilters();
+      wireFilterEvents();
       selectDay("lundi");
     })
     .catch(err => console.error("Erreur de chargement des données:", err));
 
+  // ------------------------------
+  // Adaptation des colonnes réelles du Google Sheet vers le format attendu
+  // Colonnes du sheet : nom, type, saison, prochain_spectacle, date_debut,
+  // date_fin, lieu, adresse, ville, fréquence, heure, billet, instagram,
+  // facebook, Site, description, soirs_off, jour (onglet Ponctuel seulement)
+  // ------------------------------
+  function normalizeEvent(ev, ongletJour) {
+    const hors_saison = (ev.prochain_spectacle || "").trim().toLowerCase() === "hors saison";
+    return {
+      titre: (ev.nom || "").trim(),
+      type: (ev.type || "").trim(),
+      ville: (ev.ville || "").trim(),
+      date: hors_saison ? "Hors saison" : (ev.prochain_spectacle || "").trim(),
+      heure: (ev.heure || "").trim(),
+      lieu: (ev.lieu || "").trim(),
+      adresse: (ev.adresse || "").trim(),
+      billet: (ev.billet && ev.billet.startsWith("http")) ? ev.billet.trim() : "",
+      instagram: (ev.instagram || "").trim(),
+      facebook: (ev.facebook || "").trim(),
+      description: (ev.description || "").trim(),
+      hors_saison: hors_saison,
+      // La colonne "jour" existe dans l'onglet Impro_Ponctuel ; pour les
+      // autres onglets, le jour est déduit du nom de l'onglet.
+      jour: (ev.jour || ongletJour || "").trim().toLowerCase()
+    };
+  }
+
+  // ------------------------------
+  // Filtres
+  // ------------------------------
   function populateFilters() {
     const types = new Set();
     const villes = new Set();
     window.eventsData.forEach(ev => {
-      types.add(ev.type);
-      villes.add(ev.ville);
+      if (ev.type) types.add(ev.type);
+      if (ev.ville) villes.add(ev.ville);
     });
-    fillSelect(document.getElementById("filter-type"), types);
-    fillSelect(document.getElementById("filter-ville"), villes);
-    fillSelect(document.querySelector("#filters-mobile select:nth-child(1)"), types);
-    fillSelect(document.querySelector("#filters-mobile select:nth-child(2)"), villes);
+    fillSelect(document.getElementById("filter-type"), types, "Type : Tous");
+    fillSelect(document.getElementById("filter-ville"), villes, "Ville : Toutes");
+    fillSelect(document.querySelector("#filters-mobile select:nth-child(1)"), types, "Type : Tous");
+    fillSelect(document.querySelector("#filters-mobile select:nth-child(2)"), villes, "Ville : Toutes");
   }
 
-  function fillSelect(select, values) {
+  function fillSelect(select, values, placeholder) {
     if (!select) return;
-    select.innerHTML = `<option value="">Tous</option>`;
-    values.forEach(v => {
+    select.innerHTML = `<option value="">${placeholder}</option>`;
+    [...values].sort().forEach(v => {
       select.innerHTML += `<option value="${v}">${v}</option>`;
     });
   }
 
-  window.selectDay = function(day) {
-    const events = window.eventsData.filter(ev => ev.jour === day);
+  function wireFilterEvents() {
+    const pairs = [
+      ["filter-type", ".mobile-type"],
+      ["filter-ville", ".mobile-ville"],
+      ["filter-hs", ".mobile-hs"]
+    ];
+    pairs.forEach(([desktopId, mobileSelector]) => {
+      const desktopEl = document.getElementById(desktopId);
+      const mobileEl = document.querySelector(mobileSelector);
+      [desktopEl, mobileEl].forEach(el => {
+        if (!el) return;
+        el.addEventListener("change", () => {
+          // Garde les deux versions (desktop/mobile) synchronisées
+          if (desktopEl) desktopEl.value = el.value;
+          if (mobileEl) mobileEl.value = el.value;
+          selectDay(currentDay);
+        });
+      });
+    });
+  }
+
+  // ------------------------------
+  // Sélection du jour + affichage
+  // ------------------------------
+  window.selectDay = function (day) {
+    currentDay = day;
+
+    document.querySelectorAll(".day-btn").forEach(btn => {
+      btn.classList.toggle("active", btn.dataset.day === day);
+    });
+
+    const typeFilter = document.getElementById("filter-type")?.value || "";
+    const villeFilter = document.getElementById("filter-ville")?.value || "";
+    const hsFilter = document.getElementById("filter-hs")?.value || "";
+
+    let events = window.eventsData.filter(ev => ev.jour === day);
+
+    if (typeFilter) events = events.filter(ev => ev.type === typeFilter);
+    if (villeFilter) events = events.filter(ev => ev.ville === villeFilter);
+    if (hsFilter === "hide") events = events.filter(ev => !ev.hors_saison);
+    if (hsFilter === "only") events = events.filter(ev => ev.hors_saison);
+
     displayEvents(events);
   };
 
   function displayEvents(events) {
     const container = document.getElementById("events");
     container.innerHTML = "";
+
+    if (events.length === 0) {
+      container.innerHTML = `<p style="text-align:center; width:100%;">Aucun spectacle trouvé pour ce jour avec ces filtres.</p>`;
+      return;
+    }
+
     events.forEach(ev => {
       const card = document.createElement("div");
       card.className = "event-card";
@@ -74,11 +161,12 @@ document.addEventListener("DOMContentLoaded", () => {
           <span class="tag ${ev.type}">${ev.type}</span>
           <span class="tag ville">${ev.ville}</span>
         </div>
+        ${ev.hors_saison ? `<div class="badges"><span class="badge badge-hors-saison">Hors saison</span></div>` : ""}
         <div class="info-box">
-          <p><strong>Date :</strong> ${ev.date}</p>
+          <p><strong>Date :</strong> ${ev.date || "À venir"}</p>
           <p><strong>Heure :</strong> ${ev.heure}</p>
           <p><strong>Lieu :</strong> ${ev.lieu}</p>
-          <p><a href="${ev.billet}" target="_blank">Billetterie</a></p>
+          ${ev.billet ? `<p><a href="${ev.billet}" target="_blank">Billetterie</a></p>` : ""}
         </div>
       `;
       container.appendChild(card);
