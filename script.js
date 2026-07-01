@@ -59,20 +59,36 @@
   // TRI : Hors Saison à la fin
   // ------------------------------------------------------
 
-  function sortEvents(events) {
-    return events.sort((a, b) => {
-      const aHS = (a.prochain_spectacle || "").trim().toLowerCase().startsWith("hors saison");
-      const bHS = (b.prochain_spectacle || "").trim().toLowerCase().startsWith("hors saison");
+function sortEvents(events) {
+  return events.sort((a, b) => {
+    const aDateRaw = (a.prochain_spectacle || "").trim().toLowerCase();
+    const bDateRaw = (b.prochain_spectacle || "").trim().toLowerCase();
 
-      if (aHS && !bHS) return 1;
-      if (!aHS && bHS) return -1;
-      if (aHS && bHS) return 0;
+    const aHS = aDateRaw.startsWith("hors saison");
+    const bHS = bDateRaw.startsWith("hors saison");
 
-      const da = new Date(a.prochain_spectacle);
-      const db = new Date(b.prochain_spectacle);
-      return da - db;
-    });
-  }
+    const aAC = aDateRaw.startsWith("à confirmer");
+    const bAC = bDateRaw.startsWith("à confirmer");
+
+    // 1. Hors Saison toujours à la fin
+    if (aHS && !bHS) return 1;
+    if (!aHS && bHS) return -1;
+
+    // 2. À confirmer après les dates valides
+    if (aAC && !bAC) return 1;
+    if (!aAC && bAC) return -1;
+
+    // 3. Tri chronologique des dates valides
+    const aDate = aHS || aAC ? null : new Date(a.prochain_spectacle);
+    const bDate = bHS || bAC ? null : new Date(b.prochain_spectacle);
+
+    if (aDate && bDate) return aDate - bDate;
+    if (aDate && !bDate) return -1;
+    if (!aDate && bDate) return 1;
+
+    return 0;
+  });
+}
 
   // ------------------------------------------------------
   // FILTRES DYNAMIQUES (Type + Ville)
