@@ -1,219 +1,221 @@
-// ------------------------------------------------------
-// CONFIG
-// ------------------------------------------------------
 document.addEventListener("DOMContentLoaded", () => {
-let currentDayEvents = [];
-const SPREADSHEET_ID = "1cV5sqtp73WazgB6og_d4aOG4y9HYo3EGePMrBuXAbRs";
 
-const SHEETS = {
-  lundi: "Impro_Lundi",
-  mardi: "Impro_Mardi",
-  mercredi: "Impro_Mercredi",
-  jeudi: "Impro_Jeudi",
-  vendredi: "Impro_Vendredi",
-  samedi: "Impro_Samedi",
-  dimanche: "Impro_Dimanche",
-  ponctuel: "Impro_Ponctuel"
-};
+  // ------------------------------------------------------
+  // CONFIG
+  // ------------------------------------------------------
+  let currentDayEvents = [];
+  let allEvents = {}; // stockage global optimisé
 
-// ------------------------------------------------------
-// CHARGEMENT DES DONNÉES
-// ------------------------------------------------------
+  const SPREADSHEET_ID = "1cV5sqtp73WazgB6og_d4aOG4y9HYo3EGePMrBuXAbRs";
 
-async function loadData() {
-  const allEvents = {
-    lundi: [],
-    mardi: [],
-    mercredi: [],
-    jeudi: [],
-    vendredi: [],
-    samedi: [],
-    dimanche: []
+  const SHEETS = {
+    lundi: "Impro_Lundi",
+    mardi: "Impro_Mardi",
+    mercredi: "Impro_Mercredi",
+    jeudi: "Impro_Jeudi",
+    vendredi: "Impro_Vendredi",
+    samedi: "Impro_Samedi",
+    dimanche: "Impro_Dimanche",
+    ponctuel: "Impro_Ponctuel"
   };
 
-  for (const [key, sheetName] of Object.entries(SHEETS)) {
-    const url = `https://opensheet.elk.sh/${SPREADSHEET_ID}/${sheetName}`;
-    const response = await fetch(url);
-    const rows = await response.json();
+  // ------------------------------------------------------
+  // CHARGEMENT UNIQUE DES DONNÉES
+  // ------------------------------------------------------
 
-    rows.forEach(item => {
-      const nextDate = item.prochain_spectacle;
+  async function loadAllDataOnce() {
+    const result = {
+      lundi: [],
+      mardi: [],
+      mercredi: [],
+      jeudi: [],
+      vendredi: [],
+      samedi: [],
+      dimanche: []
+    };
 
-      if (!nextDate) return;
+    for (const [key, sheetName] of Object.entries(SHEETS)) {
+      const url = `https://opensheet.elk.sh/${SPREADSHEET_ID}/${sheetName}`;
+      const response = await fetch(url);
+      const rows = await response.json();
 
-      if (key === "ponctuel") {
-        const targetDay = (item.jour || "").trim().toLowerCase();
-        if (allEvents[targetDay]) {
-          allEvents[targetDay].push(item);
+      rows.forEach(item => {
+        const nextDate = item.prochain_spectacle;
+        if (!nextDate) return;
+
+        if (key === "ponctuel") {
+          const targetDay = (item.jour || "").trim().toLowerCase();
+          if (result[targetDay]) {
+            result[targetDay].push(item);
+          }
+        } else {
+          result[key].push(item);
         }
-      } else {
-        allEvents[key].push(item);
-      }
+      });
+    }
+
+    return result;
+  }
+
+  // ------------------------------------------------------
+  // TRI : Hors Saison à la fin
+  // ------------------------------------------------------
+
+  function sortEvents(events) {
+    return events.sort((a, b) => {
+      const aHS = (a.prochain_spectacle || "").trim().toLowerCase().startsWith("hors saison");
+      const bHS = (b.prochain_spectacle || "").trim().toLowerCase().startsWith("hors saison");
+
+      if (aHS && !bHS) return 1;
+      if (!aHS && bHS) return -1;
+      if (aHS && bHS) return 0;
+
+      const da = new Date(a.prochain_spectacle);
+      const db = new Date(b.prochain_spectacle);
+      return da - db;
     });
   }
 
-  return allEvents;
-}
+  // ------------------------------------------------------
+  // FILTRES DYNAMIQUES (Type + Ville)
+  // ------------------------------------------------------
 
-// ------------------------------------------------------
-// TRI : Hors Saison à la fin
-// ------------------------------------------------------
+  function populateFilters(events) {
+    const typeSelect = document.getElementById("filter-type");
+    const villeSelect = document.getElementById("filter-ville");
 
-function sortEvents(events) {
-  return events.sort((a, b) => {
-    const aHS = (a.prochain_spectacle || "").trim().toLowerCase().startsWith("hors saison");
-    const bHS = (b.prochain_spectacle || "").trim().toLowerCase().startsWith("hors saison");
+    typeSelect.options.length = 0;
+    villeSelect.options.length = 0;
 
-    if (aHS && !bHS) return 1;
-    if (!aHS && bHS) return -1;
-    if (aHS && bHS) return 0;
+    typeSelect.add(new Option("Type : Tous", ""));
+    villeSelect.add(new Option("Ville : Toutes", ""));
 
-    const da = new Date(a.prochain_spectacle);
-    const db = new Date(b.prochain_spectacle);
-    return da - db;
-  });
-}
+    const types = new Set();
+    const villes = new Set();
 
-// ------------------------------------------------------
-// FILTRES DYNAMIQUES (Type + Ville)
-// ------------------------------------------------------
+    events.forEach(ev => {
+      if (ev.type) types.add((ev.type || "").trim());
+      if (ev.ville) villes.add((ev.ville || "").trim());
+    });
 
-function populateFilters(events) {
-  const typeSelect = document.getElementById("filter-type");
-  const villeSelect = document.getElementById("filter-ville");
-
-  // Effacer les options sans remplacer le <select>
-  typeSelect.options.length = 0;
-  villeSelect.options.length = 0;
-
-  // Ajouter l’option "Tous"
-  typeSelect.add(new Option("Type : Tous", ""));
-  villeSelect.add(new Option("Ville : Toutes", ""));
-
-  const types = new Set();
-  const villes = new Set();
-
-  events.forEach(ev => {
-    if (ev.type) types.add((ev.type || "").trim());
-    if (ev.ville) villes.add((ev.ville || "").trim());
-  });
-
-  // Ajouter les options une par une
-  [...types].forEach(t => typeSelect.add(new Option(t, t)));
-  [...villes].forEach(v => villeSelect.add(new Option(v, v)));
-}
-
-// ------------------------------------------------------
-// APPLICATION DES FILTRES COMBINÉS
-// ------------------------------------------------------
-
-function applyFilters() {
-  const type = document.getElementById("filter-type").value.toLowerCase();
-  const ville = document.getElementById("filter-ville").value.toLowerCase();
-
-  return currentDayEvents.filter(ev => {
-    const evType = (ev.type || "").toLowerCase().trim();
-    const evVille = (ev.ville || "").toLowerCase().trim();
-
-    const matchType = !type || evType === type;
-    const matchVille = !ville || evVille === ville;
-
-    return matchType && matchVille;
-  });
-}
-function updateDisplay() {
-  const filtered = applyFilters();
-  renderEvents(filtered);
-}
-
-// ------------------------------------------------------
-// AFFICHAGE DES CARTES
-// ------------------------------------------------------
-
-function renderEvents(events) {
-  const container = document.getElementById("events");
-  container.innerHTML = "";
-
-  if (!events || events.length === 0) {
-    container.innerHTML = `<p class="no-events">Aucun événement pour ce jour.</p>`;
-    return;
+    [...types].forEach(t => typeSelect.add(new Option(t, t)));
+    [...villes].forEach(v => villeSelect.add(new Option(v, v)));
   }
 
-  events.forEach(item => {
-    const rawDate = item.prochain_spectacle || "";
-    const normalizedDate = rawDate.trim().toLowerCase();
-    const isHorsSaison = normalizedDate.startsWith("hors saison");
+  // ------------------------------------------------------
+  // APPLICATION DES FILTRES COMBINÉS
+  // ------------------------------------------------------
 
-    const title = item.nom || "Sans titre";
-    const ville = item.ville || "";
-    const lieu = item.lieu || "";
-    const adresse = item.adresse || "";
-    const description = item.description || "";
-    const heure = item.heure || "";
-    const type = item.type || "";
-    const billet = item.billet || "";
+  function applyFilters() {
+    const type = document.getElementById("filter-type").value.toLowerCase();
+    const ville = document.getElementById("filter-ville").value.toLowerCase();
 
-    const mapsLink = adresse
-      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(adresse)}`
-      : "";
+    return currentDayEvents.filter(ev => {
+      const evType = (ev.type || "").toLowerCase().trim();
+      const evVille = (ev.ville || "").toLowerCase().trim();
 
-    const card = document.createElement("div");
-    card.className = "event-card";
+      const matchType = !type || evType === type;
+      const matchVille = !ville || evVille === ville;
 
-    card.innerHTML = `
-      <div class="badges">
-        ${isHorsSaison ? `<span class="badge badge-hors-saison">Hors saison</span>` : ""}
-      </div>
+      return matchType && matchVille;
+    });
+  }
 
-      <h3>${title}</h3>
+  function updateDisplay() {
+    renderEvents(applyFilters());
+  }
 
-      <div class="tags">
-        ${type ? `<span class="tag ${type}">${type}</span>` : ""}
-        ${ville ? `<span class="tag ville">${ville}</span>` : ""}
-      </div>
+  // ------------------------------------------------------
+  // AFFICHAGE DES CARTES
+  // ------------------------------------------------------
 
-      <div class="info-box">
-        <p><strong>📅 Date :</strong> ${rawDate}</p>
-        ${heure ? `<p><strong>⏰ Heure :</strong> ${heure}</p>` : ""}
-        ${
-          lieu
-            ? `<p><strong>📍 Lieu :</strong> ${
-                mapsLink ? `<a href="${mapsLink}" target="_blank">${lieu}</a>` : lieu
-              }</p>`
-            : ""
-        }
-        <p><strong>Billet :</strong> ${billet || "?"}</p>
-      </div>
+  function renderEvents(events) {
+    const container = document.getElementById("events");
+    container.innerHTML = "";
 
-      ${description ? `<p class="desc">${description}</p>` : ""}
-    `;
+    if (!events || events.length === 0) {
+      container.innerHTML = `<p class="no-events">Aucun événement pour ce jour.</p>`;
+      return;
+    }
 
-    container.appendChild(card);
+    events.forEach(item => {
+      const rawDate = item.prochain_spectacle || "";
+      const normalizedDate = rawDate.trim().toLowerCase();
+      const isHorsSaison = normalizedDate.startsWith("hors saison");
+
+      const title = item.nom || "Sans titre";
+      const ville = item.ville || "";
+      const lieu = item.lieu || "";
+      const adresse = item.adresse || "";
+      const description = item.description || "";
+      const heure = item.heure || "";
+      const type = item.type || "";
+      const billet = item.billet || "";
+
+      const mapsLink = adresse
+        ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(adresse)}`
+        : "";
+
+      const card = document.createElement("div");
+      card.className = "event-card";
+
+      card.innerHTML = `
+        <div class="badges">
+          ${isHorsSaison ? `<span class="badge badge-hors-saison">Hors saison</span>` : ""}
+        </div>
+
+        <h3>${title}</h3>
+
+        <div class="tags">
+          ${type ? `<span class="tag ${type}">${type}</span>` : ""}
+          ${ville ? `<span class="tag ville">${ville}</span>` : ""}
+        </div>
+
+        <div class="info-box">
+          <p><strong>📅 Date :</strong> ${rawDate}</p>
+          ${heure ? `<p><strong>⏰ Heure :</strong> ${heure}</p>` : ""}
+          ${
+            lieu
+              ? `<p><strong>📍 Lieu :</strong> ${
+                  mapsLink ? `<a href="${mapsLink}" target="_blank">${lieu}</a>` : lieu
+                }</p>`
+              : ""
+          }
+          <p><strong>Billet :</strong> ${billet || "?"}</p>
+        </div>
+
+        ${description ? `<p class="desc">${description}</p>` : ""}
+      `;
+
+      container.appendChild(card);
+    });
+  }
+
+  // ------------------------------------------------------
+  // SÉLECTION DU JOUR (instantané)
+  // ------------------------------------------------------
+
+  function selectDay(day) {
+    currentDayEvents = sortEvents(allEvents[day] || []);
+    populateFilters(currentDayEvents);
+    updateDisplay();
+
+    document.querySelectorAll(".day-btn").forEach(btn => {
+      btn.classList.remove("active");
+    });
+    document.getElementById(`btn-${day}`).classList.add("active");
+  }
+
+  // ------------------------------------------------------
+  // INITIALISATION
+  // ------------------------------------------------------
+
+  document.getElementById("filter-type").addEventListener("change", updateDisplay);
+  document.getElementById("filter-ville").addEventListener("change", updateDisplay);
+
+  loadAllDataOnce().then(data => {
+    allEvents = data;
+    selectDay("lundi");
   });
-}
 
-// ------------------------------------------------------
-// SÉLECTION DU JOUR + FILTRES COMBINÉS
-// ------------------------------------------------------
-
-async function selectDay(day) {
-  const data = await loadData();
-  currentDayEvents = sortEvents(data[day] || []);
-
-  populateFilters(currentDayEvents);
-  updateDisplay();
-
-  document.querySelectorAll(".day-btn").forEach(btn => {
-    btn.classList.remove("active");
-  });
-  document.getElementById(`btn-${day}`).classList.add("active");
-}
-
-// ------------------------------------------------------
-// CHARGEMENT INITIAL
-// ------------------------------------------------------
-document.getElementById("filter-type").addEventListener("change", updateDisplay);
-document.getElementById("filter-ville").addEventListener("change", updateDisplay);
-
-selectDay("lundi");
-  });
+});
