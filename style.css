@@ -216,6 +216,12 @@ main {
 ------------------------------ */
 
 @media (max-width: 600px) {
+
+  /* Masquer les filtres desktop */
+  #filters {
+    display: none;
+  }
+
   main {
     padding: 1rem;
   }
@@ -248,20 +254,8 @@ main {
   .days-nav {
     gap: 1rem;
   }
-}
 
-/* ------------------------------
-   ACCORDÉON MOBILE
------------------------------- */
-
-@media (max-width: 600px) {
-
-  /* Masquer les filtres desktop */
-  #filters {
-    display: none;
-  }
-
-  /* Afficher l’accordéon */
+  /* Accordéon mobile */
   .accordion-wrapper {
     display: block;
     background-color: #1e1e1e;
