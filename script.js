@@ -3,6 +3,7 @@
 // ------------------------------------------------------
 let currentDayEvents = [];
 let allEvents = {}; // stockage global optimisé
+let cachedCards = {}; // cache des cartes DOM
 
 const SPREADSHEET_ID = "1cV5sqtp73WazgB6og_d4aOG4y9HYo3EGePMrBuXAbRs";
 
@@ -18,7 +19,7 @@ const SHEETS = {
 };
 
 // ------------------------------------------------------
-// CHARGEMENT UNIQUE DES DONNÉES
+// CHARGEMENT UNIQUE DES DONNÉES + TRI INITIAL
 // ------------------------------------------------------
 async function loadAllDataOnce() {
   const result = {
@@ -50,6 +51,11 @@ async function loadAllDataOnce() {
       }
     });
   }
+
+  // Tri initial une seule fois par jour
+  Object.keys(result).forEach(day => {
+    result[day] = sortEvents(result[day]);
+  });
 
   return result;
 }
@@ -155,8 +161,12 @@ function updateDisplay() {
 }
 
 // ------------------------------------------------------
-// AFFICHAGE DES CARTES
+// AFFICHAGE DES CARTES (cache + animations)
 // ------------------------------------------------------
+function makeCardKey(item) {
+  return `${item.nom || ""}__${item.ville || ""}__${item.prochain_spectacle || ""}`;
+}
+
 function renderEvents(events) {
   const container = document.getElementById("events");
   container.innerHTML = "";
@@ -166,64 +176,78 @@ function renderEvents(events) {
     return;
   }
 
-  events.forEach(item => {
-    const rawDate = item.prochain_spectacle || "";
-    const normalizedDate = rawDate.trim().toLowerCase();
-    const isHorsSaison = normalizedDate.startsWith("hors saison");
+  const fragment = document.createDocumentFragment();
 
-    const title = item.nom || "Sans titre";
-    const ville = item.ville || "";
-    const lieu = item.lieu || "";
-    const adresse = item.adresse || "";
-    const description = item.description || "";
-    const heure = item.heure || "";
-    const type = item.type || "";
-    const billet = item.billet || "";
+  events.forEach((item, index) => {
+    const key = makeCardKey(item);
+    let card = cachedCards[key];
 
-    const mapsLink = adresse
-      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(adresse)}`
-      : "";
+    if (!card) {
+      const rawDate = item.prochain_spectacle || "";
+      const normalizedDate = rawDate.trim().toLowerCase();
+      const isHorsSaison = normalizedDate.startsWith("hors saison");
 
-    const card = document.createElement("div");
-    card.className = "event-card";
+      const title = item.nom || "Sans titre";
+      const ville = item.ville || "";
+      const lieu = item.lieu || "";
+      const adresse = item.adresse || "";
+      const description = item.description || "";
+      const heure = item.heure || "";
+      const type = item.type || "";
+      const billet = item.billet || "";
 
-    card.innerHTML = `
-      <div class="badges">
-        ${isHorsSaison ? `<span class="badge badge-hors-saison">Hors saison</span>` : ""}
-      </div>
+      const mapsLink = adresse
+        ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(adresse)}`
+        : "";
 
-      <h3>${title}</h3>
+      card = document.createElement("div");
+      card.className = "event-card fade-in"; // classe pour animation CSS
 
-      <div class="tags">
-        ${type ? `<span class="tag ${type}">${type}</span>` : ""}
-        ${ville ? `<span class="tag ville">${ville}</span>` : ""}
-      </div>
+      card.innerHTML = `
+        <div class="badges">
+          ${isHorsSaison ? `<span class="badge badge-hors-saison">Hors saison</span>` : ""}
+        </div>
 
-      <div class="info-box">
-        <p><strong>📅 Date :</strong> ${rawDate}</p>
-        ${heure ? `<p><strong>⏰ Heure :</strong> ${heure}</p>` : ""}
-        ${
-          lieu
-            ? `<p><strong>📍 Lieu :</strong> ${
-                mapsLink ? `<a href="${mapsLink}" target="_blank">${lieu}</a>` : lieu
-              }</p>`
-            : ""
-        }
-        <p><strong>Billet :</strong> ${billet || "?"}</p>
-      </div>
+        <h3>${title}</h3>
 
-      ${description ? `<p class="desc">${description}</p>` : ""}
-    `;
+        <div class="tags">
+          ${type ? `<span class="tag ${type}">${type}</span>` : ""}
+          ${ville ? `<span class="tag ville">${ville}</span>` : ""}
+        </div>
 
-    container.appendChild(card);
+        <div class="info-box">
+          <p><strong>📅 Date :</strong> ${rawDate}</p>
+          ${heure ? `<p><strong>⏰ Heure :</strong> ${heure}</p>` : ""}
+          ${
+            lieu
+              ? `<p><strong>📍 Lieu :</strong> ${
+                  mapsLink ? `<a href="${mapsLink}" target="_blank">${lieu}</a>` : lieu
+                }</p>`
+              : ""
+          }
+          <p><strong>Billet :</strong> ${billet || "?"}</p>
+        </div>
+
+        ${description ? `<p class="desc">${description}</p>` : ""}
+      `;
+
+      cachedCards[key] = card;
+    }
+
+    // petite animation en cascade (stagger)
+    card.style.animationDelay = `${index * 40}ms`;
+
+    fragment.appendChild(card);
   });
+
+  container.appendChild(fragment);
 }
 
 // ------------------------------------------------------
 // SÉLECTION DU JOUR
 // ------------------------------------------------------
 function selectDay(day) {
-  currentDayEvents = sortEvents(allEvents[day] || []);
+  currentDayEvents = allEvents[day] || [];
   populateFilters(currentDayEvents);
   updateDisplay();
 
