@@ -38,8 +38,7 @@ async function loadData() {
     rows.forEach(item => {
       const nextDate = item.prochain_spectacle;
 
-      // Ignorer les hors saison
-      if (!nextDate || nextDate === "Hors saison") return;
+      if (!nextDate) return;
 
       // Ponctuel → utiliser la colonne "jour"
       if (key === "ponctuel") {
@@ -92,7 +91,9 @@ function renderEvents(events) {
     const type = item.type || "";
 
     // Badge Hors saison seulement
-    const isHorsSaison = nextDate === "Hors saison";
+  const normalizedDate = (nextDate || "").trim().toLowerCase();
+const isHorsSaison = normalizedDate.startsWith("hors saison");
+
 
     const card = document.createElement("div");
     card.className = "event-card";
