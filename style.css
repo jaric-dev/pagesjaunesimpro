@@ -156,6 +156,10 @@ main {
   text-decoration: underline;
 }
 
+.social-links {
+  font-size: 0.9rem;
+}
+
 /* ------------------------------
    TAGS
 ------------------------------ */

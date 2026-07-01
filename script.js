@@ -55,23 +55,52 @@ document.addEventListener("DOMContentLoaded", () => {
   // ------------------------------
   function normalizeEvent(ev, ongletJour) {
     const hors_saison = (ev.prochain_spectacle || "").trim().toLowerCase() === "hors saison";
+    const dateStr = hors_saison ? "" : (ev.prochain_spectacle || "").trim();
     return {
       titre: (ev.nom || "").trim(),
       type: (ev.type || "").trim(),
       ville: (ev.ville || "").trim(),
-      date: hors_saison ? "Hors saison" : (ev.prochain_spectacle || "").trim(),
+      date: dateStr,
+      dateObj: parseDate(dateStr),
       heure: (ev.heure || "").trim(),
       lieu: (ev.lieu || "").trim(),
       adresse: (ev.adresse || "").trim(),
-      billet: (ev.billet && ev.billet.startsWith("http")) ? ev.billet.trim() : "",
+      // Colonne L : Oui/Non — indique si un billet est requis (ce n'est pas un lien)
+      billetRequis: (ev.billet || "").trim(),
       instagram: (ev.instagram || "").trim(),
       facebook: (ev.facebook || "").trim(),
+      site: (ev.Site || ev.site || "").trim(),
       description: (ev.description || "").trim(),
       hors_saison: hors_saison,
       // La colonne "jour" existe dans l'onglet Impro_Ponctuel ; pour les
       // autres onglets, le jour est déduit du nom de l'onglet.
       jour: (ev.jour || ongletJour || "").trim().toLowerCase()
     };
+  }
+
+  // Convertit une date au format "JJ-MM-AAAA" en objet Date (null si invalide)
+  function parseDate(str) {
+    if (!str) return null;
+    const parts = str.split("-");
+    if (parts.length !== 3) return null;
+    const [jour, mois, annee] = parts.map(p => parseInt(p, 10));
+    if (!jour || !mois || !annee) return null;
+    const d = new Date(annee, mois - 1, jour);
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  // Trie : événements hors saison à la fin, sinon par date croissante
+  // (le plus proche d'aujourd'hui en premier)
+  function sortEvents(events) {
+    return [...events].sort((a, b) => {
+      if (a.hors_saison && !b.hors_saison) return 1;
+      if (!a.hors_saison && b.hors_saison) return -1;
+      if (a.hors_saison && b.hors_saison) return 0;
+      if (!a.dateObj && !b.dateObj) return 0;
+      if (!a.dateObj) return 1;
+      if (!b.dateObj) return -1;
+      return a.dateObj - b.dateObj;
+    });
   }
 
   // ------------------------------
@@ -140,7 +169,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (hsFilter === "hide") events = events.filter(ev => !ev.hors_saison);
     if (hsFilter === "only") events = events.filter(ev => ev.hors_saison);
 
-    displayEvents(events);
+    displayEvents(sortEvents(events));
   };
 
   function displayEvents(events) {
@@ -155,6 +184,23 @@ document.addEventListener("DOMContentLoaded", () => {
     events.forEach(ev => {
       const card = document.createElement("div");
       card.className = "event-card";
+
+      const lieuHtml = ev.adresse
+        ? `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ev.adresse)}" target="_blank" rel="noopener">${ev.lieu}</a>`
+        : ev.lieu;
+
+      const billetTexte = ev.billetRequis
+        ? `<p><strong>Billet requis :</strong> ${ev.billetRequis}</p>`
+        : "";
+
+      const liensSociaux = [];
+      if (ev.instagram) liensSociaux.push(`<a href="${ev.instagram}" target="_blank" rel="noopener">Instagram</a>`);
+      if (ev.facebook) liensSociaux.push(`<a href="${ev.facebook}" target="_blank" rel="noopener">Facebook</a>`);
+      if (ev.site) liensSociaux.push(`<a href="${ev.site}" target="_blank" rel="noopener">Site web</a>`);
+      const liensSociauxHtml = liensSociaux.length
+        ? `<p class="social-links">${liensSociaux.join(" &nbsp;|&nbsp; ")}</p>`
+        : "";
+
       card.innerHTML = `
         <h3>${ev.titre}</h3>
         <div class="tags">
@@ -165,8 +211,9 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="info-box">
           <p><strong>Date :</strong> ${ev.date || "À venir"}</p>
           <p><strong>Heure :</strong> ${ev.heure}</p>
-          <p><strong>Lieu :</strong> ${ev.lieu}</p>
-          ${ev.billet ? `<p><a href="${ev.billet}" target="_blank">Billetterie</a></p>` : ""}
+          <p><strong>Lieu :</strong> ${lieuHtml}</p>
+          ${billetTexte}
+          ${liensSociauxHtml}
         </div>
       `;
       container.appendChild(card);
