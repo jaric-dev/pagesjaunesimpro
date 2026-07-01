@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-
+// force redeploy
   // Accordéon mobile
   const filtersToggle = document.getElementById("filters-toggle");
   const filtersContent = document.getElementById("filters-content");
