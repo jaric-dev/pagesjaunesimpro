@@ -20,7 +20,6 @@
   // ------------------------------------------------------
   // CHARGEMENT UNIQUE DES DONNÉES
   // ------------------------------------------------------
-
   async function loadAllDataOnce() {
     const result = {
       lundi: [],
@@ -101,8 +100,6 @@ function sortEvents(events) {
 
     return 0;
   });
-}
-
 }
 
   // ------------------------------------------------------
