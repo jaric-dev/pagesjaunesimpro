@@ -106,27 +106,31 @@ document.addEventListener("DOMContentLoaded", () => {
   // APPLICATION DES FILTRES COMBINÉS
   // ------------------------------------------------------
 
- function applyFilters() {
-  const type = document.getElementById("filter-type").value.toLowerCase();
-  const ville = document.getElementById("filter-ville").value.toLowerCase();
-  const hs = document.getElementById("filter-hs").value; // ← nouveau
+  function applyFilters() {
+    const type = document.getElementById("filter-type").value.toLowerCase();
+    const ville = document.getElementById("filter-ville").value.toLowerCase();
+    const hs = document.getElementById("filter-hs").value;
 
-  return currentDayEvents.filter(ev => {
-    const evType = (ev.type || "").toLowerCase().trim();
-    const evVille = (ev.ville || "").toLowerCase().trim();
-    const isHS = (ev.prochain_spectacle || "").trim().toLowerCase().startsWith("hors saison");
+    return currentDayEvents.filter(ev => {
+      const evType = (ev.type || "").toLowerCase().trim();
+      const evVille = (ev.ville || "").toLowerCase().trim();
+      const isHS = (ev.prochain_spectacle || "").trim().toLowerCase().startsWith("hors saison");
 
-    const matchType = !type || evType === type;
-    const matchVille = !ville || evVille === ville;
+      const matchType = !type || evType === type;
+      const matchVille = !ville || evVille === ville;
 
-    const matchHS =
-      hs === "" ||
-      (hs === "hide" && !isHS) ||
-      (hs === "only" && isHS);
+      const matchHS =
+        hs === "" ||
+        (hs === "hide" && !isHS) ||
+        (hs === "only" && isHS);
 
-    return matchType && matchVille && matchHS;
-  });
-}
+      return matchType && matchVille && matchHS;
+    });
+  }
+
+  function updateDisplay() {
+    renderEvents(applyFilters());
+  }
 
   // ------------------------------------------------------
   // AFFICHAGE DES CARTES
@@ -213,7 +217,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // INITIALISATION
   // ------------------------------------------------------
 
-    document.getElementById("filter-type").addEventListener("change", updateDisplay);
+  document.getElementById("filter-type").addEventListener("change", updateDisplay);
   document.getElementById("filter-ville").addEventListener("change", updateDisplay);
   document.getElementById("filter-hs").addEventListener("change", updateDisplay);
 
@@ -222,7 +226,7 @@ document.addEventListener("DOMContentLoaded", () => {
     selectDay("lundi");
   });
 
-  window.selectDay = selectDay;  // ← pour que les boutons HTML puissent l’appeler
-});
+  // Rendre la fonction accessible aux boutons HTML
+  window.selectDay = selectDay;
 
 });
