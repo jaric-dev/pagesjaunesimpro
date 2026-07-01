@@ -116,6 +116,10 @@ function applyFilters() {
     return matchType && matchVille;
   });
 }
+function updateDisplay() {
+  const filtered = applyFilters();
+  renderEvents(filtered);
+}
 
 // ------------------------------------------------------
 // AFFICHAGE DES CARTES
@@ -192,25 +196,18 @@ async function selectDay(day) {
   currentDayEvents = sortEvents(data[day] || []);
 
   populateFilters(currentDayEvents);
-
-  const filtered = applyFilters();
-  renderEvents(filtered);
+  updateDisplay();
 
   document.querySelectorAll(".day-btn").forEach(btn => {
     btn.classList.remove("active");
   });
   document.getElementById(`btn-${day}`).classList.add("active");
-
-  document.getElementById("filter-type").onchange = () => {
-    renderEvents(applyFilters());
-  };
-  document.getElementById("filter-ville").onchange = () => {
-    renderEvents(applyFilters());
-  };
 }
 
 // ------------------------------------------------------
 // CHARGEMENT INITIAL
 // ------------------------------------------------------
+document.getElementById("filter-type").addEventListener("change", updateDisplay);
+document.getElementById("filter-ville").addEventListener("change", updateDisplay);
 
 selectDay("lundi");
