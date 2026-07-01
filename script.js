@@ -38,11 +38,12 @@ async function loadData() {
     rows.forEach(item => {
       const nextDate = item.prochain_spectacle;
 
+      // On ignore seulement les lignes sans date du tout
       if (!nextDate) return;
 
       // Ponctuel → utiliser la colonne "jour"
       if (key === "ponctuel") {
-        const targetDay = (item.jour || "").toLowerCase();
+        const targetDay = (item.jour || "").trim().toLowerCase();
         if (allEvents[targetDay]) {
           allEvents[targetDay].push(item);
         }
@@ -81,7 +82,10 @@ function renderEvents(events) {
   }
 
   events.forEach(item => {
-    const nextDate = item.prochain_spectacle;
+    const rawDate = item.prochain_spectacle || "";
+    const normalizedDate = rawDate.trim().toLowerCase();
+    const isHorsSaison = normalizedDate.startsWith("hors saison");
+
     const title = item.nom || "Sans titre";
     const ville = item.ville || "";
     const lieu = item.lieu || "";
@@ -89,11 +93,6 @@ function renderEvents(events) {
     const description = item.description || "";
     const heure = item.heure || "";
     const type = item.type || "";
-
-    // Badge Hors saison seulement
-  const normalizedDate = (nextDate || "").trim().toLowerCase();
-const isHorsSaison = normalizedDate.startsWith("hors saison");
-
 
     const card = document.createElement("div");
     card.className = "event-card";
@@ -110,7 +109,7 @@ const isHorsSaison = normalizedDate.startsWith("hors saison");
         ${ville ? `<span class="tag ville">${ville}</span>` : ""}
       </div>
 
-      <p><strong>Date :</strong> ${nextDate}</p>
+      <p><strong>Date :</strong> ${rawDate}</p>
       ${heure ? `<p><strong>Heure :</strong> ${heure}</p>` : ""}
       ${lieu ? `<p><strong>Lieu :</strong> ${lieu}</p>` : ""}
       ${adresse ? `<p><strong>Adresse :</strong> ${adresse}</p>` : ""}
@@ -130,7 +129,7 @@ async function selectDay(day) {
   const events = sortEvents(data[day] || []);
   renderEvents(events);
 
-  document.querySelectorAll(".day-button").forEach(btn => {
+  document.querySelectorAll(".day-btn").forEach(btn => {
     btn.classList.remove("active");
   });
   document.getElementById(`btn-${day}`).classList.add("active");
