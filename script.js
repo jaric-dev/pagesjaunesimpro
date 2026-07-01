@@ -36,14 +36,14 @@ async function loadData() {
     const rows = await response.json();
 
     rows.forEach(item => {
-      const nextDate = item.prochain_spectacle || item["prochain_spectacle"];
+      const nextDate = item.prochain_spectacle;
 
       // Ignorer les hors saison
       if (!nextDate || nextDate === "Hors saison") return;
 
-      // Ponctuel → utiliser la colonne H pour savoir où placer
+      // Ponctuel → utiliser la colonne "jour"
       if (key === "ponctuel") {
-        const targetDay = (item.jour_semaine || item["jour_semaine"] || "").toLowerCase();
+        const targetDay = (item.jour || "").toLowerCase();
         if (allEvents[targetDay]) {
           allEvents[targetDay].push(item);
         }
@@ -57,7 +57,7 @@ async function loadData() {
 }
 
 // ------------------------------------------------------
-// TRI PAR DATE (colonne D déjà calculée dans Sheets)
+// TRI PAR DATE
 // ------------------------------------------------------
 
 function sortEvents(events) {
@@ -83,15 +83,15 @@ function renderEvents(events) {
 
   events.forEach(item => {
     const nextDate = item.prochain_spectacle;
-    const title = item.nom || item["nom"] || "Sans titre";
-    const ville = item.ville || item["ville"] || "";
-    const lieu = item.lieu || item["lieu"] || "";
-    const adresse = item.adresse || item["adresse"] || "";
-    const description = item.description || item["description"] || "";
-    const heure = item.heure || item["heure"] || "";
+    const title = item.nom || "Sans titre";
+    const ville = item.ville || "";
+    const lieu = item.lieu || "";
+    const adresse = item.adresse || "";
+    const description = item.description || "";
+    const heure = item.heure || "";
 
-    // Détection des badges
-    const isPonctuel = item.jour_semaine !== undefined && item.jour_semaine !== "";
+    // Badges
+    const isPonctuel = item.jour !== undefined && item.jour !== "";
     const isHorsSaison = nextDate === "Hors saison";
 
     const card = document.createElement("div");
@@ -126,7 +126,6 @@ async function selectDay(day) {
   const events = sortEvents(data[day] || []);
   renderEvents(events);
 
-  // Activer le bouton
   document.querySelectorAll(".day-button").forEach(btn => {
     btn.classList.remove("active");
   });
@@ -134,7 +133,7 @@ async function selectDay(day) {
 }
 
 // ------------------------------------------------------
-// CHARGEMENT INITIAL (Lundi par défaut)
+// CHARGEMENT INITIAL
 // ------------------------------------------------------
 
 selectDay("lundi");
