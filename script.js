@@ -105,6 +105,11 @@ function renderEvents(events) {
     const heure = item.heure || "";
     const type = item.type || "";
 
+    // Génération du lien Google Maps
+    const mapsLink = adresse
+      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(adresse)}`
+      : "";
+
     const card = document.createElement("div");
     card.className = "event-card";
 
@@ -122,7 +127,15 @@ function renderEvents(events) {
 
       <p><strong>Date :</strong> ${rawDate}</p>
       ${heure ? `<p><strong>Heure :</strong> ${heure}</p>` : ""}
-      ${lieu ? `<p><strong>Lieu :</strong> ${lieu}</p>` : ""}
+
+      ${
+        lieu
+          ? `<p><strong>Lieu :</strong> ${
+              mapsLink ? `<a href="${mapsLink}" target="_blank">${lieu}</a>` : lieu
+            }</p>`
+          : ""
+      }
+
       ${adresse ? `<p><strong>Adresse :</strong> ${adresse}</p>` : ""}
       ${description ? `<p class="desc">${description}</p>` : ""}
     `;
