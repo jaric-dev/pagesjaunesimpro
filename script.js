@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Charger les événements
-  fetch("events.json")
+ fetch("https://opensheet.elk.sh/1cV5sqtp73WazgB6og_d4aOG4y9HYo3EGePMrBuXAbRs/995834860")
     .then(r => r.json())
     .then(data => {
       window.eventsData = data;
