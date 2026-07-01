@@ -7,6 +7,7 @@ body {
   color: #f5f5f5;
   font-family: 'Inter', sans-serif;
   margin: 0;
+  line-height: 1.6;
 }
 
 /* ------------------------------
@@ -15,35 +16,18 @@ body {
 
 header {
   background-color: #1e1e1e;
-  padding: 1rem 2rem;
+  padding: 1.5rem 2rem;
   text-align: center;
   border-bottom: 1px solid #333;
 }
 
 .site-title {
   font-family: 'Montserrat', sans-serif;
-  font-size: 2rem;
+  font-size: 2.2rem;
   margin: 0;
   color: #ffcc00;
   font-weight: 700;
-}
-.info-box {
-  background-color: #f0f0f0;
-  color: #222;
-  padding: 0.8rem 1rem;
-  border-radius: 6px;
-  margin: 1rem 0;
-  line-height: 1.4;
-}
-
-.info-box a {
-  color: #0066cc;
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.info-box a:hover {
-  text-decoration: underline;
+  letter-spacing: 1px;
 }
 
 /* ------------------------------
@@ -54,7 +38,7 @@ header {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.8rem;
   padding: 1rem;
   background-color: #1e1e1e;
   border-bottom: 1px solid #333;
@@ -64,10 +48,11 @@ header {
   background-color: #2a2a2a;
   color: #f5f5f5;
   border: none;
-  padding: 0.6rem 1.2rem;
-  border-radius: 4px;
+  padding: 0.8rem 1.4rem;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 1.1rem;
+  transition: 0.2s;
 }
 
 .day-btn:hover {
@@ -87,14 +72,15 @@ header {
 
 main {
   padding: 2rem;
-  max-width: 1000px;
+  max-width: 1100px;
   margin: auto;
 }
 
 .event-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 1.5rem;
+  justify-content: center;
 }
 
 /* ------------------------------
@@ -103,16 +89,20 @@ main {
 
 .event-card {
   background-color: #1e1e1e;
-  border-radius: 8px;
-  padding: 1rem;
-  width: 300px;
+  border-radius: 12px;
+  padding: 1.4rem;
+  width: 100%;
+  max-width: 360px;
   border: 1px solid #333;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.35);
 }
 
 .event-card h3 {
   margin-top: 0;
-  font-size: 1.3rem;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
   color: #ffcc00;
+  line-height: 1.3;
 }
 
 /* ------------------------------
@@ -120,21 +110,17 @@ main {
 ------------------------------ */
 
 .badges {
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .badge {
   display: inline-block;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.75rem;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
   font-weight: 600;
   margin-right: 6px;
   color: white;
-}
-
-.badge-ponctuel {
-  background-color: #0077cc;
 }
 
 .badge-hors-saison {
@@ -142,26 +128,54 @@ main {
 }
 
 /* ------------------------------
-   TAGS (TYPE, VILLE, ETC.)
+   INFO BOX (Date, Heure, Lieu, Billet)
 ------------------------------ */
+
+.info-box {
+  background-color: #f7f7f7;
+  color: #222;
+  padding: 1rem 1.2rem;
+  border-radius: 10px;
+  margin: 1.2rem 0;
+  line-height: 1.5;
+  font-size: 1rem;
+}
+
+.info-box p {
+  margin: 0.6rem 0;
+}
+
+.info-box a {
+  color: #0055aa;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.info-box a:hover {
+  text-decoration: underline;
+}
+
+/* ------------------------------
+   TAGS (TYPE, VILLE)
+------------------------------ */
+
+.tags {
+  margin-bottom: 1rem;
+}
 
 .tag {
   display: inline-block;
-  padding: 0.2rem 0.6rem;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  margin-right: 0.3rem;
-  margin-bottom: 0.5rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  margin-right: 0.4rem;
   font-weight: 600;
 }
 
 .tag.ville {
   background-color: #444;
   color: white;
-  padding: 4px 8px;
   border-radius: 12px;
-  margin-left: 8px;
-  font-size: 0.8rem;
 }
 
 .tag.Spectacle { background-color: #00bcd4; color: #000; }
@@ -170,15 +184,40 @@ main {
 .tag.Jam { background-color: #ff6b00; color: #000; }
 
 /* ------------------------------
-   RESPONSIVE
+   RESPONSIVE (Mobile)
 ------------------------------ */
 
-@media (max-width: 800px) {
-  .event-card {
-    width: 100%;
-  }
-
+@media (max-width: 600px) {
   main {
     padding: 1rem;
+  }
+
+  .event-card {
+    padding: 1.2rem;
+    max-width: none;
+  }
+
+  .event-card h3 {
+    font-size: 1.6rem;
+  }
+
+  .info-box {
+    font-size: 1.05rem;
+    padding: 1rem;
+  }
+
+  .tag {
+    font-size: 0.95rem;
+    padding: 0.35rem 0.75rem;
+  }
+
+  .day-btn {
+    width: 100%;
+    font-size: 1.2rem;
+    padding: 1rem;
+  }
+
+  .days-nav {
+    gap: 1rem;
   }
 }
