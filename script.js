@@ -38,10 +38,8 @@ async function loadData() {
     rows.forEach(item => {
       const nextDate = item.prochain_spectacle;
 
-      // On ignore seulement les lignes sans date du tout
       if (!nextDate) return;
 
-      // Ponctuel → utiliser la colonne "jour"
       if (key === "ponctuel") {
         const targetDay = (item.jour || "").trim().toLowerCase();
         if (allEvents[targetDay]) {
@@ -57,7 +55,7 @@ async function loadData() {
 }
 
 // ------------------------------------------------------
-// TRI PAR DATE & Hors saison à la fin
+// TRI : Hors Saison à la fin
 // ------------------------------------------------------
 
 function sortEvents(events) {
@@ -65,17 +63,53 @@ function sortEvents(events) {
     const aHS = (a.prochain_spectacle || "").trim().toLowerCase().startsWith("hors saison");
     const bHS = (b.prochain_spectacle || "").trim().toLowerCase().startsWith("hors saison");
 
-    // 1. Les Hors Saison vont toujours à la fin
     if (aHS && !bHS) return 1;
     if (!aHS && bHS) return -1;
-
-    // 2. Si les deux sont Hors Saison → garder l'ordre d'origine
     if (aHS && bHS) return 0;
 
-    // 3. Sinon, tri normal par date
     const da = new Date(a.prochain_spectacle);
     const db = new Date(b.prochain_spectacle);
     return da - db;
+  });
+}
+
+// ------------------------------------------------------
+// FILTRES DYNAMIQUES (Type + Ville)
+// ------------------------------------------------------
+
+function populateFilters(events) {
+  const typeSelect = document.getElementById("filter-type");
+  const villeSelect = document.getElementById("filter-ville");
+
+  const types = new Set();
+  const villes = new Set();
+
+  events.forEach(ev => {
+    if (ev.type) types.add(ev.type);
+    if (ev.ville) villes.add(ev.ville);
+  });
+
+  typeSelect.innerHTML =
+    `<option value="">Type : Tous</option>` +
+    [...types].map(t => `<option value="${t}">${t}</option>`).join("");
+
+  villeSelect.innerHTML =
+    `<option value="">Ville : Toutes</option>` +
+    [...villes].map(v => `<option value="${v}">${v}</option>`).join("");
+}
+
+// ------------------------------------------------------
+// APPLICATION DES FILTRES COMBINÉS
+// ------------------------------------------------------
+
+function applyFilters(events) {
+  const type = document.getElementById("filter-type").value;
+  const ville = document.getElementById("filter-ville").value;
+
+  return events.filter(ev => {
+    const matchType = !type || ev.type === type;
+    const matchVille = !ville || ev.ville === ville;
+    return matchType && matchVille;
   });
 }
 
@@ -106,7 +140,6 @@ function renderEvents(events) {
     const type = item.type || "";
     const billet = item.billet || "";
 
-    // Lien Google Maps basé sur l'adresse
     const mapsLink = adresse
       ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(adresse)}`
       : "";
@@ -147,18 +180,29 @@ function renderEvents(events) {
 }
 
 // ------------------------------------------------------
-// SÉLECTION DU JOUR
+// SÉLECTION DU JOUR + FILTRES COMBINÉS
 // ------------------------------------------------------
 
 async function selectDay(day) {
   const data = await loadData();
-  const events = sortEvents(data[day] || []);
+  let events = sortEvents(data[day] || []);
+
+  populateFilters(events);
+
+  events = applyFilters(events);
   renderEvents(events);
 
   document.querySelectorAll(".day-btn").forEach(btn => {
     btn.classList.remove("active");
   });
   document.getElementById(`btn-${day}`).classList.add("active");
+
+  document.getElementById("filter-type").onchange = () => {
+    renderEvents(applyFilters(events));
+  };
+  document.getElementById("filter-ville").onchange = () => {
+    renderEvents(applyFilters(events));
+  };
 }
 
 // ------------------------------------------------------
