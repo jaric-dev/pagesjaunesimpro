@@ -128,18 +128,18 @@ main {
 }
 
 /* ------------------------------
-   INFO BOX (Date, Heure, Lieu, Billet)
+   INFO BOX
 ------------------------------ */
 
 .info-box {
-  background-color: #ffe687; 
-  color: #2e2e2e;            
+  background-color: #ffe687;
+  color: #2e2e2e;
   padding: 1rem 1.2rem;
   border-radius: 10px;
   margin: 1.2rem 0;
   line-height: 1.5;
   font-size: 1rem;
-  border: 1px solid #bdb7ad; /* contour léger, discret */
+  border: 1px solid #bdb7ad;
 }
 
 .info-box p {
@@ -157,7 +157,7 @@ main {
 }
 
 /* ------------------------------
-   TAGS (TYPE, VILLE)
+   TAGS
 ------------------------------ */
 
 .tags {
@@ -183,6 +183,33 @@ main {
 .tag.Match { background-color: #ffcc00; color: #000; }
 .tag.Formation { background-color: #4caf50; color: #000; }
 .tag.Jam { background-color: #ff6b00; color: #000; }
+
+/* ------------------------------
+   FILTRES (DESKTOP)
+------------------------------ */
+
+#filters {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin: 1.5rem 0;
+  flex-wrap: wrap;
+}
+
+#filters select {
+  background-color: #2a2a2a;
+  color: #f5f5f5;
+  border: 1px solid #444;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+#filters select:hover {
+  background-color: #ffcc00;
+  color: #000;
+}
 
 /* ------------------------------
    RESPONSIVE (Mobile)
@@ -222,99 +249,14 @@ main {
     gap: 1rem;
   }
 }
+
 /* ------------------------------
-   FILTRES COMBINABLES
------------------------------- */
-
-#filters {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  margin: 1.5rem 0;
-  flex-wrap: wrap;
-}
-
-#filters select {
-  background-color: #2a2a2a;
-  color: #f5f5f5;
-  border: 1px solid #444;
-  padding: 0.6rem 1rem;
-  border-radius: 6px;
-  font-size: 1rem;
-  cursor: pointer;
-}
-
-#filters select:hover {
-  background-color: #ffcc00;
-  color: #000;
-}
-/* ------------------------------
-   ACCORDÉON MOBILE (Filtres)
+   ACCORDÉON MOBILE
 ------------------------------ */
 
 @media (max-width: 600px) {
 
-  #filters {
-    width: 100%;
-    flex-direction: column;
-    gap: 0;
-    margin: 0;
-    padding: 0;
-  }
-
-  .accordion-wrapper {
-    background-color: #1e1e1e;
-    border: 1px solid #333;
-    border-radius: 8px;
-    overflow: hidden;
-    margin-bottom: 1rem;
-  }
-
-  .accordion-header {
-    padding: 1rem;
-    font-size: 1.2rem;
-    font-weight: 600;
-    background-color: #2a2a2a;
-    color: #f5f5f5;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .accordion-header .arrow {
-    transition: transform 0.25s ease;
-  }
-
-  .accordion-header.open .arrow {
-    transform: rotate(90deg);
-  }
-
-  .accordion-content {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.35s ease;
-    background-color: #1e1e1e;
-    padding: 0 1rem;
-  }
-
-  .accordion-content.open {
-    padding: 1rem;
-    max-height: 500px; /* assez pour contenir les filtres */
-  }
-
-  .accordion-content select {
-    width: 100%;
-    margin-bottom: 1rem;
-  }
-}
-/* ------------------------------
-   ACCORDÉON MOBILE (Filtres)
------------------------------- */
-
-@media (max-width: 600px) {
-
-  /* Masquer les filtres originaux sur mobile */
+  /* Masquer les filtres desktop */
   #filters {
     display: none;
   }
@@ -362,14 +304,16 @@ main {
     max-height: 500px;
   }
 
-  /* Les selects dans l’accordéon */
   .accordion-content select {
     width: 100%;
     margin-bottom: 1rem;
   }
 }
 
-/* Sur desktop : l’accordéon est caché */
+/* ------------------------------
+   ACCORDÉON HIDDEN ON DESKTOP
+------------------------------ */
+
 @media (min-width: 601px) {
   .accordion-wrapper {
     display: none;
