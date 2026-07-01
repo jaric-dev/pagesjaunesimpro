@@ -104,9 +104,9 @@ function renderEvents(events) {
     const description = item.description || "";
     const heure = item.heure || "";
     const type = item.type || "";
-    const billet = item.billet || ""; // oui / non
+    const billet = item.billet || "";
 
-    // Génération du lien Google Maps (adresse non affichée)
+    // Lien Google Maps basé sur l'adresse
     const mapsLink = adresse
       ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(adresse)}`
       : "";
@@ -126,18 +126,18 @@ function renderEvents(events) {
         ${ville ? `<span class="tag ville">${ville}</span>` : ""}
       </div>
 
-      <p><strong>Date :</strong> ${rawDate}</p>
-      ${heure ? `<p><strong>Heure :</strong> ${heure}</p>` : ""}
-
-      ${
-        lieu
-          ? `<p><strong>Lieu :</strong> ${
-              mapsLink ? `<a href="${mapsLink}" target="_blank">${lieu}</a>` : lieu
-            }</p>`
-          : ""
-      }
-
-      <p><strong>Billet :</strong> ${billet || "?"}</p>
+      <div class="info-box">
+        <p><strong>📅 Date :</strong> ${rawDate}</p>
+        ${heure ? `<p><strong>⏰ Heure :</strong> ${heure}</p>` : ""}
+        ${
+          lieu
+            ? `<p><strong>📍 Lieu :</strong> ${
+                mapsLink ? `<a href="${mapsLink}" target="_blank">${lieu}</a>` : lieu
+              }</p>`
+            : ""
+        }
+        <p><strong>Billet :</strong> ${billet || "?"}</p>
+      </div>
 
       ${description ? `<p class="desc">${description}</p>` : ""}
     `;
