@@ -298,7 +298,8 @@ main {
     max-height: 500px;
   }
 
-  .accordion-content select {
+  /* Filtres mobile */
+  #filters-mobile select {
     width: 100%;
     margin-bottom: 1rem;
   }
