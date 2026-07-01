@@ -213,7 +213,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // INITIALISATION
   // ------------------------------------------------------
 
-  document.getElementById("filter-type").addEventListener("change", updateDisplay);
+    document.getElementById("filter-type").addEventListener("change", updateDisplay);
   document.getElementById("filter-ville").addEventListener("change", updateDisplay);
   document.getElementById("filter-hs").addEventListener("change", updateDisplay);
 
@@ -221,5 +221,8 @@ document.addEventListener("DOMContentLoaded", () => {
     allEvents = data;
     selectDay("lundi");
   });
+
+  window.selectDay = selectDay;  // ← pour que les boutons HTML puissent l’appeler
+});
 
 });
