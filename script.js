@@ -1,5 +1,3 @@
-document.addEventListener("DOMContentLoaded", () => {
-
   // ------------------------------------------------------
   // CONFIG
   // ------------------------------------------------------
@@ -228,5 +226,3 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Rendre la fonction accessible aux boutons HTML
   window.selectDay = selectDay;
-
-});
