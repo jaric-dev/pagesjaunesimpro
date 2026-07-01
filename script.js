@@ -85,8 +85,8 @@ function populateFilters(events) {
   const villes = new Set();
 
   events.forEach(ev => {
-    if (ev.type) types.add(ev.type);
-    if (ev.ville) villes.add(ev.ville);
+    if (ev.type) types.add((ev.type || "").trim());
+    if (ev.ville) villes.add((ev.ville || "").trim());
   });
 
   typeSelect.innerHTML =
