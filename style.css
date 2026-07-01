@@ -1,4 +1,7 @@
-/* GLOBAL */
+/* ------------------------------
+   GLOBAL
+------------------------------ */
+
 body {
   background-color: #121212;
   color: #f5f5f5;
@@ -6,7 +9,10 @@ body {
   margin: 0;
 }
 
-/* HEADER */
+/* ------------------------------
+   HEADER
+------------------------------ */
+
 header {
   background-color: #1e1e1e;
   padding: 1rem 2rem;
@@ -22,7 +28,10 @@ header {
   font-weight: 700;
 }
 
-/* NAVIGATION DES JOURS */
+/* ------------------------------
+   NAVIGATION DES JOURS
+------------------------------ */
+
 .days-nav {
   display: flex;
   justify-content: center;
@@ -48,14 +57,16 @@ header {
   color: #000;
 }
 
-/* Highlight du jour sélectionné */
 .day-btn.active {
   background-color: #ffcc00;
   color: #000;
   font-weight: 700;
 }
 
-/* ÉVÉNEMENTS */
+/* ------------------------------
+   CONTENU PRINCIPAL
+------------------------------ */
+
 main {
   padding: 2rem;
   max-width: 1000px;
@@ -68,6 +79,10 @@ main {
   gap: 1rem;
 }
 
+/* ------------------------------
+   CARTES D'ÉVÉNEMENTS
+------------------------------ */
+
 .event-card {
   background-color: #1e1e1e;
   border-radius: 8px;
@@ -76,33 +91,15 @@ main {
   border: 1px solid #333;
 }
 
-.event-card h2 {
+.event-card h3 {
   margin-top: 0;
+  font-size: 1.3rem;
+  color: #ffcc00;
 }
 
-/* TAGS */
-.tag {
-  display: inline-block;
-  padding: 0.2rem 0.6rem;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  margin-right: 0.3rem;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-}
-.tag.ville {
-  background-color: #444;
-  color: white;
-  padding: 4px 8px;
-  border-radius: 12px;
-  margin-left: 8px;
-  font-size: 0.8rem;
-}
-
-.tag.Spectacle { background-color: #00bcd4; color: #000; }
-.tag.Match { background-color: #ffcc00; color: #000; }
-.tag.Formation { background-color: #4caf50; color: #000; }
-.tag.Jam { background-color: #ff6b00; color: #000; }
+/* ------------------------------
+   BADGES
+------------------------------ */
 
 .badges {
   margin-bottom: 8px;
@@ -126,3 +123,44 @@ main {
   background-color: #777;
 }
 
+/* ------------------------------
+   TAGS (TYPE, VILLE, ETC.)
+------------------------------ */
+
+.tag {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  margin-right: 0.3rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.tag.ville {
+  background-color: #444;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  margin-left: 8px;
+  font-size: 0.8rem;
+}
+
+.tag.Spectacle { background-color: #00bcd4; color: #000; }
+.tag.Match { background-color: #ffcc00; color: #000; }
+.tag.Formation { background-color: #4caf50; color: #000; }
+.tag.Jam { background-color: #ff6b00; color: #000; }
+
+/* ------------------------------
+   RESPONSIVE
+------------------------------ */
+
+@media (max-width: 800px) {
+  .event-card {
+    width: 100%;
+  }
+
+  main {
+    padding: 1rem;
+  }
+}
