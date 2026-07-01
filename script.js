@@ -91,8 +91,7 @@ function renderEvents(events) {
     const heure = item.heure || "";
     const type = item.type || "";
 
-    // Badges
-    const isPonctuel = item.jour !== undefined && item.jour !== "";
+    // Badge Hors saison seulement
     const isHorsSaison = nextDate === "Hors saison";
 
     const card = document.createElement("div");
@@ -100,7 +99,6 @@ function renderEvents(events) {
 
     card.innerHTML = `
       <div class="badges">
-        ${isPonctuel ? `<span class="badge badge-ponctuel">Ponctuel</span>` : ""}
         ${isHorsSaison ? `<span class="badge badge-hors-saison">Hors saison</span>` : ""}
       </div>
 
