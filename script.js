@@ -89,6 +89,7 @@ function renderEvents(events) {
     const adresse = item.adresse || "";
     const description = item.description || "";
     const heure = item.heure || "";
+    const type = item.type || "";
 
     // Badges
     const isPonctuel = item.jour !== undefined && item.jour !== "";
@@ -105,9 +106,13 @@ function renderEvents(events) {
 
       <h3>${title}</h3>
 
+      <div class="tags">
+        ${type ? `<span class="tag ${type}">${type}</span>` : ""}
+        ${ville ? `<span class="tag ville">${ville}</span>` : ""}
+      </div>
+
       <p><strong>Date :</strong> ${nextDate}</p>
       ${heure ? `<p><strong>Heure :</strong> ${heure}</p>` : ""}
-      ${ville ? `<p><strong>Ville :</strong> ${ville}</p>` : ""}
       ${lieu ? `<p><strong>Lieu :</strong> ${lieu}</p>` : ""}
       ${adresse ? `<p><strong>Adresse :</strong> ${adresse}</p>` : ""}
       ${description ? `<p class="desc">${description}</p>` : ""}
