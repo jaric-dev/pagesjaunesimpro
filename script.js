@@ -56,19 +56,32 @@
   }
 
   // ------------------------------------------------------
-  // TRI : Hors Saison à la fin
+  // TRI : Hors Saison à la fin, par ordre chronologique
   // ------------------------------------------------------
+function parseDate(d) {
+  if (!d) return null;
+  const parts = d.split("-");
+  if (parts.length !== 3) return null;
+
+  const [day, month, year] = parts;
+
+  // Convertit JJ-MM-AAAA → AAAA-MM-JJ
+  const iso = `${year}-${month}-${day}`;
+
+  const date = new Date(iso);
+  return isNaN(date.getTime()) ? null : date;
+}
 
 function sortEvents(events) {
   return events.sort((a, b) => {
-    const aDateRaw = (a.prochain_spectacle || "").trim().toLowerCase();
-    const bDateRaw = (b.prochain_spectacle || "").trim().toLowerCase();
+    const aRaw = (a.prochain_spectacle || "").trim().toLowerCase();
+    const bRaw = (b.prochain_spectacle || "").trim().toLowerCase();
 
-    const aHS = aDateRaw.startsWith("hors saison");
-    const bHS = bDateRaw.startsWith("hors saison");
+    const aHS = aRaw.startsWith("hors saison");
+    const bHS = bRaw.startsWith("hors saison");
 
-    const aAC = aDateRaw.startsWith("à confirmer");
-    const bAC = bDateRaw.startsWith("à confirmer");
+    const aAC = aRaw.startsWith("à confirmer");
+    const bAC = bRaw.startsWith("à confirmer");
 
     // 1. Hors Saison toujours à la fin
     if (aHS && !bHS) return 1;
@@ -79,8 +92,8 @@ function sortEvents(events) {
     if (!aAC && bAC) return -1;
 
     // 3. Tri chronologique des dates valides
-    const aDate = aHS || aAC ? null : new Date(a.prochain_spectacle);
-    const bDate = bHS || bAC ? null : new Date(b.prochain_spectacle);
+    const aDate = aHS || aAC ? null : parseDate(a.prochain_spectacle);
+    const bDate = bHS || bAC ? null : parseDate(b.prochain_spectacle);
 
     if (aDate && bDate) return aDate - bDate;
     if (aDate && !bDate) return -1;
@@ -88,6 +101,8 @@ function sortEvents(events) {
 
     return 0;
   });
+}
+
 }
 
   // ------------------------------------------------------
