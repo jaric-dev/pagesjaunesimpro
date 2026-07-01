@@ -6,17 +6,14 @@
   <title>La Boussole de l'Impro Qc</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Montserrat:wght@700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-  <link rel="icon" href="favicon.png">
 </head>
 
 <body>
 
-  <!-- HEADER -->
   <header>
     <h1 class="site-title">La Boussole de l'Impro</h1>
   </header>
 
-  <!-- JOURS -->
   <nav class="days-nav">
     <button class="day-btn" onclick="selectDay('lundi')">Lundi</button>
     <button class="day-btn" onclick="selectDay('mardi')">Mardi</button>
@@ -46,11 +43,11 @@
     </div>
 
     <div class="accordion-content" id="filters-content">
-      <!-- IMPORTANT : mêmes IDs que desktop -->
       <div id="filters-mobile">
-        <select id="filter-type"></select>
-        <select id="filter-ville"></select>
-        <select id="filter-hs">
+        <!-- IMPORTANT : mêmes selects, mais SANS ID -->
+        <select class="mobile-type"></select>
+        <select class="mobile-ville"></select>
+        <select class="mobile-hs">
           <option value="">Hors saison : Tous</option>
           <option value="hide">Cacher les hors saison</option>
           <option value="only">Afficher seulement hors saison</option>
@@ -59,7 +56,6 @@
     </div>
   </div>
 
-  <!-- ÉVÉNEMENTS -->
   <main>
     <div id="events" class="event-grid"></div>
   </main>
