@@ -106,24 +106,27 @@ document.addEventListener("DOMContentLoaded", () => {
   // APPLICATION DES FILTRES COMBINÉS
   // ------------------------------------------------------
 
-  function applyFilters() {
-    const type = document.getElementById("filter-type").value.toLowerCase();
-    const ville = document.getElementById("filter-ville").value.toLowerCase();
+ function applyFilters() {
+  const type = document.getElementById("filter-type").value.toLowerCase();
+  const ville = document.getElementById("filter-ville").value.toLowerCase();
+  const hs = document.getElementById("filter-hs").value; // ← nouveau
 
-    return currentDayEvents.filter(ev => {
-      const evType = (ev.type || "").toLowerCase().trim();
-      const evVille = (ev.ville || "").toLowerCase().trim();
+  return currentDayEvents.filter(ev => {
+    const evType = (ev.type || "").toLowerCase().trim();
+    const evVille = (ev.ville || "").toLowerCase().trim();
+    const isHS = (ev.prochain_spectacle || "").trim().toLowerCase().startsWith("hors saison");
 
-      const matchType = !type || evType === type;
-      const matchVille = !ville || evVille === ville;
+    const matchType = !type || evType === type;
+    const matchVille = !ville || evVille === ville;
 
-      return matchType && matchVille;
-    });
-  }
+    const matchHS =
+      hs === "" ||
+      (hs === "hide" && !isHS) ||
+      (hs === "only" && isHS);
 
-  function updateDisplay() {
-    renderEvents(applyFilters());
-  }
+    return matchType && matchVille && matchHS;
+  });
+}
 
   // ------------------------------------------------------
   // AFFICHAGE DES CARTES
@@ -212,6 +215,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("filter-type").addEventListener("change", updateDisplay);
   document.getElementById("filter-ville").addEventListener("change", updateDisplay);
+  document.getElementById("filter-hs").addEventListener("change", updateDisplay);
 
   loadAllDataOnce().then(data => {
     allEvents = data;
