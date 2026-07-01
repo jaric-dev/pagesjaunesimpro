@@ -57,11 +57,22 @@ async function loadData() {
 }
 
 // ------------------------------------------------------
-// TRI PAR DATE
+// TRI PAR DATE & Hors saison à la fin
 // ------------------------------------------------------
 
 function sortEvents(events) {
   return events.sort((a, b) => {
+    const aHS = (a.prochain_spectacle || "").trim().toLowerCase().startsWith("hors saison");
+    const bHS = (b.prochain_spectacle || "").trim().toLowerCase().startsWith("hors saison");
+
+    // 1. Les Hors Saison vont toujours à la fin
+    if (aHS && !bHS) return 1;
+    if (!aHS && bHS) return -1;
+
+    // 2. Si les deux sont Hors Saison → garder l'ordre d'origine
+    if (aHS && bHS) return 0;
+
+    // 3. Sinon, tri normal par date
     const da = new Date(a.prochain_spectacle);
     const db = new Date(b.prochain_spectacle);
     return da - db;
