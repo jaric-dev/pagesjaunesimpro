@@ -1,7 +1,7 @@
 // ------------------------------------------------------
 // CONFIG
 // ------------------------------------------------------
-
+let currentDayEvents = [];
 const SPREADSHEET_ID = "1cV5sqtp73WazgB6og_d4aOG4y9HYo3EGePMrBuXAbRs";
 
 const SHEETS = {
@@ -102,13 +102,17 @@ function populateFilters(events) {
 // APPLICATION DES FILTRES COMBINÉS
 // ------------------------------------------------------
 
-function applyFilters(events) {
-  const type = document.getElementById("filter-type").value;
-  const ville = document.getElementById("filter-ville").value;
+function applyFilters() {
+  const type = document.getElementById("filter-type").value.toLowerCase();
+  const ville = document.getElementById("filter-ville").value.toLowerCase();
 
-  return events.filter(ev => {
-    const matchType = !type || ev.type === type;
-    const matchVille = !ville || ev.ville === ville;
+  return currentDayEvents.filter(ev => {
+    const evType = (ev.type || "").toLowerCase().trim();
+    const evVille = (ev.ville || "").toLowerCase().trim();
+
+    const matchType = !type || evType === type;
+    const matchVille = !ville || evVille === ville;
+
     return matchType && matchVille;
   });
 }
@@ -185,12 +189,12 @@ function renderEvents(events) {
 
 async function selectDay(day) {
   const data = await loadData();
-  let events = sortEvents(data[day] || []);
+  currentDayEvents = sortEvents(data[day] || []);
 
-  populateFilters(events);
+  populateFilters(currentDayEvents);
 
-  events = applyFilters(events);
-  renderEvents(events);
+  const filtered = applyFilters();
+  renderEvents(filtered);
 
   document.querySelectorAll(".day-btn").forEach(btn => {
     btn.classList.remove("active");
@@ -198,10 +202,10 @@ async function selectDay(day) {
   document.getElementById(`btn-${day}`).classList.add("active");
 
   document.getElementById("filter-type").onchange = () => {
-    renderEvents(applyFilters(events));
+    renderEvents(applyFilters());
   };
   document.getElementById("filter-ville").onchange = () => {
-    renderEvents(applyFilters(events));
+    renderEvents(applyFilters());
   };
 }
 
