@@ -70,6 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
       instagram: (ev.instagram || "").trim(),
       facebook: (ev.facebook || "").trim(),
       site: (ev.Site || ev.site || "").trim(),
+      logo: (ev.logo || "").trim(),
       description: (ev.description || "").trim(),
       hors_saison: hors_saison,
       // La colonne "jour" existe dans l'onglet Impro_Ponctuel ; pour les
@@ -201,7 +202,12 @@ document.addEventListener("DOMContentLoaded", () => {
         ? `<p class="social-links">${liensSociaux.join(" &nbsp;|&nbsp; ")}</p>`
         : "";
 
+      const logoHtml = ev.logo
+        ? `<div class="event-logo-wrapper"><img src="${ev.logo}" alt="Logo ${ev.titre}" loading="lazy" onerror="this.parentElement.style.display='none'"></div>`
+        : `<div class="event-logo-wrapper"></div>`;
+
       card.innerHTML = `
+        ${logoHtml}
         <h3>${ev.titre}</h3>
         <div class="tags">
           <span class="tag ${ev.type}">${ev.type}</span>
