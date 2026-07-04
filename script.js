@@ -12,6 +12,16 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ------------------------------
+  // Bouton "+ Ajouter un événement" — formulaire vierge, avec seulement
+  // "Nouveau spectacle à ajouter" pré-sélectionné
+  // ------------------------------
+  const addEventBtn = document.getElementById("add-event-btn");
+  if (addEventBtn) {
+    const FORM_BASE_URL_HEADER = "https://docs.google.com/forms/d/e/1FAIpQLSfwO7_cgumk2x7Qq-LafFKZOJn6WhrrOafhyWD98qCtaOpi6A/viewform";
+    addEventBtn.href = `${FORM_BASE_URL_HEADER}?usp=pp_url&entry.1798147304=${encodeURIComponent("Nouveau spectacle à ajouter")}`;
+  }
+
+  // ------------------------------
   // Chargement des données (8 onglets Google Sheets via OpenSheet)
   // ------------------------------
   const SHEET_ID = "1cV5sqtp73WazgB6og_d4aOG4y9HYo3EGePMrBuXAbRs";
