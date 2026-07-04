@@ -169,14 +169,21 @@ document.addEventListener("DOMContentLoaded", () => {
     addParam(parts, "description", ev.description);
     addParam(parts, "logo", ev.logo);
 
-    // Un spectacle vient de l'onglet Ponctuel si sa "source" est "ponctuel" —
-    // peu importe ce que contient sa colonne fréquence (souvent "Unique"
-    // puisque chaque ligne y représente une date précise)
-    if (ev.source === "ponctuel") {
+    // Un spectacle est irrégulier (dates multiples) si sa colonne fréquence
+    // contient "Ponctuel" — peu importe l'onglet où vit la ligne (RIOT par
+    // exemple joue le lundi mais est fréquence "Ponctuel", pas "Hebdomadaire")
+    // — ou, en filet de sécurité, s'il vient de l'onglet Impro_Ponctuel avec
+    // une fréquence vide.
+    const estIrregulier = ev.frequence.toLowerCase() === "ponctuel" || (ev.source === "ponctuel" && !ev.frequence);
+
+    if (estIrregulier) {
       addParam(parts, "frequence", "Dates multiples");
       // Regroupe toutes les dates du même spectacle (même titre) trouvées
-      // dans Impro_Ponctuel, pour permettre une mise à jour groupée en un clic
-      const memeSpectacle = window.eventsData.filter(e => e.titre === ev.titre && e.source === "ponctuel");
+      // sur le site, pour permettre une mise à jour groupée en un clic
+      const memeSpectacle = window.eventsData.filter(e =>
+        e.titre === ev.titre &&
+        (e.frequence.toLowerCase() === "ponctuel" || (e.source === "ponctuel" && !e.frequence))
+      );
       const lignes = memeSpectacle
         .filter(e => e.date)
         .map(e => `${e.date} | ${e.lieu} | ${e.adresse}`);
