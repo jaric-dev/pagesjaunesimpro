@@ -191,7 +191,7 @@ document.addEventListener("DOMContentLoaded", () => {
         : ev.lieu;
 
       const billetTexte = ev.billetRequis
-        ? `<p><strong>Billet requis :</strong> ${ev.billetRequis}</p>`
+        ? `<div class="billet-requis">Billet requis : <strong>${ev.billetRequis}</strong></div>`
         : "";
 
       const liensSociaux = [];
@@ -199,25 +199,27 @@ document.addEventListener("DOMContentLoaded", () => {
       if (ev.facebook) liensSociaux.push(`<a href="${ev.facebook}" target="_blank" rel="noopener">Facebook</a>`);
       if (ev.site) liensSociaux.push(`<a href="${ev.site}" target="_blank" rel="noopener">Site web</a>`);
       const liensSociauxHtml = liensSociaux.length
-        ? `<p class="social-links">${liensSociaux.join(" &nbsp;|&nbsp; ")}</p>`
+        ? `<div class="social-links">${liensSociaux.join("")}</div>`
         : "";
 
       const logoHtml = ev.logo
         ? `<div class="event-logo-wrapper"><img src="${ev.logo}" alt="Logo ${ev.titre}" loading="lazy" onerror="this.parentElement.style.display='none'"></div>`
-        : `<div class="event-logo-wrapper"></div>`;
+        : "";
 
       card.innerHTML = `
         ${logoHtml}
-        <h3>${ev.titre}</h3>
-        <div class="tags">
-          <span class="tag ${ev.type}">${ev.type}</span>
-          <span class="tag ville">${ev.ville}</span>
-        </div>
-        ${ev.hors_saison ? `<div class="badges"><span class="badge badge-hors-saison">Hors saison</span></div>` : ""}
-        <div class="info-box">
-          <p><strong>Date :</strong> ${ev.date || "À venir"}</p>
-          <p><strong>Heure :</strong> ${ev.heure}</p>
-          <p><strong>Lieu :</strong> ${lieuHtml}</p>
+        <div class="event-card-body">
+          <div class="tags">
+            <span class="tag ${ev.type}">${ev.type}</span>
+            <span class="tag ville">${ev.ville}</span>
+          </div>
+          ${ev.hors_saison ? `<div class="badges"><span class="badge badge-hors-saison">Hors saison</span></div>` : ""}
+          <h3>${ev.titre}</h3>
+          <ul class="meta-list">
+            <li><span class="icon">📅</span> ${ev.date || "À venir"}</li>
+            <li><span class="icon">🕒</span> ${ev.heure}</li>
+            <li><span class="icon">📍</span> ${lieuHtml}</li>
+          </ul>
           ${billetTexte}
           ${liensSociauxHtml}
         </div>
