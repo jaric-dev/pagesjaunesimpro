@@ -236,6 +236,22 @@ main {
   color: #ffcc00;
 }
 
+.update-link {
+  margin-top: 0.7rem;
+}
+
+.update-link a {
+  font-size: 0.75rem;
+  color: #6a6a72;
+  text-decoration: underline;
+  text-decoration-color: #3a3a40;
+}
+
+.update-link a:hover {
+  color: #ffcc00;
+  text-decoration-color: #ffcc00;
+}
+
 /* ------------------------------
    TAGS (type / ville) — style contour
 ------------------------------ */

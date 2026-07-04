@@ -58,7 +58,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const dateStr = hors_saison ? "" : (ev.prochain_spectacle || "").trim();
     return {
       titre: (ev.nom || "").trim(),
-      type: (ev.type || "").trim(),
+      // La colonne "type" peut contenir plusieurs valeurs séparées par une
+      // virgule si le champ du formulaire est à cases à cocher (ex: "Spectacle, Jam")
+      types: (ev.type || "").split(",").map(t => t.trim()).filter(Boolean),
       ville: (ev.ville || "").trim(),
       date: dateStr,
       dateObj: parseDate(dateStr),
@@ -111,7 +113,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const types = new Set();
     const villes = new Set();
     window.eventsData.forEach(ev => {
-      if (ev.type) types.add(ev.type);
+      ev.types.forEach(t => types.add(t));
       if (ev.ville) villes.add(ev.ville);
     });
     fillSelect(document.getElementById("filter-type"), types, "Type : Tous");
@@ -165,7 +167,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let events = window.eventsData.filter(ev => ev.jour === day);
 
-    if (typeFilter) events = events.filter(ev => ev.type === typeFilter);
+    if (typeFilter) events = events.filter(ev => ev.types.includes(typeFilter));
     if (villeFilter) events = events.filter(ev => ev.ville === villeFilter);
     if (hsFilter === "hide") events = events.filter(ev => !ev.hors_saison);
     if (hsFilter === "only") events = events.filter(ev => ev.hors_saison);
@@ -202,15 +204,25 @@ document.addEventListener("DOMContentLoaded", () => {
         ? `<div class="social-links">${liensSociaux.join("")}</div>`
         : "";
 
+      // Lien pré-rempli vers le formulaire de mise à jour, avec le nom du
+      // spectacle déjà rempli et l'option "Mise à jour" pré-sélectionnée
+      const FORM_BASE_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfwO7_cgumk2x7Qq-LafFKZOJn6WhrrOafhyWD98qCtaOpi6A/viewform";
+      const majUrl = `${FORM_BASE_URL}?usp=pp_url`
+        + `&entry.591253351=${encodeURIComponent(ev.titre)}`
+        + `&entry.1798147304=${encodeURIComponent("Mise à jour pour un spectacle sur le site")}`;
+      const majLienHtml = `<div class="update-link"><a href="${majUrl}" target="_blank" rel="noopener">Suggérer une mise à jour</a></div>`;
+
       const logoHtml = ev.logo
         ? `<div class="event-logo-wrapper"><img src="${ev.logo}" alt="Logo ${ev.titre}" loading="lazy" onerror="this.parentElement.style.display='none'"></div>`
         : "";
+
+      const typeTagsHtml = ev.types.map(t => `<span class="tag ${t}">${t}</span>`).join("");
 
       card.innerHTML = `
         ${logoHtml}
         <div class="event-card-body">
           <div class="tags">
-            <span class="tag ${ev.type}">${ev.type}</span>
+            ${typeTagsHtml}
             <span class="tag ville">${ev.ville}</span>
           </div>
           ${ev.hors_saison ? `<div class="badges"><span class="badge badge-hors-saison">Hors saison</span></div>` : ""}
@@ -222,6 +234,7 @@ document.addEventListener("DOMContentLoaded", () => {
           </ul>
           ${billetTexte}
           ${liensSociauxHtml}
+          ${majLienHtml}
         </div>
       `;
       container.appendChild(card);
