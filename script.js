@@ -81,7 +81,11 @@ document.addEventListener("DOMContentLoaded", () => {
       frequence: (ev["fréquence"] || "").trim(),
       // La colonne "jour" existe dans l'onglet Impro_Ponctuel ; pour les
       // autres onglets, le jour est déduit du nom de l'onglet.
-      jour: (ev.jour || ongletJour || "").trim().toLowerCase()
+      jour: (ev.jour || ongletJour || "").trim().toLowerCase(),
+      // Onglet d'origine ("lundi", "mardi", ..., ou "ponctuel") — utilisé
+      // pour savoir de façon fiable si un événement vient de Impro_Ponctuel,
+      // peu importe ce que contient sa colonne fréquence.
+      source: ongletJour
     };
   }
 
@@ -165,13 +169,14 @@ document.addEventListener("DOMContentLoaded", () => {
     addParam(parts, "description", ev.description);
     addParam(parts, "logo", ev.logo);
 
-    // Un spectacle vient de l'onglet Ponctuel s'il n'a pas de fréquence
-    // régulière associée (les onglets par jour ont toujours une fréquence)
-    if (!ev.frequence) {
+    // Un spectacle vient de l'onglet Ponctuel si sa "source" est "ponctuel" —
+    // peu importe ce que contient sa colonne fréquence (souvent "Unique"
+    // puisque chaque ligne y représente une date précise)
+    if (ev.source === "ponctuel") {
       addParam(parts, "frequence", "Dates multiples");
       // Regroupe toutes les dates du même spectacle (même titre) trouvées
-      // dans les données, pour permettre une mise à jour groupée en un clic
-      const memeSpectacle = window.eventsData.filter(e => e.titre === ev.titre && !e.frequence);
+      // dans Impro_Ponctuel, pour permettre une mise à jour groupée en un clic
+      const memeSpectacle = window.eventsData.filter(e => e.titre === ev.titre && e.source === "ponctuel");
       const lignes = memeSpectacle
         .filter(e => e.date)
         .map(e => `${e.date} | ${e.lieu} | ${e.adresse}`);
