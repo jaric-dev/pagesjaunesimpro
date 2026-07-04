@@ -75,6 +75,10 @@ document.addEventListener("DOMContentLoaded", () => {
       logo: (ev.logo || "").trim(),
       description: (ev.description || "").trim(),
       hors_saison: hors_saison,
+      // Champs bruts conservés pour pré-remplir le formulaire de mise à jour
+      date_debut: (ev.date_debut || "").trim(),
+      date_fin: (ev.date_fin || "").trim(),
+      frequence: (ev["fréquence"] || "").trim(),
       // La colonne "jour" existe dans l'onglet Impro_Ponctuel ; pour les
       // autres onglets, le jour est déduit du nom de l'onglet.
       jour: (ev.jour || ongletJour || "").trim().toLowerCase()
@@ -104,6 +108,81 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!b.dateObj) return -1;
       return a.dateObj - b.dateObj;
     });
+  }
+
+  // ------------------------------
+  // Construction du lien pré-rempli vers le formulaire de mise à jour
+  // ------------------------------
+  const FORM_BASE_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfwO7_cgumk2x7Qq-LafFKZOJn6WhrrOafhyWD98qCtaOpi6A/viewform";
+  const FORM_ENTRIES = {
+    updateOuNouveau: "1798147304",
+    nom: "591253351",
+    type: "257632126",
+    frequence: "812800412",
+    datesMultiples: "800161543", // champ "Dates des spectacles" (page 2)
+    dateDebut: "234964401",
+    dateFin: "1363438021",
+    lieu: "1839982334",
+    adresse: "408181221",
+    ville: "1402047938",
+    heure: "98808884",
+    billet: "528702374",
+    instagram: "959381308",
+    facebook: "1083296963",
+    site: "631214797",         // à confirmer — voir note dans la réponse
+    description: "1847814997", // à confirmer — voir note dans la réponse
+    logo: "1963225269"
+  };
+
+  // Convertit "JJ-MM-AAAA" en "AAAA-MM-JJ" (format attendu par les champs
+  // Date de Google Forms)
+  function toISODate(str) {
+    if (!str) return "";
+    const parts = str.split("-");
+    if (parts.length !== 3) return "";
+    const [j, m, a] = parts;
+    return `${a}-${m.padStart(2, "0")}-${j.padStart(2, "0")}`;
+  }
+
+  function addParam(parts, entryKey, value) {
+    if (value === undefined || value === null || value === "") return;
+    parts.push(`entry.${FORM_ENTRIES[entryKey]}=${encodeURIComponent(value)}`);
+  }
+
+  function buildUpdateLink(ev) {
+    const parts = [];
+    addParam(parts, "updateOuNouveau", "Mise à jour pour un spectacle sur le site");
+    addParam(parts, "nom", ev.titre);
+    ev.types.forEach(t => parts.push(`entry.${FORM_ENTRIES.type}=${encodeURIComponent(t)}`));
+    addParam(parts, "lieu", ev.lieu);
+    addParam(parts, "adresse", ev.adresse);
+    addParam(parts, "ville", ev.ville);
+    addParam(parts, "heure", ev.heure);
+    addParam(parts, "billet", ev.billetRequis);
+    addParam(parts, "instagram", ev.instagram);
+    addParam(parts, "facebook", ev.facebook);
+    addParam(parts, "site", ev.site);
+    addParam(parts, "description", ev.description);
+    addParam(parts, "logo", ev.logo);
+
+    // Un spectacle vient de l'onglet Ponctuel s'il n'a pas de fréquence
+    // régulière associée (les onglets par jour ont toujours une fréquence)
+    if (!ev.frequence) {
+      addParam(parts, "frequence", "Dates multiples");
+      // Regroupe toutes les dates du même spectacle (même titre) trouvées
+      // dans les données, pour permettre une mise à jour groupée en un clic
+      const memeSpectacle = window.eventsData.filter(e => e.titre === ev.titre && !e.frequence);
+      const lignes = memeSpectacle
+        .filter(e => e.date)
+        .map(e => `${e.date} | ${e.lieu} | ${e.adresse}`);
+      addParam(parts, "datesMultiples", lignes.join("\n"));
+    } else {
+      addParam(parts, "frequence", ev.frequence);
+      addParam(parts, "dateDebut", toISODate(ev.date_debut));
+      addParam(parts, "dateFin", toISODate(ev.date_fin));
+    }
+
+    return `${FORM_BASE_URL}?usp=pp_url&${parts.join("&")}`;
   }
 
   // ------------------------------
@@ -204,13 +283,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ? `<div class="social-links">${liensSociaux.join("")}</div>`
         : "";
 
-      // Lien pré-rempli vers le formulaire de mise à jour, avec le nom du
-      // spectacle déjà rempli et l'option "Mise à jour" pré-sélectionnée
-      const FORM_BASE_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfwO7_cgumk2x7Qq-LafFKZOJn6WhrrOafhyWD98qCtaOpi6A/viewform";
-      const majUrl = `${FORM_BASE_URL}?usp=pp_url`
-        + `&entry.591253351=${encodeURIComponent(ev.titre)}`
-        + `&entry.1798147304=${encodeURIComponent("Mise à jour pour un spectacle sur le site")}`;
-      const majLienHtml = `<div class="update-link"><a href="${majUrl}" target="_blank" rel="noopener">Suggérer une mise à jour</a></div>`;
+      const majLienHtml = `<div class="update-link"><a href="${buildUpdateLink(ev)}" target="_blank" rel="noopener">Mettre à jour</a></div>`;
 
       const logoHtml = ev.logo
         ? `<div class="event-logo-wrapper"><img src="${ev.logo}" alt="Logo ${ev.titre}" loading="lazy" onerror="this.parentElement.style.display='none'"></div>`
