@@ -36,11 +36,12 @@ header {
 }
 
 .add-event-btn {
-  background-color: #ffcc00;
-  color: #0a0a0c;
-  font-weight: 700;
+  background-color: transparent;
+  color: #ffcc00;
+  border: 1px solid #ffcc0066;
+  font-weight: 600;
   font-size: 0.9rem;
-  padding: 0.65rem 1.2rem;
+  padding: 0.6rem 1.15rem;
   border-radius: 8px;
   text-decoration: none;
   white-space: nowrap;
@@ -48,7 +49,8 @@ header {
 }
 
 .add-event-btn:hover {
-  background-color: #ffe066;
+  background-color: #ffcc001a;
+  border-color: #ffcc00;
 }
 
 @media (max-width: 700px) {
@@ -148,6 +150,16 @@ main {
   transform: translateY(-2px);
 }
 
+.event-card--hors-saison {
+  background-color: #121214;
+  border-color: #2a2a2e;
+  opacity: 0.85;
+}
+
+.event-card--hors-saison:hover {
+  opacity: 1;
+}
+
 .event-card-body {
   padding: 1.3rem 1.4rem 1.5rem;
 }
@@ -159,6 +171,13 @@ main {
   font-family: 'Montserrat', sans-serif;
   color: #f5f5f5;
   line-height: 1.3;
+}
+
+.event-description {
+  font-size: 0.88rem;
+  color: #a8a8b0;
+  margin: -0.3rem 0 1rem;
+  line-height: 1.5;
 }
 
 /* ------------------------------
@@ -317,7 +336,7 @@ main {
 
 .tag.Spectacle { border-color: #00bcd4; color: #00bcd4; }
 .tag.Match     { border-color: #ffcc00; color: #ffcc00; }
-.tag.Formation { border-color: #4caf50; color: #4caf50; }
+.tag.Audition  { border-color: #b388ff; color: #b388ff; }
 .tag.Jam       { border-color: #ff6b6b; color: #ff6b6b; }
 
 /* ------------------------------

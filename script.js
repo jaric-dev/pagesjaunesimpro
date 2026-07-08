@@ -148,6 +148,17 @@ document.addEventListener("DOMContentLoaded", () => {
     logo: "1963225269"
   };
 
+  // Filet de sécurité : coupe une description trop longue au dernier
+  // espace complet avant la limite (jamais en plein milieu d'un mot),
+  // et ajoute "…" si le texte a été coupé.
+  function tronquerTexte(texte, max) {
+    if (!texte || texte.length <= max) return texte;
+    const coupe = texte.slice(0, max);
+    const dernierEspace = coupe.lastIndexOf(" ");
+    const propre = dernierEspace > 0 ? coupe.slice(0, dernierEspace) : coupe;
+    return propre.trim() + "…";
+  }
+
   // Convertit "JJ-MM-AAAA" en "AAAA-MM-JJ" (format attendu par les champs
   // Date de Google Forms)
   function toISODate(str) {
@@ -287,7 +298,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     events.forEach(ev => {
       const card = document.createElement("div");
-      card.className = "event-card";
+      card.className = ev.hors_saison ? "event-card event-card--hors-saison" : "event-card";
 
       const lieuHtml = ev.adresse
         ? `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ev.adresse)}" target="_blank" rel="noopener">${ev.lieu}</a>`
@@ -313,6 +324,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const typeTagsHtml = ev.types.map(t => `<span class="tag ${t}">${t}</span>`).join("");
 
+      const descriptionHtml = ev.description
+        ? `<p class="event-description">${tronquerTexte(ev.description, 150)}</p>`
+        : "";
+
       card.innerHTML = `
         ${logoHtml}
         <div class="event-card-body">
@@ -322,6 +337,7 @@ document.addEventListener("DOMContentLoaded", () => {
           </div>
           ${ev.hors_saison ? `<div class="badges"><span class="badge badge-hors-saison">Hors saison</span></div>` : ""}
           <h3>${ev.titre}</h3>
+          ${descriptionHtml}
           <ul class="meta-list">
             <li><span class="icon">📅</span> ${ev.date || "À venir"}</li>
             <li><span class="icon">🕒</span> ${ev.heure}</li>
