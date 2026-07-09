@@ -22,6 +22,45 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ------------------------------
+  // Lightbox — clic sur un logo pour le voir en plein écran
+  // ------------------------------
+  const lightbox = document.getElementById("lightbox");
+  const lightboxImg = document.getElementById("lightbox-img");
+  const lightboxClose = document.querySelector(".lightbox-close");
+  const eventsContainer = document.getElementById("events");
+
+  function ouvrirLightbox(src, alt) {
+    lightboxImg.src = src;
+    lightboxImg.alt = alt || "";
+    lightbox.classList.add("open");
+  }
+
+  function fermerLightbox() {
+    lightbox.classList.remove("open");
+    lightboxImg.src = "";
+  }
+
+  if (eventsContainer) {
+    // Délégation d'événements : fonctionne même pour les cartes créées
+    // dynamiquement après le chargement initial des données
+    eventsContainer.addEventListener("click", (e) => {
+      const img = e.target.closest(".event-logo-wrapper img");
+      if (img) ouvrirLightbox(img.src, img.alt);
+    });
+  }
+
+  if (lightboxClose) lightboxClose.addEventListener("click", fermerLightbox);
+  if (lightbox) {
+    lightbox.addEventListener("click", (e) => {
+      // Ferme seulement si on clique sur le fond, pas sur l'image elle-même
+      if (e.target === lightbox) fermerLightbox();
+    });
+  }
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") fermerLightbox();
+  });
+
+  // ------------------------------
   // Chargement des données (8 onglets Google Sheets via OpenSheet)
   // ------------------------------
   const SHEET_ID = "1cV5sqtp73WazgB6og_d4aOG4y9HYo3EGePMrBuXAbRs";
