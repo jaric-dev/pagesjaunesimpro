@@ -38,6 +38,73 @@ header {
   font-weight: 400;
 }
 
+.about-link {
+  display: inline-block;
+  margin-top: 0.8rem;
+  font-size: 0.82rem;
+  color: #6a6a72;
+  text-decoration: underline;
+  text-decoration-color: #3a3a40;
+}
+
+.about-link:hover {
+  color: #ffcc00;
+  text-decoration-color: #ffcc00;
+}
+
+/* ------------------------------
+   BANDEAU "SITE EN DÉVELOPPEMENT"
+------------------------------ */
+
+.dev-banner {
+  background-color: #2a2410;
+  border-bottom: 1px solid #4a3f1a;
+  color: #e0c568;
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 0.7rem 1.5rem;
+  line-height: 1.5;
+}
+
+/* ------------------------------
+   PAGE À PROPOS
+------------------------------ */
+
+.about-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem 4rem;
+}
+
+.about-block {
+  margin-bottom: 2.2rem;
+}
+
+.about-block h2 {
+  font-family: 'Montserrat', sans-serif;
+  color: #ffcc00;
+  font-size: 1.3rem;
+  margin-bottom: 0.7rem;
+}
+
+.about-block p {
+  color: #c8c8ce;
+  line-height: 1.7;
+  font-size: 0.98rem;
+}
+
+.contact-form-wrapper {
+  margin-top: 1.2rem;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #232327;
+}
+
+.contact-form-wrapper iframe {
+  display: block;
+  border: none;
+}
+
 /* ------------------------------
    LAYOUT GÉNÉRAL (sidebar + contenu)
 ------------------------------ */
