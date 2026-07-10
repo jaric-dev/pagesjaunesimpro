@@ -18,9 +18,12 @@
       <a id="add-event-btn" class="add-event-btn" href="#" target="_blank" rel="noopener">+ Ajouter un événement</a>
 
       <div class="filter-group">
-        <label for="filter-date-start">Plage de dates (JJ-MM-AAAA)</label>
-        <input type="text" id="filter-date-start" placeholder="Du (ex: 07-07-2026)" inputmode="numeric" pattern="\d{2}-\d{2}-\d{4}">
-        <input type="text" id="filter-date-end" placeholder="Au (ex: 21-07-2026)" inputmode="numeric" pattern="\d{2}-\d{2}-\d{4}">
+        <label for="filter-date-start">Plage de dates</label>
+        <div class="date-range-inputs">
+          <input type="text" id="filter-date-start" placeholder="JJ-MM-AAAA" inputmode="numeric" pattern="\d{2}-\d{2}-\d{4}">
+          <span class="date-range-arrow">→</span>
+          <input type="text" id="filter-date-end" placeholder="JJ-MM-AAAA" inputmode="numeric" pattern="\d{2}-\d{2}-\d{4}">
+        </div>
       </div>
 
       <div class="filter-group">

@@ -104,7 +104,7 @@ header {
 }
 
 .filter-group select,
-.filter-group input[type="date"] {
+.filter-group input[type="text"] {
   background-color: #151518;
   color: #d8d8dc;
   border: 1px solid #2a2a2e;
@@ -115,11 +115,36 @@ header {
   cursor: pointer;
   width: 100%;
   box-sizing: border-box;
+  transition: border-color 0.15s;
 }
 
 .filter-group select:hover,
-.filter-group input[type="date"]:hover {
+.filter-group input[type="text"]:hover {
   border-color: #ffcc00;
+}
+
+.filter-group input[type="text"]:focus {
+  outline: none;
+  border-color: #ffcc00;
+  cursor: text;
+}
+
+.date-range-inputs {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.date-range-inputs input {
+  min-width: 0;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.date-range-arrow {
+  color: #5a5a62;
+  font-size: 0.85rem;
+  flex-shrink: 0;
 }
 
 @media (max-width: 800px) {

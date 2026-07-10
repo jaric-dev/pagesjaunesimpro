@@ -54,6 +54,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const filterDateStart = document.getElementById("filter-date-start");
   const filterDateEnd = document.getElementById("filter-date-end");
 
+  // Pré-remplit "Du" avec la date d'aujourd'hui, au même format JJ-MM-AAAA
+  // utilisé partout ailleurs sur le site
+  if (filterDateStart) {
+    const aujourdhui = new Date();
+    const jj = String(aujourdhui.getDate()).padStart(2, "0");
+    const mm = String(aujourdhui.getMonth() + 1).padStart(2, "0");
+    const aaaa = aujourdhui.getFullYear();
+    filterDateStart.value = `${jj}-${mm}-${aaaa}`;
+  }
+
   if (filterDateStart) filterDateStart.addEventListener("change", rafraichirAffichage);
   if (filterDateEnd) filterDateEnd.addEventListener("change", rafraichirAffichage);
 
@@ -288,10 +298,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const fin = parseDate((filterDateEnd?.value || "").trim());
 
     if (debut || fin) {
-      // Un événement hors saison n'a pas de date connue — il ne peut donc
-      // pas être situé dans une plage précise, on l'exclut si une plage
-      // est active.
+      // Les hors saison n'ont pas de date connue et restent gérés
+      // uniquement par leur propre filtre ("Hors saison"), jamais par la
+      // plage de dates — sinon ils disparaîtraient silencieusement dès
+      // que "Du" contient une valeur par défaut (aujourd'hui).
       base = base.filter(ev => {
+        if (ev.hors_saison) return true;
         if (!ev.dateObj) return false;
         if (debut && ev.dateObj < debut) return false;
         if (fin && ev.dateObj > fin) return false;
