@@ -117,6 +117,7 @@ document.addEventListener("DOMContentLoaded", () => {
       lieu: (ev.lieu || "").trim(),
       adresse: (ev.adresse || "").trim(),
       billetRequis: (ev.billet || "").trim(),
+      prix: (ev.prix || "").trim(),
       instagram: (ev.instagram || "").trim(),
       facebook: (ev.facebook || "").trim(),
       site: (ev.Site || ev.site || "").trim(),
@@ -347,8 +348,11 @@ document.addEventListener("DOMContentLoaded", () => {
         ? `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ev.adresse)}" target="_blank" rel="noopener">${ev.lieu}</a>`
         : ev.lieu;
 
-      const billetTexte = ev.billetRequis
-        ? `<div class="billet-requis">Billet requis : <strong>${ev.billetRequis}</strong></div>`
+      const billetLignes = [];
+      if (ev.billetRequis) billetLignes.push(`Billet requis : <strong>${ev.billetRequis}</strong>`);
+      if (ev.prix) billetLignes.push(`Prix : <strong>${ev.prix}</strong>`);
+      const billetTexte = billetLignes.length
+        ? `<div class="billet-requis">${billetLignes.join(" — ")}</div>`
         : "";
 
       const liensSociaux = [];
