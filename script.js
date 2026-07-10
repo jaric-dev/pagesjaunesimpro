@@ -133,7 +133,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function parseDate(str) {
     if (!str) return null;
-    const parts = str.split("-");
+    // Tolère "-" ou "/" comme séparateur (ex: 21-07-2026 ou 21/07/2026)
+    // — filet de sécurité contre les fautes de frappe dans le Sheet,
+    // qui ne devraient plus faire disparaître un événement silencieusement.
+    const parts = str.split(/[-/]/);
     if (parts.length !== 3) return null;
     const [jour, mois, annee] = parts.map(p => parseInt(p, 10));
     if (!jour || !mois || !annee) return null;
@@ -187,7 +190,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function toISODate(str) {
     if (!str) return "";
-    const parts = str.split("-");
+    const parts = str.split(/[-/]/);
     if (parts.length !== 3) return "";
     const [j, m, a] = parts;
     return `${a}-${m.padStart(2, "0")}-${j.padStart(2, "0")}`;
