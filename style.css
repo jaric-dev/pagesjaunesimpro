@@ -18,46 +18,7 @@ header {
   background-color: #0f0f12;
   padding: 1.8rem 2rem;
   border-bottom: 1px solid #222;
-}
-
-.header-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.5rem;
-  max-width: 1200px;
-  margin: 0 auto;
-  flex-wrap: wrap;
-}
-
-.header-titles {
   text-align: center;
-  flex: 1;
-}
-
-.add-event-btn {
-  background-color: transparent;
-  color: #ffcc00;
-  border: 1px solid #ffcc0066;
-  font-weight: 600;
-  font-size: 0.9rem;
-  padding: 0.6rem 1.15rem;
-  border-radius: 8px;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: 0.2s;
-}
-
-.add-event-btn:hover {
-  background-color: #ffcc001a;
-  border-color: #ffcc00;
-}
-
-@media (max-width: 700px) {
-  .header-top {
-    flex-direction: column;
-    text-align: center;
-  }
 }
 
 .site-title {
@@ -78,17 +39,145 @@ header {
 }
 
 /* ------------------------------
+   LAYOUT GÉNÉRAL (sidebar + contenu)
+------------------------------ */
+
+.layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 2rem;
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ------------------------------
+   SIDEBAR
+------------------------------ */
+
+.sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+  position: sticky;
+  top: 2rem;
+}
+
+.add-event-btn {
+  display: block;
+  text-align: center;
+  background-color: transparent;
+  color: #ffcc00;
+  border: 1px solid #ffcc0066;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0.65rem 1rem;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+.add-event-btn:hover {
+  background-color: #ffcc001a;
+  border-color: #ffcc00;
+}
+
+.view-mode-toggle {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.mode-btn {
+  flex: 1;
+  background-color: transparent;
+  color: #b0b0b8;
+  border: 1px solid #2a2a2e;
+  padding: 0.55rem 0.6rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.mode-btn:hover {
+  border-color: #ffcc00;
+  color: #ffcc00;
+}
+
+.mode-btn.active {
+  background-color: #ffcc00;
+  border-color: #ffcc00;
+  color: #0a0a0c;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.filter-group label {
+  font-size: 0.75rem;
+  color: #8a8a92;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.filter-group select,
+.filter-group input[type="date"] {
+  background-color: #151518;
+  color: #d8d8dc;
+  border: 1px solid #2a2a2e;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.filter-group select:hover,
+.filter-group input[type="date"]:hover {
+  border-color: #ffcc00;
+}
+
+@media (max-width: 800px) {
+  .layout {
+    flex-direction: column;
+    padding: 1.2rem;
+  }
+
+  .sidebar {
+    width: 100%;
+    position: static;
+  }
+}
+
+/* ------------------------------
    NAVIGATION DES JOURS
 ------------------------------ */
 
 .days-nav {
   display: flex;
-  justify-content: center;
   flex-wrap: wrap;
   gap: 0.6rem;
-  padding: 1.2rem;
-  background-color: #0f0f12;
-  border-bottom: 1px solid #222;
+  margin-bottom: 1.5rem;
+  transition: opacity 0.2s;
+}
+
+.days-nav.disabled {
+  opacity: 0.35;
+  pointer-events: none;
 }
 
 .day-btn {
@@ -118,17 +207,10 @@ header {
    CONTENU PRINCIPAL
 ------------------------------ */
 
-main {
-  padding: 2.5rem 2rem;
-  max-width: 1200px;
-  margin: auto;
-}
-
 .event-grid {
   display: flex;
   flex-wrap: wrap;
   gap: 1.5rem;
-  justify-content: center;
 }
 
 /* ------------------------------
@@ -198,6 +280,7 @@ main {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  cursor: zoom-in;
 }
 
 /* ------------------------------
@@ -225,7 +308,7 @@ main {
 }
 
 /* ------------------------------
-   MÉTADONNÉES (remplace l'ancien bloc plein)
+   MÉTADONNÉES
 ------------------------------ */
 
 .meta-list {
@@ -340,107 +423,6 @@ main {
 .tag.Jam       { border-color: #ff6b6b; color: #ff6b6b; }
 
 /* ------------------------------
-   FILTRES DESKTOP
------------------------------- */
-
-#filters {
-  display: flex;
-  gap: 0.8rem;
-  justify-content: center;
-  margin: 1.5rem 0;
-  flex-wrap: wrap;
-}
-
-#filters select {
-  background-color: #151518;
-  color: #d8d8dc;
-  border: 1px solid #2a2a2e;
-  padding: 0.55rem 1rem;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  cursor: pointer;
-}
-
-#filters select:hover {
-  border-color: #ffcc00;
-  color: #ffcc00;
-}
-
-/* ------------------------------
-   ACCORDÉON MOBILE
------------------------------- */
-
-@media (max-width: 600px) {
-
-  #filters {
-    display: none;
-  }
-
-  .accordion-wrapper {
-    display: block;
-    background-color: #151518;
-    border: 1px solid #232327;
-    border-radius: 10px;
-    overflow: hidden;
-    margin: 1rem;
-  }
-
-  .accordion-header {
-    padding: 1rem;
-    font-size: 1.1rem;
-    font-weight: 600;
-    background-color: #1c1c20;
-    color: #e8e8ea;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .accordion-header .arrow {
-    transition: transform 0.25s ease;
-  }
-
-  .accordion-header.open .arrow {
-    transform: rotate(90deg);
-  }
-
-  .accordion-content {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.35s ease;
-    background-color: #151518;
-    padding: 0 1rem;
-  }
-
-  .accordion-content.open {
-    padding: 1rem;
-    max-height: 500px;
-  }
-
-  #filters-mobile select {
-    width: 100%;
-    margin-bottom: 1rem;
-    background-color: #1c1c20;
-    color: #e8e8ea;
-    border: 1px solid #2a2a2e;
-    padding: 0.6rem 1rem;
-    border-radius: 8px;
-    font-size: 1rem;
-  }
-}
-
-/* ------------------------------
-   ACCORDÉON HIDDEN ON DESKTOP
------------------------------- */
-
-@media (min-width: 601px) {
-  .accordion-wrapper {
-    display: none;
-  }
-}
-
-/* ------------------------------
    LIGHTBOX (image plein écran)
 ------------------------------ */
 
@@ -481,8 +463,4 @@ main {
 
 .lightbox-close:hover {
   color: #ffcc00;
-}
-
-.event-logo-wrapper img {
-  cursor: zoom-in;
 }

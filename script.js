@@ -1,17 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
   // ------------------------------
-  // Accordéon mobile
-  // ------------------------------
-  const filtersToggle = document.getElementById("filters-toggle");
-  const filtersContent = document.getElementById("filters-content");
-  if (filtersToggle && filtersContent) {
-    filtersToggle.addEventListener("click", () => {
-      filtersContent.classList.toggle("open");
-      filtersToggle.classList.toggle("open");
-    });
-  }
-
-  // ------------------------------
   // Bouton "+ Ajouter un événement" — formulaire vierge, avec seulement
   // "Nouveau spectacle à ajouter" pré-sélectionné
   // ------------------------------
@@ -41,8 +29,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (eventsContainer) {
-    // Délégation d'événements : fonctionne même pour les cartes créées
-    // dynamiquement après le chargement initial des données
     eventsContainer.addEventListener("click", (e) => {
       const img = e.target.closest(".event-logo-wrapper img");
       if (img) ouvrirLightbox(img.src, img.alt);
@@ -52,13 +38,48 @@ document.addEventListener("DOMContentLoaded", () => {
   if (lightboxClose) lightboxClose.addEventListener("click", fermerLightbox);
   if (lightbox) {
     lightbox.addEventListener("click", (e) => {
-      // Ferme seulement si on clique sur le fond, pas sur l'image elle-même
       if (e.target === lightbox) fermerLightbox();
     });
   }
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") fermerLightbox();
   });
+
+  // ------------------------------
+  // Mode d'affichage : "jour" ou "dates" (plage de dates)
+  // ------------------------------
+  let currentMode = "jour";
+  let currentDay = "lundi";
+
+  const modeJourBtn = document.getElementById("mode-jour-btn");
+  const modeDatesBtn = document.getElementById("mode-dates-btn");
+  const daysNav = document.getElementById("days-nav");
+  const dateRangeGroup = document.getElementById("date-range-group");
+  const filterDateStart = document.getElementById("filter-date-start");
+  const filterDateEnd = document.getElementById("filter-date-end");
+
+  function activerModeJour() {
+    currentMode = "jour";
+    modeJourBtn.classList.add("active");
+    modeDatesBtn.classList.remove("active");
+    daysNav.classList.remove("disabled");
+    dateRangeGroup.hidden = true;
+    rafraichirAffichage();
+  }
+
+  function activerModeDates() {
+    currentMode = "dates";
+    modeDatesBtn.classList.add("active");
+    modeJourBtn.classList.remove("active");
+    daysNav.classList.add("disabled");
+    dateRangeGroup.hidden = false;
+    rafraichirAffichage();
+  }
+
+  if (modeJourBtn) modeJourBtn.addEventListener("click", activerModeJour);
+  if (modeDatesBtn) modeDatesBtn.addEventListener("click", activerModeDates);
+  if (filterDateStart) filterDateStart.addEventListener("change", rafraichirAffichage);
+  if (filterDateEnd) filterDateEnd.addEventListener("change", rafraichirAffichage);
 
   // ------------------------------
   // Chargement des données (8 onglets Google Sheets via OpenSheet)
@@ -75,8 +96,6 @@ document.addEventListener("DOMContentLoaded", () => {
     ponctuel: "Impro_Ponctuel"
   };
 
-  let currentDay = "lundi";
-
   const requetes = Object.entries(ONGLETS).map(([jour, onglet]) =>
     fetch(`https://opensheet.elk.sh/${SHEET_ID}/${onglet}`)
       .then(r => r.json())
@@ -92,23 +111,18 @@ document.addEventListener("DOMContentLoaded", () => {
       window.eventsData = resultats.flat().filter(ev => ev.titre); // ignore lignes vides
       populateFilters();
       wireFilterEvents();
-      selectDay("lundi");
+      activerModeJour();
     })
     .catch(err => console.error("Erreur de chargement des données:", err));
 
   // ------------------------------
   // Adaptation des colonnes réelles du Google Sheet vers le format attendu
-  // Colonnes du sheet : nom, type, saison, prochain_spectacle, date_debut,
-  // date_fin, lieu, adresse, ville, fréquence, heure, billet, instagram,
-  // facebook, Site, description, soirs_off, jour (onglet Ponctuel seulement)
   // ------------------------------
   function normalizeEvent(ev, ongletJour) {
     const hors_saison = (ev.prochain_spectacle || "").trim().toLowerCase() === "hors saison";
     const dateStr = hors_saison ? "" : (ev.prochain_spectacle || "").trim();
     return {
       titre: (ev.nom || "").trim(),
-      // La colonne "type" peut contenir plusieurs valeurs séparées par une
-      // virgule si le champ du formulaire est à cases à cocher (ex: "Spectacle, Jam")
       types: (ev.type || "").split(",").map(t => t.trim()).filter(Boolean),
       ville: (ev.ville || "").trim(),
       date: dateStr,
@@ -116,7 +130,6 @@ document.addEventListener("DOMContentLoaded", () => {
       heure: (ev.heure || "").trim(),
       lieu: (ev.lieu || "").trim(),
       adresse: (ev.adresse || "").trim(),
-      // Colonne L : Oui/Non — indique si un billet est requis (ce n'est pas un lien)
       billetRequis: (ev.billet || "").trim(),
       instagram: (ev.instagram || "").trim(),
       facebook: (ev.facebook || "").trim(),
@@ -124,21 +137,14 @@ document.addEventListener("DOMContentLoaded", () => {
       logo: (ev.logo || "").trim(),
       description: (ev.description || "").trim(),
       hors_saison: hors_saison,
-      // Champs bruts conservés pour pré-remplir le formulaire de mise à jour
       date_debut: (ev.date_debut || "").trim(),
       date_fin: (ev.date_fin || "").trim(),
       frequence: (ev["fréquence"] || "").trim(),
-      // La colonne "jour" existe dans l'onglet Impro_Ponctuel ; pour les
-      // autres onglets, le jour est déduit du nom de l'onglet.
       jour: (ev.jour || ongletJour || "").trim().toLowerCase(),
-      // Onglet d'origine ("lundi", "mardi", ..., ou "ponctuel") — utilisé
-      // pour savoir de façon fiable si un événement vient de Impro_Ponctuel,
-      // peu importe ce que contient sa colonne fréquence.
       source: ongletJour
     };
   }
 
-  // Convertit une date au format "JJ-MM-AAAA" en objet Date (null si invalide)
   function parseDate(str) {
     if (!str) return null;
     const parts = str.split("-");
@@ -149,8 +155,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return isNaN(d.getTime()) ? null : d;
   }
 
-  // Trie : événements hors saison à la fin, sinon par date croissante
-  // (le plus proche d'aujourd'hui en premier)
   function sortEvents(events) {
     return [...events].sort((a, b) => {
       if (a.hors_saison && !b.hors_saison) return 1;
@@ -172,7 +176,7 @@ document.addEventListener("DOMContentLoaded", () => {
     nom: "591253351",
     type: "257632126",
     frequence: "812800412",
-    datesMultiples: "800161543", // champ "Dates des spectacles" (page 2)
+    datesMultiples: "800161543",
     dateDebut: "234964401",
     dateFin: "1363438021",
     lieu: "1839982334",
@@ -182,14 +186,11 @@ document.addEventListener("DOMContentLoaded", () => {
     billet: "528702374",
     instagram: "959381308",
     facebook: "1083296963",
-    site: "631214797",         // à confirmer — voir note dans la réponse
-    description: "1847814997", // à confirmer — voir note dans la réponse
+    site: "631214797",
+    description: "1847814997",
     logo: "1963225269"
   };
 
-  // Filet de sécurité : coupe une description trop longue au dernier
-  // espace complet avant la limite (jamais en plein milieu d'un mot),
-  // et ajoute "…" si le texte a été coupé.
   function tronquerTexte(texte, max) {
     if (!texte || texte.length <= max) return texte;
     const coupe = texte.slice(0, max);
@@ -198,8 +199,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return propre.trim() + "…";
   }
 
-  // Convertit "JJ-MM-AAAA" en "AAAA-MM-JJ" (format attendu par les champs
-  // Date de Google Forms)
   function toISODate(str) {
     if (!str) return "";
     const parts = str.split("-");
@@ -229,17 +228,10 @@ document.addEventListener("DOMContentLoaded", () => {
     addParam(parts, "description", ev.description);
     addParam(parts, "logo", ev.logo);
 
-    // Un spectacle est irrégulier (dates multiples) si sa colonne fréquence
-    // contient "Ponctuel" — peu importe l'onglet où vit la ligne (RIOT par
-    // exemple joue le lundi mais est fréquence "Ponctuel", pas "Hebdomadaire")
-    // — ou, en filet de sécurité, s'il vient de l'onglet Impro_Ponctuel avec
-    // une fréquence vide.
     const estIrregulier = ev.frequence.toLowerCase() === "ponctuel" || (ev.source === "ponctuel" && !ev.frequence);
 
     if (estIrregulier) {
       addParam(parts, "frequence", "Dates multiples");
-      // Regroupe toutes les dates du même spectacle (même titre) trouvées
-      // sur le site, pour permettre une mise à jour groupée en un clic
       const memeSpectacle = window.eventsData.filter(e =>
         e.titre === ev.titre &&
         (e.frequence.toLowerCase() === "ponctuel" || (e.source === "ponctuel" && !e.frequence))
@@ -258,7 +250,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ------------------------------
-  // Filtres
+  // Filtres (type / ville / hors-saison) — un seul jeu de contrôles,
+  // partagé par les deux modes d'affichage
   // ------------------------------
   function populateFilters() {
     const types = new Set();
@@ -269,8 +262,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     fillSelect(document.getElementById("filter-type"), types, "Type : Tous");
     fillSelect(document.getElementById("filter-ville"), villes, "Ville : Toutes");
-    fillSelect(document.querySelector("#filters-mobile select:nth-child(1)"), types, "Type : Tous");
-    fillSelect(document.querySelector("#filters-mobile select:nth-child(2)"), villes, "Ville : Toutes");
   }
 
   function fillSelect(select, values, placeholder) {
@@ -282,48 +273,56 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function wireFilterEvents() {
-    const pairs = [
-      ["filter-type", ".mobile-type"],
-      ["filter-ville", ".mobile-ville"],
-      ["filter-hs", ".mobile-hs"]
-    ];
-    pairs.forEach(([desktopId, mobileSelector]) => {
-      const desktopEl = document.getElementById(desktopId);
-      const mobileEl = document.querySelector(mobileSelector);
-      [desktopEl, mobileEl].forEach(el => {
-        if (!el) return;
-        el.addEventListener("change", () => {
-          // Garde les deux versions (desktop/mobile) synchronisées
-          if (desktopEl) desktopEl.value = el.value;
-          if (mobileEl) mobileEl.value = el.value;
-          selectDay(currentDay);
-        });
-      });
+    ["filter-type", "filter-ville", "filter-hs"].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener("change", rafraichirAffichage);
     });
   }
 
-  // ------------------------------
-  // Sélection du jour + affichage
-  // ------------------------------
-  window.selectDay = function (day) {
-    currentDay = day;
-
-    document.querySelectorAll(".day-btn").forEach(btn => {
-      btn.classList.toggle("active", btn.dataset.day === day);
-    });
-
+  // Applique les filtres communs (type / ville / hors-saison) à un
+  // ensemble d'événements déjà pré-filtré (par jour ou par plage de dates)
+  function appliquerFiltresCommuns(events) {
     const typeFilter = document.getElementById("filter-type")?.value || "";
     const villeFilter = document.getElementById("filter-ville")?.value || "";
     const hsFilter = document.getElementById("filter-hs")?.value || "";
 
-    let events = window.eventsData.filter(ev => ev.jour === day);
+    let resultat = events;
+    if (typeFilter) resultat = resultat.filter(ev => ev.types.includes(typeFilter));
+    if (villeFilter) resultat = resultat.filter(ev => ev.ville === villeFilter);
+    if (hsFilter === "hide") resultat = resultat.filter(ev => !ev.hors_saison);
+    if (hsFilter === "only") resultat = resultat.filter(ev => ev.hors_saison);
+    return resultat;
+  }
 
-    if (typeFilter) events = events.filter(ev => ev.types.includes(typeFilter));
-    if (villeFilter) events = events.filter(ev => ev.ville === villeFilter);
-    if (hsFilter === "hide") events = events.filter(ev => !ev.hors_saison);
-    if (hsFilter === "only") events = events.filter(ev => ev.hors_saison);
+  // ------------------------------
+  // Rendu principal — s'adapte au mode courant (jour ou plage de dates)
+  // ------------------------------
+  function rafraichirAffichage() {
+    if (!window.eventsData) return;
 
-    displayEvents(sortEvents(events));
+    let base;
+    if (currentMode === "jour") {
+      base = window.eventsData.filter(ev => ev.jour === currentDay);
+    } else {
+      const debut = filterDateStart.value ? new Date(filterDateStart.value) : null;
+      const fin = filterDateEnd.value ? new Date(filterDateEnd.value) : null;
+      base = window.eventsData.filter(ev => {
+        if (!ev.dateObj) return false; // les hors saison (sans date) n'ont pas leur place dans une plage
+        if (debut && ev.dateObj < debut) return false;
+        if (fin && ev.dateObj > fin) return false;
+        return true;
+      });
+    }
+
+    displayEvents(sortEvents(appliquerFiltresCommuns(base)));
+  }
+
+  window.selectDay = function (day) {
+    currentDay = day;
+    document.querySelectorAll(".day-btn").forEach(btn => {
+      btn.classList.toggle("active", btn.dataset.day === day);
+    });
+    rafraichirAffichage();
   };
 
   function displayEvents(events) {
@@ -331,7 +330,7 @@ document.addEventListener("DOMContentLoaded", () => {
     container.innerHTML = "";
 
     if (events.length === 0) {
-      container.innerHTML = `<p style="text-align:center; width:100%;">Aucun spectacle trouvé pour ce jour avec ces filtres.</p>`;
+      container.innerHTML = `<p style="text-align:center; width:100%;">Aucun spectacle trouvé avec ces filtres.</p>`;
       return;
     }
 

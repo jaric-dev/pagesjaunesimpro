@@ -9,59 +9,68 @@
 </head>
 <body>
   <header>
-    <div class="header-top">
-      <div class="header-titles">
-        <h1 class="site-title">La Boussole de l'Impro</h1>
-        <p class="site-subtitle">L'outil pour toujours savoir où aller voir de l'impro.</p>
-      </div>
-      <a id="add-event-btn" class="add-event-btn" href="#" target="_blank" rel="noopener">+ Ajouter un événement</a>
-    </div>
+    <h1 class="site-title">La Boussole de l'Impro</h1>
+    <p class="site-subtitle">L'outil pour toujours savoir où aller voir de l'impro.</p>
   </header>
-  <nav class="days-nav">
-    <button class="day-btn" data-day="lundi" onclick="selectDay('lundi')">Lundi</button>
-    <button class="day-btn" data-day="mardi" onclick="selectDay('mardi')">Mardi</button>
-    <button class="day-btn" data-day="mercredi" onclick="selectDay('mercredi')">Mercredi</button>
-    <button class="day-btn" data-day="jeudi" onclick="selectDay('jeudi')">Jeudi</button>
-    <button class="day-btn" data-day="vendredi" onclick="selectDay('vendredi')">Vendredi</button>
-    <button class="day-btn" data-day="samedi" onclick="selectDay('samedi')">Samedi</button>
-    <button class="day-btn" data-day="dimanche" onclick="selectDay('dimanche')">Dimanche</button>
-  </nav>
-  <!-- FILTRES DESKTOP -->
-  <div id="filters">
-    <select id="filter-type"></select>
-    <select id="filter-ville"></select>
-    <select id="filter-hs">
-      <option value="">Hors saison : Tous</option>
-      <option value="hide">Cacher les hors saison</option>
-      <option value="only">Afficher seulement hors saison</option>
-    </select>
-  </div>
-  <!-- ACCORDÉON MOBILE -->
-  <div class="accordion-wrapper">
-    <div class="accordion-header" id="filters-toggle">
-      Filtres
-      <span class="arrow">▶</span>
-    </div>
-    <div class="accordion-content" id="filters-content">
-      <div id="filters-mobile">
-        <!-- IMPORTANT : mêmes selects, mais SANS ID -->
-        <select class="mobile-type"></select>
-        <select class="mobile-ville"></select>
-        <select class="mobile-hs">
-          <option value="">Hors saison : Tous</option>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <a id="add-event-btn" class="add-event-btn" href="#" target="_blank" rel="noopener">+ Ajouter un événement</a>
+
+      <div class="view-mode-toggle">
+        <button type="button" id="mode-jour-btn" class="mode-btn active">Par jour</button>
+        <button type="button" id="mode-dates-btn" class="mode-btn">Par plage de dates</button>
+      </div>
+
+      <div class="filter-group" id="date-range-group" hidden>
+        <label for="filter-date-start">Du</label>
+        <input type="date" id="filter-date-start">
+        <label for="filter-date-end">Au</label>
+        <input type="date" id="filter-date-end">
+      </div>
+
+      <div class="filter-group">
+        <label for="filter-type">Type</label>
+        <select id="filter-type"></select>
+      </div>
+
+      <div class="filter-group">
+        <label for="filter-ville">Ville</label>
+        <select id="filter-ville"></select>
+      </div>
+
+      <div class="filter-group">
+        <label for="filter-hs">Hors saison</label>
+        <select id="filter-hs">
+          <option value="">Tous</option>
           <option value="hide">Cacher les hors saison</option>
           <option value="only">Afficher seulement hors saison</option>
         </select>
       </div>
+    </aside>
+
+    <div class="content">
+      <nav class="days-nav" id="days-nav">
+        <button class="day-btn" data-day="lundi" onclick="selectDay('lundi')">Lundi</button>
+        <button class="day-btn" data-day="mardi" onclick="selectDay('mardi')">Mardi</button>
+        <button class="day-btn" data-day="mercredi" onclick="selectDay('mercredi')">Mercredi</button>
+        <button class="day-btn" data-day="jeudi" onclick="selectDay('jeudi')">Jeudi</button>
+        <button class="day-btn" data-day="vendredi" onclick="selectDay('vendredi')">Vendredi</button>
+        <button class="day-btn" data-day="samedi" onclick="selectDay('samedi')">Samedi</button>
+        <button class="day-btn" data-day="dimanche" onclick="selectDay('dimanche')">Dimanche</button>
+      </nav>
+
+      <main>
+        <div id="events" class="event-grid"></div>
+      </main>
     </div>
   </div>
-  <main>
-    <div id="events" class="event-grid"></div>
-  </main>
+
   <div id="lightbox" class="lightbox">
     <span class="lightbox-close" aria-label="Fermer">&times;</span>
     <img id="lightbox-img" src="" alt="">
   </div>
+
   <script src="script.js"></script>
 </body>
 </html>
