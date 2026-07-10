@@ -89,35 +89,6 @@ header {
   border-color: #ffcc00;
 }
 
-.view-mode-toggle {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.mode-btn {
-  flex: 1;
-  background-color: transparent;
-  color: #b0b0b8;
-  border: 1px solid #2a2a2e;
-  padding: 0.55rem 0.6rem;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 0.82rem;
-  font-weight: 600;
-  transition: 0.2s;
-}
-
-.mode-btn:hover {
-  border-color: #ffcc00;
-  color: #ffcc00;
-}
-
-.mode-btn.active {
-  background-color: #ffcc00;
-  border-color: #ffcc00;
-  color: #0a0a0c;
-}
-
 .filter-group {
   display: flex;
   flex-direction: column;
@@ -172,12 +143,6 @@ header {
   flex-wrap: wrap;
   gap: 0.6rem;
   margin-bottom: 1.5rem;
-  transition: opacity 0.2s;
-}
-
-.days-nav.disabled {
-  opacity: 0.35;
-  pointer-events: none;
 }
 
 .day-btn {

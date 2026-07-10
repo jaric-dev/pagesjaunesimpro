@@ -46,38 +46,14 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ------------------------------
-  // Mode d'affichage : "jour" ou "dates" (plage de dates)
+  // Sélection du jour + plage de dates — les deux se combinent, ne
+  // s'excluent plus. "tous" affiche tous les jours de la semaine.
   // ------------------------------
-  let currentMode = "jour";
-  let currentDay = "lundi";
+  let currentDay = "tous";
 
-  const modeJourBtn = document.getElementById("mode-jour-btn");
-  const modeDatesBtn = document.getElementById("mode-dates-btn");
-  const daysNav = document.getElementById("days-nav");
-  const dateRangeGroup = document.getElementById("date-range-group");
   const filterDateStart = document.getElementById("filter-date-start");
   const filterDateEnd = document.getElementById("filter-date-end");
 
-  function activerModeJour() {
-    currentMode = "jour";
-    modeJourBtn.classList.add("active");
-    modeDatesBtn.classList.remove("active");
-    daysNav.classList.remove("disabled");
-    dateRangeGroup.hidden = true;
-    rafraichirAffichage();
-  }
-
-  function activerModeDates() {
-    currentMode = "dates";
-    modeDatesBtn.classList.add("active");
-    modeJourBtn.classList.remove("active");
-    daysNav.classList.add("disabled");
-    dateRangeGroup.hidden = false;
-    rafraichirAffichage();
-  }
-
-  if (modeJourBtn) modeJourBtn.addEventListener("click", activerModeJour);
-  if (modeDatesBtn) modeDatesBtn.addEventListener("click", activerModeDates);
   if (filterDateStart) filterDateStart.addEventListener("change", rafraichirAffichage);
   if (filterDateEnd) filterDateEnd.addEventListener("change", rafraichirAffichage);
 
@@ -111,7 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
       window.eventsData = resultats.flat().filter(ev => ev.titre); // ignore lignes vides
       populateFilters();
       wireFilterEvents();
-      activerModeJour();
+      rafraichirAffichage();
     })
     .catch(err => console.error("Erreur de chargement des données:", err));
 
@@ -297,17 +273,26 @@ document.addEventListener("DOMContentLoaded", () => {
   // ------------------------------
   // Rendu principal — s'adapte au mode courant (jour ou plage de dates)
   // ------------------------------
+  // ------------------------------
+  // Rendu principal — combine jour (ou "tous") ET plage de dates,
+  // en plus des filtres communs (type / ville / hors-saison)
+  // ------------------------------
   function rafraichirAffichage() {
     if (!window.eventsData) return;
 
-    let base;
-    if (currentMode === "jour") {
-      base = window.eventsData.filter(ev => ev.jour === currentDay);
-    } else {
-      const debut = filterDateStart.value ? new Date(filterDateStart.value) : null;
-      const fin = filterDateEnd.value ? new Date(filterDateEnd.value) : null;
-      base = window.eventsData.filter(ev => {
-        if (!ev.dateObj) return false; // les hors saison (sans date) n'ont pas leur place dans une plage
+    let base = currentDay === "tous"
+      ? window.eventsData
+      : window.eventsData.filter(ev => ev.jour === currentDay);
+
+    const debut = parseDate((filterDateStart?.value || "").trim());
+    const fin = parseDate((filterDateEnd?.value || "").trim());
+
+    if (debut || fin) {
+      // Un événement hors saison n'a pas de date connue — il ne peut donc
+      // pas être situé dans une plage précise, on l'exclut si une plage
+      // est active.
+      base = base.filter(ev => {
+        if (!ev.dateObj) return false;
         if (debut && ev.dateObj < debut) return false;
         if (fin && ev.dateObj > fin) return false;
         return true;
@@ -323,6 +308,11 @@ document.addEventListener("DOMContentLoaded", () => {
       btn.classList.toggle("active", btn.dataset.day === day);
     });
     rafraichirAffichage();
+  };
+
+  const JOURS_LABELS = {
+    lundi: "Lundi", mardi: "Mardi", mercredi: "Mercredi", jeudi: "Jeudi",
+    vendredi: "Vendredi", samedi: "Samedi", dimanche: "Dimanche"
   };
 
   function displayEvents(events) {
@@ -377,7 +367,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <h3>${ev.titre}</h3>
           ${descriptionHtml}
           <ul class="meta-list">
-            <li><span class="icon">📅</span> ${ev.date || "À venir"}</li>
+            <li><span class="icon">📅</span> ${JOURS_LABELS[ev.jour] ? JOURS_LABELS[ev.jour] + " · " : ""}${ev.date || "À venir"}</li>
             <li><span class="icon">🕒</span> ${ev.heure}</li>
             <li><span class="icon">📍</span> ${lieuHtml}</li>
           </ul>

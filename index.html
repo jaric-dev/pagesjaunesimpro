@@ -17,16 +17,10 @@
     <aside class="sidebar">
       <a id="add-event-btn" class="add-event-btn" href="#" target="_blank" rel="noopener">+ Ajouter un événement</a>
 
-      <div class="view-mode-toggle">
-        <button type="button" id="mode-jour-btn" class="mode-btn active">Par jour</button>
-        <button type="button" id="mode-dates-btn" class="mode-btn">Par plage de dates</button>
-      </div>
-
-      <div class="filter-group" id="date-range-group" hidden>
-        <label for="filter-date-start">Du</label>
-        <input type="date" id="filter-date-start">
-        <label for="filter-date-end">Au</label>
-        <input type="date" id="filter-date-end">
+      <div class="filter-group">
+        <label for="filter-date-start">Plage de dates (JJ-MM-AAAA)</label>
+        <input type="text" id="filter-date-start" placeholder="Du (ex: 07-07-2026)" inputmode="numeric" pattern="\d{2}-\d{2}-\d{4}">
+        <input type="text" id="filter-date-end" placeholder="Au (ex: 21-07-2026)" inputmode="numeric" pattern="\d{2}-\d{2}-\d{4}">
       </div>
 
       <div class="filter-group">
@@ -51,6 +45,7 @@
 
     <div class="content">
       <nav class="days-nav" id="days-nav">
+        <button class="day-btn active" data-day="tous" onclick="selectDay('tous')">Tous les jours</button>
         <button class="day-btn" data-day="lundi" onclick="selectDay('lundi')">Lundi</button>
         <button class="day-btn" data-day="mardi" onclick="selectDay('mardi')">Mardi</button>
         <button class="day-btn" data-day="mercredi" onclick="selectDay('mercredi')">Mercredi</button>
