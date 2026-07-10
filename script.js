@@ -178,7 +178,8 @@ document.addEventListener("DOMContentLoaded", () => {
     facebook: "1083296963",
     site: "631214797",
     description: "1847814997",
-    logo: "1963225269"
+    logo: "1963225269",
+    prix: "487354818"
   };
 
   function tronquerTexte(texte, max) {
@@ -217,6 +218,7 @@ document.addEventListener("DOMContentLoaded", () => {
     addParam(parts, "site", ev.site);
     addParam(parts, "description", ev.description);
     addParam(parts, "logo", ev.logo);
+    addParam(parts, "prix", ev.prix);
 
     const estIrregulier = ev.frequence.toLowerCase() === "ponctuel" || (ev.source === "ponctuel" && !ev.frequence);
 
