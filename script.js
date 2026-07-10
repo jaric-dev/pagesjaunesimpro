@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Sélection du jour + plage de dates — les deux se combinent, ne
   // s'excluent plus. "tous" affiche tous les jours de la semaine.
   // ------------------------------
-  let currentDay = "tous";
+  let currentDay = "lundi";
 
   const filterDateStart = document.getElementById("filter-date-start");
   const filterDateEnd = document.getElementById("filter-date-end");
