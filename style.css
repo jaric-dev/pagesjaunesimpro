@@ -105,6 +105,27 @@ header {
   border: none;
 }
 
+.about-signature {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid #232327;
+  text-align: center;
+}
+
+.signature-logo {
+  max-width: 90px;
+  max-height: 90px;
+  object-fit: contain;
+  border-radius: 8px;
+  margin-bottom: 0.6rem;
+}
+
+.about-signature p {
+  color: #6a6a72;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
 /* ------------------------------
    LAYOUT GÉNÉRAL (sidebar + contenu)
 ------------------------------ */
