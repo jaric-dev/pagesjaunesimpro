@@ -94,7 +94,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   Promise.all(requetes)
     .then(resultats => {
-      window.eventsData = resultats.flat().filter(ev => ev.titre); // ignore lignes vides
+      window.eventsData = resultats.flat()
+        .filter(ev => ev.titre) // ignore lignes vides
+        .filter(ev => ev.masquer.toLowerCase() !== "oui"); // ignore lignes masquées
       populateFilters();
       wireFilterEvents();
       rafraichirAffichage();
@@ -128,7 +130,8 @@ document.addEventListener("DOMContentLoaded", () => {
       date_fin: (ev.date_fin || "").trim(),
       frequence: (ev["fréquence"] || "").trim(),
       jour: (ev.jour || ongletJour || "").trim().toLowerCase(),
-      source: ongletJour
+      source: ongletJour,
+      masquer: (ev.masquer || "").trim()
     };
   }
 
