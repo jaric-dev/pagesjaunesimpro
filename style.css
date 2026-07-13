@@ -177,6 +177,27 @@ header {
   border-color: #ffcc00;
 }
 
+.site-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.9rem 1rem;
+  background-color: #101013;
+  border: 1px solid #202024;
+  border-radius: 10px;
+}
+
+.stat-item {
+  font-size: 0.82rem;
+  color: #8a8a92;
+}
+
+.stat-item strong {
+  color: #ffcc00;
+  font-size: 1rem;
+  font-family: 'Montserrat', sans-serif;
+}
+
 .filter-group {
   display: flex;
   flex-direction: column;

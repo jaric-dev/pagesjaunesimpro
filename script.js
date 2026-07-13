@@ -99,9 +99,26 @@ document.addEventListener("DOMContentLoaded", () => {
         .filter(ev => ev.masquer.toLowerCase() !== "oui"); // ignore lignes masquées
       populateFilters();
       wireFilterEvents();
+      afficherStats();
       rafraichirAffichage();
     })
     .catch(err => console.error("Erreur de chargement des données:", err));
+
+  // Compte les spectacles distincts (par nom) et les villes distinctes
+  // représentées, tous jours et toute saison confondus (pas juste ce qui
+  // est affiché à l'écran présentement)
+  function afficherStats() {
+    const statsEl = document.getElementById("site-stats");
+    if (!statsEl || !window.eventsData) return;
+
+    const spectaclesUniques = new Set(window.eventsData.map(ev => ev.titre));
+    const villesUniques = new Set(window.eventsData.map(ev => ev.ville).filter(Boolean));
+
+    statsEl.innerHTML = `
+      <div class="stat-item"><strong>${spectaclesUniques.size}</strong> spectacles annoncés</div>
+      <div class="stat-item"><strong>${villesUniques.size}</strong> villes représentées</div>
+    `;
+  }
 
   // ------------------------------
   // Adaptation des colonnes réelles du Google Sheet vers le format attendu
