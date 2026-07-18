@@ -320,6 +320,27 @@ document.addEventListener("DOMContentLoaded", () => {
       ? window.eventsData
       : window.eventsData.filter(ev => ev.jour === currentDay);
 
+    // Règle de base non contournable : un événement à date connue et
+    // révolue ne s'affiche plus jamais, peu importe ce que contiennent les
+    // champs "Du"/"Au" — même si un visiteur les vide manuellement.
+    //
+    // Exception : les spectacles à fréquence VRAIMENT récurrente
+    // (Hebdomadaire / Bi-Mensuel / Mensuel) qui sont hors saison restent
+    // affichés avec le badge "Hors saison" — c'est une info utile (la
+    // ligue existe, reviendra plus tard). Mais un spectacle "Unique" ou
+    // "Ponctuel" devenu hors saison, lui, ne reviendra jamais : il doit
+    // disparaître complètement, pas juste être tagué hors saison.
+    const FREQUENCES_RECURRENTES = ["hebdomadaire", "bi-mensuel", "mensuel"];
+    const minuitAujourdhui = new Date();
+    minuitAujourdhui.setHours(0, 0, 0, 0);
+    base = base.filter(ev => {
+      if (ev.hors_saison) {
+        return FREQUENCES_RECURRENTES.includes(ev.frequence.toLowerCase());
+      }
+      if (!ev.dateObj) return true; // date illisible : on ne masque pas par prudence
+      return ev.dateObj >= minuitAujourdhui;
+    });
+
     const debut = parseDate((filterDateStart?.value || "").trim());
     const fin = parseDate((filterDateEnd?.value || "").trim());
 
