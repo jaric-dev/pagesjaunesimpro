@@ -148,7 +148,12 @@ document.addEventListener("DOMContentLoaded", () => {
       frequence: (ev["fréquence"] || "").trim(),
       jour: (ev.jour || ongletJour || "").trim().toLowerCase(),
       source: ongletJour,
-      masquer: (ev.masquer || "").trim()
+      masquer: (ev.masquer || "").trim(),
+      // Pour les spectacles Ponctuel : les 9 colonnes date_spectacle1 à
+      // date_spectacle9 contiennent toutes les dates connues de ce
+      // spectacle (une seule ligne, plusieurs dates), utilisées pour
+      // pré-remplir le formulaire de mise à jour au complet.
+      datesMultiplesRaw: Array.from({ length: 9 }, (_, i) => (ev[`date_spectacle${i + 1}`] || "").trim()).filter(Boolean)
     };
   }
 
@@ -244,13 +249,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (estIrregulier) {
       addParam(parts, "frequence", "Dates multiples");
-      const memeSpectacle = window.eventsData.filter(e =>
-        e.titre === ev.titre &&
-        (e.frequence.toLowerCase() === "ponctuel" || (e.source === "ponctuel" && !e.frequence))
-      );
-      const lignes = memeSpectacle
-        .filter(e => e.date)
-        .map(e => `${e.date} | ${e.lieu} | ${e.adresse}`);
+      // Toutes les dates de ce spectacle vivent dans la même ligne
+      // (colonnes date_spectacle1 à date_spectacle9) — on les prend
+      // directement, plus besoin de chercher ailleurs dans les données.
+      // Si ces colonnes ne sont pas encore remplies (ancienne ligne),
+      // on retombe sur la seule date connue (prochain_spectacle).
+      const dates = ev.datesMultiplesRaw.length ? ev.datesMultiplesRaw : (ev.date ? [ev.date] : []);
+      const lignes = dates.map(d => `${d} | ${ev.lieu} | ${ev.adresse}`);
       addParam(parts, "datesMultiples", lignes.join("\n"));
     } else {
       addParam(parts, "frequence", ev.frequence);
