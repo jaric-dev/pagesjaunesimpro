@@ -191,7 +191,7 @@ document.addEventListener("DOMContentLoaded", () => {
     nom: "591253351",
     type: "257632126",
     frequence: "812800412",
-    datesMultiples: "800161543",
+    datesMultiples: "125280225",
     dateDebut: "234964401",
     dateFin: "1363438021",
     lieu: "1839982334",
@@ -248,7 +248,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const estIrregulier = ev.frequence.toLowerCase() === "ponctuel" || (ev.source === "ponctuel" && !ev.frequence);
 
     if (estIrregulier) {
-      addParam(parts, "frequence", "Dates multiples");
+      addParam(parts, "frequence", "Irrégulier/Dates multiples");
       // Toutes les dates de ce spectacle vivent dans la même ligne
       // (colonnes date_spectacle1 à date_spectacle9) — on les prend
       // directement, plus besoin de chercher ailleurs dans les données.
