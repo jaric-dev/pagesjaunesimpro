@@ -166,7 +166,10 @@ document.addEventListener("DOMContentLoaded", () => {
       // date_spectacle9 contiennent toutes les dates connues de ce
       // spectacle (une seule ligne, plusieurs dates), utilisées pour
       // pré-remplir le formulaire de mise à jour au complet.
-      datesMultiplesRaw: Array.from({ length: 9 }, (_, i) => (ev[`date_spectacle${i + 1}`] || "").trim()).filter(Boolean)
+      datesMultiplesRaw: Array.from({ length: 9 }, (_, i) => (ev[`date_spectacle${i + 1}`] || "").trim()).filter(Boolean),
+      // Optionnel : si rempli, indique que ce spectacle fait partie de la
+      // programmation d'un festival (colonne "festival" dans le Sheet)
+      festival: (ev.festival || "").trim()
     };
   }
 
@@ -190,8 +193,6 @@ document.addEventListener("DOMContentLoaded", () => {
       dateLimiteStr,
       dateLimiteObj: parseDate(dateLimiteStr),
       ville: (ev.ville || "").trim(),
-      lieu: (ev.lieu || "").trim(),
-      adresse: (ev.adresse || "").trim(),
       instagram: (ev.instagram || "").trim(),
       facebook: (ev.facebook || "").trim(),
       site: (ev.site || ev.Site || "").trim(),
@@ -499,10 +500,6 @@ document.addEventListener("DOMContentLoaded", () => {
         ? `${f.dateDebutStr} au ${f.dateFinStr}`
         : f.dateDebutStr;
 
-      const lieuHtml = f.adresse
-        ? `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(f.adresse)}" target="_blank" rel="noopener">${f.lieu}</a>`
-        : f.lieu;
-
       const deadlineHtml = f.dateLimiteStr
         ? `<div class="festival-deadline">📌 Date limite d'inscription : <strong>${f.dateLimiteStr}</strong></div>`
         : "";
@@ -523,14 +520,13 @@ document.addEventListener("DOMContentLoaded", () => {
         ${logoHtml}
         <div class="event-card-body">
           <div class="tags">
-            <span class="tag festival-type">${f.type}</span>
+            <span class="tag ${f.type}">${f.type}</span>
             <span class="tag ville">${f.ville}</span>
           </div>
           <h3>${f.nom}</h3>
           ${descriptionHtml}
           <ul class="meta-list">
             <li><span class="icon">📅</span> ${plageDates}</li>
-            <li><span class="icon">📍</span> ${lieuHtml}</li>
           </ul>
           ${deadlineHtml}
           ${liensSociauxHtml}
@@ -593,6 +589,7 @@ document.addEventListener("DOMContentLoaded", () => {
           </div>
           ${ev.hors_saison ? `<div class="badges"><span class="badge badge-hors-saison">Hors saison</span></div>` : ""}
           <h3>${ev.titre}</h3>
+          ${ev.festival ? `<div class="festival-badge">🎪 Fait partie de la programmation de <strong>${ev.festival}</strong></div>` : ""}
           ${descriptionHtml}
           <ul class="meta-list">
             <li><span class="icon">📅</span> ${JOURS_LABELS[ev.jour] ? JOURS_LABELS[ev.jour] + " · " : ""}${ev.date || "À venir"}</li>

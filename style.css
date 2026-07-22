@@ -349,10 +349,8 @@ header {
   border-color: #b388ff88;
 }
 
-.tag.festival-type {
-  border-color: #b388ff;
-  color: #b388ff;
-}
+.tag.Festival { border-color: #b388ff; color: #b388ff; }
+.tag.Tournoi  { border-color: #ff9d4d; color: #ff9d4d; }
 
 .festival-deadline {
   margin-top: 0.9rem;
@@ -366,6 +364,16 @@ header {
 
 .festival-deadline strong {
   color: #ffcc00;
+}
+
+.festival-badge {
+  font-size: 0.78rem;
+  color: #b388ff;
+  margin: -0.4rem 0 0.8rem;
+}
+
+.festival-badge strong {
+  color: #cbaaff;
 }
 
 /* ------------------------------
