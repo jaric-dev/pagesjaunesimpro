@@ -589,7 +589,7 @@ document.addEventListener("DOMContentLoaded", () => {
           </div>
           ${ev.hors_saison ? `<div class="badges"><span class="badge badge-hors-saison">Hors saison</span></div>` : ""}
           <h3>${ev.titre}</h3>
-          ${ev.festival ? `<div class="festival-badge">🎪 Fait partie de la programmation de <strong>${ev.festival}</strong></div>` : ""}
+          ${ev.festival ? `<div class="festival-badge">🎪 Fait partie de la programmation du <strong>${ev.festival}</strong></div>` : ""}
           ${descriptionHtml}
           <ul class="meta-list">
             <li><span class="icon">📅</span> ${JOURS_LABELS[ev.jour] ? JOURS_LABELS[ev.jour] + " · " : ""}${ev.date || "À venir"}</li>
