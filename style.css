@@ -321,6 +321,53 @@ header {
   color: #0a0a0c;
 }
 
+.day-btn--festivals {
+  border-color: #b388ff66;
+  color: #b388ff;
+}
+
+.day-btn--festivals:hover {
+  border-color: #b388ff;
+  color: #b388ff;
+}
+
+.day-btn--festivals.active {
+  background-color: #b388ff;
+  border-color: #b388ff;
+  color: #0a0a0c;
+}
+
+/* ------------------------------
+   CARTES FESTIVALS & TOURNOIS
+------------------------------ */
+
+.festival-card {
+  border-color: #2a2440;
+}
+
+.festival-card:hover {
+  border-color: #b388ff88;
+}
+
+.tag.festival-type {
+  border-color: #b388ff;
+  color: #b388ff;
+}
+
+.festival-deadline {
+  margin-top: 0.9rem;
+  padding: 0.6rem 0.8rem;
+  background-color: #2a1f10;
+  border: 1px solid #4a3a1a;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  color: #e0c568;
+}
+
+.festival-deadline strong {
+  color: #ffcc00;
+}
+
 /* ------------------------------
    CONTENU PRINCIPAL
 ------------------------------ */

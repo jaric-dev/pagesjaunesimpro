@@ -25,16 +25,7 @@
 
       <div id="site-stats" class="site-stats"></div>
 
-      <div class="filter-group">
-        <label for="filter-date-start">Plage de dates</label>
-        <div class="date-range-inputs">
-          <input type="text" id="filter-date-start" placeholder="JJ-MM-AAAA" inputmode="numeric" pattern="\d{2}-\d{2}-\d{4}">
-          <span class="date-range-arrow">→</span>
-          <input type="text" id="filter-date-end" placeholder="JJ-MM-AAAA" inputmode="numeric" pattern="\d{2}-\d{2}-\d{4}">
-        </div>
-      </div>
-
-      <div class="filter-group">
+      <div class="filter-group" id="type-filter-group">
         <label for="filter-type">Type</label>
         <select id="filter-type"></select>
       </div>
@@ -44,13 +35,22 @@
         <select id="filter-ville"></select>
       </div>
 
-      <div class="filter-group">
+      <div class="filter-group" id="hs-filter-group">
         <label for="filter-hs">Hors saison</label>
         <select id="filter-hs">
           <option value="">Tous</option>
           <option value="hide">Cacher les hors saison</option>
           <option value="only">Afficher seulement hors saison</option>
         </select>
+      </div>
+
+      <div class="filter-group" id="date-range-filter-group">
+        <label for="filter-date-start">Plage de dates</label>
+        <div class="date-range-inputs">
+          <input type="text" id="filter-date-start" placeholder="JJ-MM-AAAA" inputmode="numeric" pattern="\d{2}-\d{2}-\d{4}">
+          <span class="date-range-arrow">→</span>
+          <input type="text" id="filter-date-end" placeholder="JJ-MM-AAAA" inputmode="numeric" pattern="\d{2}-\d{2}-\d{4}">
+        </div>
       </div>
 
       <p class="sidebar-cta">
@@ -68,6 +68,7 @@
         <button class="day-btn" data-day="samedi" onclick="selectDay('samedi')">Samedi</button>
         <button class="day-btn" data-day="dimanche" onclick="selectDay('dimanche')">Dimanche</button>
         <button class="day-btn" data-day="tous" onclick="selectDay('tous')">Tous les jours</button>
+        <button class="day-btn day-btn--festivals" data-day="festivals" onclick="selectDay('festivals')">Festivals &amp; Tournois</button>
       </nav>
 
       <main>

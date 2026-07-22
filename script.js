@@ -92,6 +92,14 @@ document.addEventListener("DOMContentLoaded", () => {
       })
   );
 
+  const requeteFestivals = fetch(`https://opensheet.elk.sh/${SHEET_ID}/Festivals_Tournois`)
+    .then(r => r.json())
+    .then(rows => rows.map(normalizeFestival))
+    .catch(err => {
+      console.error("Erreur de chargement de l'onglet Festivals_Tournois:", err);
+      return [];
+    });
+
   Promise.all(requetes)
     .then(resultats => {
       window.eventsData = resultats.flat()
@@ -103,6 +111,11 @@ document.addEventListener("DOMContentLoaded", () => {
       rafraichirAffichage();
     })
     .catch(err => console.error("Erreur de chargement des données:", err));
+
+  requeteFestivals.then(festivals => {
+    window.festivalsData = festivals.filter(f => f.nom);
+    if (currentDay === "festivals") rafraichirAffichage();
+  });
 
   // Compte les spectacles distincts (par nom) et les villes distinctes
   // représentées, tous jours et toute saison confondus (pas juste ce qui
@@ -154,6 +167,35 @@ document.addEventListener("DOMContentLoaded", () => {
       // spectacle (une seule ligne, plusieurs dates), utilisées pour
       // pré-remplir le formulaire de mise à jour au complet.
       datesMultiplesRaw: Array.from({ length: 9 }, (_, i) => (ev[`date_spectacle${i + 1}`] || "").trim()).filter(Boolean)
+    };
+  }
+
+  // ------------------------------
+  // Adaptation des données de l'onglet Festivals_Tournois — structure
+  // volontairement distincte des spectacles réguliers (plage de dates
+  // plutôt qu'un jour unique, date limite d'inscription optionnelle)
+  // ------------------------------
+  function normalizeFestival(ev) {
+    const dateDebutStr = (ev.date_debut || "").trim();
+    const dateFinStr = (ev.date_fin || "").trim();
+    const dateLimiteStr = (ev.date_limite_inscription || "").trim();
+    return {
+      nom: (ev.nom || "").trim(),
+      description: (ev.description || "").trim(),
+      type: (ev.type || "").trim(),
+      dateDebutStr,
+      dateFinStr,
+      dateDebutObj: parseDate(dateDebutStr),
+      dateFinObj: parseDate(dateFinStr),
+      dateLimiteStr,
+      dateLimiteObj: parseDate(dateLimiteStr),
+      ville: (ev.ville || "").trim(),
+      lieu: (ev.lieu || "").trim(),
+      adresse: (ev.adresse || "").trim(),
+      instagram: (ev.instagram || "").trim(),
+      facebook: (ev.facebook || "").trim(),
+      site: (ev.site || ev.Site || "").trim(),
+      logo: (ev.logo || "").trim()
     };
   }
 
@@ -321,6 +363,22 @@ document.addEventListener("DOMContentLoaded", () => {
   function rafraichirAffichage() {
     if (!window.eventsData) return;
 
+    const typeGroup = document.getElementById("type-filter-group");
+    const hsGroup = document.getElementById("hs-filter-group");
+
+    if (currentDay === "festivals") {
+      // Les filtres Type et Hors saison ne s'appliquent pas aux
+      // festivals/tournois (concepts différents) — on les masque, mais on
+      // garde Ville et la plage de dates, qui restent pertinents.
+      if (typeGroup) typeGroup.hidden = true;
+      if (hsGroup) hsGroup.hidden = true;
+      afficherFestivals();
+      return;
+    }
+
+    if (typeGroup) typeGroup.hidden = false;
+    if (hsGroup) hsGroup.hidden = false;
+
     let base = currentDay === "tous"
       ? window.eventsData
       : window.eventsData.filter(ev => ev.jour === currentDay);
@@ -378,6 +436,109 @@ document.addEventListener("DOMContentLoaded", () => {
     lundi: "Lundi", mardi: "Mardi", mercredi: "Mercredi", jeudi: "Jeudi",
     vendredi: "Vendredi", samedi: "Samedi", dimanche: "Dimanche"
   };
+
+  // ------------------------------
+  // Affichage du mode Festivals & Tournois
+  // ------------------------------
+  function afficherFestivals() {
+    if (!window.festivalsData) {
+      // Les données festivals arrivent en parallèle et peuvent ne pas
+      // encore être chargées au moment où on clique sur l'onglet
+      document.getElementById("events").innerHTML =
+        `<p style="text-align:center; width:100%;">Chargement...</p>`;
+      return;
+    }
+
+    const villeFilter = document.getElementById("filter-ville")?.value || "";
+    const debut = parseDate((filterDateStart?.value || "").trim());
+    const fin = parseDate((filterDateEnd?.value || "").trim());
+
+    let events = window.festivalsData;
+
+    if (villeFilter) events = events.filter(f => f.ville === villeFilter);
+
+    if (debut || fin) {
+      // Un festival "chevauche" la plage si sa fin n'est pas avant le
+      // début de la plage, et son début n'est pas après la fin de la plage
+      events = events.filter(f => {
+        if (!f.dateDebutObj) return false;
+        const finFestival = f.dateFinObj || f.dateDebutObj;
+        if (fin && f.dateDebutObj > fin) return false;
+        if (debut && finFestival < debut) return false;
+        return true;
+      });
+    }
+
+    events = [...events].sort((a, b) => {
+      if (!a.dateDebutObj) return 1;
+      if (!b.dateDebutObj) return -1;
+      return a.dateDebutObj - b.dateDebutObj;
+    });
+
+    displayFestivals(events);
+  }
+
+  function displayFestivals(festivals) {
+    const container = document.getElementById("events");
+    container.innerHTML = "";
+
+    if (festivals.length === 0) {
+      container.innerHTML = `<p style="text-align:center; width:100%;">Aucun festival ou tournoi trouvé avec ces filtres.</p>`;
+      return;
+    }
+
+    festivals.forEach(f => {
+      const card = document.createElement("div");
+      card.className = "event-card festival-card";
+
+      const logoHtml = f.logo
+        ? `<div class="event-logo-wrapper"><img src="${f.logo}" alt="Logo ${f.nom}" loading="lazy" onerror="this.parentElement.style.display='none'"></div>`
+        : "";
+
+      const plageDates = f.dateFinStr && f.dateFinStr !== f.dateDebutStr
+        ? `${f.dateDebutStr} au ${f.dateFinStr}`
+        : f.dateDebutStr;
+
+      const lieuHtml = f.adresse
+        ? `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(f.adresse)}" target="_blank" rel="noopener">${f.lieu}</a>`
+        : f.lieu;
+
+      const deadlineHtml = f.dateLimiteStr
+        ? `<div class="festival-deadline">📌 Date limite d'inscription : <strong>${f.dateLimiteStr}</strong></div>`
+        : "";
+
+      const descriptionHtml = f.description
+        ? `<p class="event-description">${tronquerTexte(f.description, 150)}</p>`
+        : "";
+
+      const liensSociaux = [];
+      if (f.instagram) liensSociaux.push(`<a href="${f.instagram}" target="_blank" rel="noopener">Instagram</a>`);
+      if (f.facebook) liensSociaux.push(`<a href="${f.facebook}" target="_blank" rel="noopener">Facebook</a>`);
+      if (f.site) liensSociaux.push(`<a href="${f.site}" target="_blank" rel="noopener">Site web</a>`);
+      const liensSociauxHtml = liensSociaux.length
+        ? `<div class="social-links">${liensSociaux.join("")}</div>`
+        : "";
+
+      card.innerHTML = `
+        ${logoHtml}
+        <div class="event-card-body">
+          <div class="tags">
+            <span class="tag festival-type">${f.type}</span>
+            <span class="tag ville">${f.ville}</span>
+          </div>
+          <h3>${f.nom}</h3>
+          ${descriptionHtml}
+          <ul class="meta-list">
+            <li><span class="icon">📅</span> ${plageDates}</li>
+            <li><span class="icon">📍</span> ${lieuHtml}</li>
+          </ul>
+          ${deadlineHtml}
+          ${liensSociauxHtml}
+        </div>
+      `;
+      container.appendChild(card);
+    });
+  }
 
   function displayEvents(events) {
     const container = document.getElementById("events");
