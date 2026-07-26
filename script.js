@@ -5,8 +5,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // ------------------------------
   const addEventBtn = document.getElementById("add-event-btn");
   if (addEventBtn) {
-    const FORM_BASE_URL_HEADER = "https://docs.google.com/forms/d/e/1FAIpQLSfwO7_cgumk2x7Qq-LafFKZOJn6WhrrOafhyWD98qCtaOpi6A/viewform";
-    addEventBtn.href = `${FORM_BASE_URL_HEADER}?usp=pp_url&entry.1798147304=${encodeURIComponent("Nouveau spectacle à ajouter")}`;
+    // Nouveau formulaire de soumission (Spectacle / Audition / Festival) —
+    // laissé vierge : la personne choisit elle-même son type de contenu
+    // en Section 1, plutôt qu'un choix pré-sélectionné pour elle.
+    addEventBtn.href = "https://docs.google.com/forms/d/e/1FAIpQLSfmMSS9osdJOvm4btrBbKjPtSMPwjlddoEYU5LSlnxMkKjw3g/viewform";
   }
 
   // ------------------------------
@@ -228,26 +230,46 @@ document.addEventListener("DOMContentLoaded", () => {
   // ------------------------------
   // Construction du lien pré-rempli vers le formulaire de mise à jour
   // ------------------------------
-  const FORM_BASE_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfwO7_cgumk2x7Qq-LafFKZOJn6WhrrOafhyWD98qCtaOpi6A/viewform";
-  const FORM_ENTRIES = {
-    updateOuNouveau: "1798147304",
-    nom: "591253351",
-    type: "257632126",
-    frequence: "812800412",
-    datesMultiples: "125280225",
-    dateDebut: "234964401",
-    dateFin: "1363438021",
-    lieu: "1839982334",
-    adresse: "408181221",
-    ville: "1402047938",
-    heure: "98808884",
-    billet: "528702374",
-    instagram: "959381308",
-    facebook: "1083296963",
-    site: "631214797",
-    description: "1847814997",
-    logo: "1963225269",
-    prix: "487354818"
+  const UPDATE_FORM_BASE_URL = "https://docs.google.com/forms/d/e/1FAIpQLSeeG383L2VpTt35NXd0jXH4AvrzhJ96qmkB5olkguPDPA4kzg/viewform";
+
+  // Section "Spectacles et Ligues" du formulaire de mise à jour
+  const UPDATE_ENTRIES_SPECTACLE = {
+    typeContenu: "630150997", // valeur attendue : "Spectacles et Ligues"
+    nom: "1747047438",
+    type: "1447261349",
+    description: "1367352150",
+    frequence: "1589486784",
+    dateDebut: "1986354405",
+    dateFin: "775060780",
+    datesMultiples: "1984819215",
+    lieu: "1649261882",
+    adresse: "1328673551",
+    ville: "1074437143",
+    heure: "1777107234",
+    billet: "1782382116",
+    prix: "987619274",
+    instagram: "357239419",
+    facebook: "1532376572",
+    site: "841564403",
+    linktree: "7399501",
+    logo: "1504614778"
+  };
+
+  // Section "Festivals et Tournois" du formulaire de mise à jour
+  const UPDATE_ENTRIES_FESTIVAL = {
+    typeContenu: "630150997", // valeur attendue : "Festivals et Tournois" (à confirmer)
+    nom: "1383275963",
+    type: "486472793",
+    description: "555071293",
+    dateDebut: "488876264",
+    dateFin: "212893064",
+    dateLimiteInscription: "1809196406",
+    ville: "729949662",
+    instagram: "1489298568",
+    facebook: "76020231",
+    site: "712098918",
+    linktree: "4334897",
+    logo: "829401794"
   };
 
   function tronquerTexte(texte, max) {
@@ -266,47 +288,69 @@ document.addEventListener("DOMContentLoaded", () => {
     return `${a}-${m.padStart(2, "0")}-${j.padStart(2, "0")}`;
   }
 
-  function addParam(parts, entryKey, value) {
+  function addParamTo(entries, parts, entryKey, value) {
     if (value === undefined || value === null || value === "") return;
-    parts.push(`entry.${FORM_ENTRIES[entryKey]}=${encodeURIComponent(value)}`);
+    parts.push(`entry.${entries[entryKey]}=${encodeURIComponent(value)}`);
   }
 
   function buildUpdateLink(ev) {
     const parts = [];
-    addParam(parts, "updateOuNouveau", "Mise à jour pour un spectacle sur le site");
-    addParam(parts, "nom", ev.titre);
-    ev.types.forEach(t => parts.push(`entry.${FORM_ENTRIES.type}=${encodeURIComponent(t)}`));
-    addParam(parts, "lieu", ev.lieu);
-    addParam(parts, "adresse", ev.adresse);
-    addParam(parts, "ville", ev.ville);
-    addParam(parts, "heure", ev.heure);
-    addParam(parts, "billet", ev.billetRequis);
-    addParam(parts, "instagram", ev.instagram);
-    addParam(parts, "facebook", ev.facebook);
-    addParam(parts, "site", ev.site);
-    addParam(parts, "description", ev.description);
-    addParam(parts, "logo", ev.logo);
-    addParam(parts, "prix", ev.prix);
+    const E = UPDATE_ENTRIES_SPECTACLE;
+    const addParam = (key, val) => addParamTo(E, parts, key, val);
+
+    addParam("typeContenu", "Spectacles et Ligues");
+    addParam("nom", ev.titre);
+    ev.types.forEach(t => parts.push(`entry.${E.type}=${encodeURIComponent(t)}`));
+    addParam("description", ev.description);
+    addParam("lieu", ev.lieu);
+    addParam("adresse", ev.adresse);
+    addParam("ville", ev.ville);
+    addParam("heure", ev.heure);
+    addParam("billet", ev.billetRequis);
+    addParam("prix", ev.prix);
+    addParam("instagram", ev.instagram);
+    addParam("facebook", ev.facebook);
+    addParam("site", ev.site);
+    addParam("logo", ev.logo);
 
     const estIrregulier = ev.frequence.toLowerCase() === "ponctuel" || (ev.source === "ponctuel" && !ev.frequence);
 
     if (estIrregulier) {
-      addParam(parts, "frequence", "Irrégulier/Dates multiples");
+      addParam("frequence", "Irrégulier/Dates multiples");
       // Toutes les dates de ce spectacle vivent dans la même ligne
       // (colonnes date_spectacle1 à date_spectacle9) — on les prend
       // directement, plus besoin de chercher ailleurs dans les données.
-      // Si ces colonnes ne sont pas encore remplies (ancienne ligne),
-      // on retombe sur la seule date connue (prochain_spectacle).
       const dates = ev.datesMultiplesRaw.length ? ev.datesMultiplesRaw : (ev.date ? [ev.date] : []);
-      const lignes = dates.map(d => `${d} | ${ev.lieu} | ${ev.adresse}`);
-      addParam(parts, "datesMultiples", lignes.join("\n"));
+      const lignes = dates.map(d => `${d} | ${ev.heure} | ${ev.lieu} | ${ev.adresse}`);
+      addParam("datesMultiples", lignes.join("\n"));
     } else {
-      addParam(parts, "frequence", ev.frequence);
-      addParam(parts, "dateDebut", toISODate(ev.date_debut));
-      addParam(parts, "dateFin", toISODate(ev.date_fin));
+      addParam("frequence", ev.frequence);
+      addParam("dateDebut", toISODate(ev.date_debut));
+      addParam("dateFin", toISODate(ev.date_fin));
     }
 
-    return `${FORM_BASE_URL}?usp=pp_url&${parts.join("&")}`;
+    return `${UPDATE_FORM_BASE_URL}?usp=pp_url&${parts.join("&")}`;
+  }
+
+  function buildFestivalUpdateLink(f) {
+    const parts = [];
+    const E = UPDATE_ENTRIES_FESTIVAL;
+    const addParam = (key, val) => addParamTo(E, parts, key, val);
+
+    addParam("typeContenu", "Festivals et Tournois");
+    addParam("nom", f.nom);
+    addParam("type", f.type);
+    addParam("description", f.description);
+    addParam("dateDebut", toISODate(f.dateDebutStr));
+    addParam("dateFin", toISODate(f.dateFinStr));
+    addParam("dateLimiteInscription", toISODate(f.dateLimiteStr));
+    addParam("ville", f.ville);
+    addParam("instagram", f.instagram);
+    addParam("facebook", f.facebook);
+    addParam("site", f.site);
+    addParam("logo", f.logo);
+
+    return `${UPDATE_FORM_BASE_URL}?usp=pp_url&${parts.join("&")}`;
   }
 
   // ------------------------------
@@ -516,6 +560,8 @@ document.addEventListener("DOMContentLoaded", () => {
         ? `<div class="social-links">${liensSociaux.join("")}</div>`
         : "";
 
+      const majLienHtml = `<div class="update-link"><a href="${buildFestivalUpdateLink(f)}" target="_blank" rel="noopener">Mettre à jour</a></div>`;
+
       card.innerHTML = `
         ${logoHtml}
         <div class="event-card-body">
@@ -530,6 +576,7 @@ document.addEventListener("DOMContentLoaded", () => {
           </ul>
           ${deadlineHtml}
           ${liensSociauxHtml}
+          ${majLienHtml}
         </div>
       `;
       container.appendChild(card);
