@@ -271,7 +271,49 @@ document.addEventListener("DOMContentLoaded", () => {
     linktree: "4334897",
     logo: "829401794"
   };
+// Section "Audition" du formulaire de mise à jour
+  const UPDATE_ENTRIES_AUDITION = {
+    typeContenu: "630150997", // valeur attendue : "Audition"
+    nom: "1902398208",
+    description: "59675833",
+    dateHeure: "1978334466", // champ combiné Date + heure
+    lieu: "723146400",
+    adresse: "1663893641",
+    billet: "1802660762",
+    prix: "1262326523",
+    instagram: "1930296824",
+    facebook: "1510341920",
+    site: "714323841",
+    linktree: "262686603",
+    logo: "1209060793"
+  };
 
+  function estAudition(ev) {
+    return ev.types.some(t => t.toLowerCase() === "audition");
+  }
+
+  function buildAuditionUpdateLink(ev) {
+    const parts = [];
+    const E = UPDATE_ENTRIES_AUDITION;
+    const addParam = (key, val) => addParamTo(E, parts, key, val);
+
+    addParam("typeContenu", "Audition");
+    addParam("nom", ev.titre);
+    addParam("description", ev.description);
+    if (ev.date_debut) {
+      addParam("dateHeure", `${toISODate(ev.date_debut)} ${ev.heure || ""}`.trim());
+    }
+    addParam("lieu", ev.lieu);
+    addParam("adresse", ev.adresse);
+    addParam("billet", ev.billetRequis);
+    addParam("prix", ev.prix);
+    addParam("instagram", ev.instagram);
+    addParam("facebook", ev.facebook);
+    addParam("site", ev.site);
+    addParam("logo", ev.logo);
+
+    return `${UPDATE_FORM_BASE_URL}?usp=pp_url&${parts.join("&")}`;
+  }
   function tronquerTexte(texte, max) {
     if (!texte || texte.length <= max) return texte;
     const coupe = texte.slice(0, max);
@@ -615,7 +657,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ? `<div class="social-links">${liensSociaux.join("")}</div>`
         : "";
 
-      const majLienHtml = `<div class="update-link"><a href="${buildUpdateLink(ev)}" target="_blank" rel="noopener">Mettre à jour</a></div>`;
+      const majLienHtml = `<div class="update-link"><a href="${estAudition(ev) ? buildAuditionUpdateLink(ev) : buildUpdateLink(ev)}" target="_blank" rel="noopener">Mettre à jour</a></div>`;
 
       const logoHtml = ev.logo
         ? `<div class="event-logo-wrapper"><img src="${ev.logo}" alt="Logo ${ev.titre}" loading="lazy" onerror="this.parentElement.style.display='none'"></div>`
