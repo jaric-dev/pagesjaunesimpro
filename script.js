@@ -251,6 +251,7 @@ document.addEventListener("DOMContentLoaded", () => {
     adresse: "1328673551",
     ville: "1074437143",
     heure: "1777107234",
+    langue: "523643560",
     billet: "1782382116",
     prix: "987619274",
     instagram: "357239419",
@@ -286,7 +287,9 @@ document.addEventListener("DOMContentLoaded", () => {
     adresse: "1663893641",
     dateLimiteInscription: "381550761",
     auditionPublique: "1810270296",
+    langue: "782551135",
     billet: "1802660762",
+    prix: "1262326523",
     prix: "1262326523",
     instagram: "1930296824",
     facebook: "1510341920",
@@ -314,11 +317,13 @@ document.addEventListener("DOMContentLoaded", () => {
     addParam("adresse", ev.adresse);
     addParam("dateLimiteInscription", toISODate(ev.dateLimiteInscriptionStr));
     addParam("auditionPublique", ev.auditionPublique);
+    addParam("langue", ev.langue);
     addParam("billet", ev.billetRequis);
     addParam("prix", ev.prix);
     addParam("instagram", ev.instagram);
     addParam("facebook", ev.facebook);
     addParam("site", ev.site);
+    addParam("linktree", ev.linktree);
     addParam("logo", ev.logo);
 
     return `${UPDATE_FORM_BASE_URL}?usp=pp_url&${parts.join("&")}`;
@@ -362,6 +367,7 @@ document.addEventListener("DOMContentLoaded", () => {
     addParam("instagram", ev.instagram);
     addParam("facebook", ev.facebook);
     addParam("site", ev.site);
+    addParam("linktree", ev.linktree);
     addParam("logo", ev.logo);
 
     const estIrregulier = ev.frequence.toLowerCase() === "ponctuel" || (ev.source === "ponctuel" && !ev.frequence);
@@ -399,6 +405,7 @@ document.addEventListener("DOMContentLoaded", () => {
     addParam("instagram", f.instagram);
     addParam("facebook", f.facebook);
     addParam("site", f.site);
+    addParam("linktree", f.linktree);
     addParam("logo", f.logo);
 
     return `${UPDATE_FORM_BASE_URL}?usp=pp_url&${parts.join("&")}`;
