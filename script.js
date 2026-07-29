@@ -138,7 +138,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ------------------------------
   // Adaptation des colonnes réelles du Google Sheet vers le format attendu
   // ------------------------------
-  function normalizeEvent(ev, ongletJour) {
+ function normalizeEvent(ev, ongletJour) {
     const hors_saison = (ev.prochain_spectacle || "").trim().toLowerCase() === "hors saison";
     const dateStr = hors_saison ? "" : (ev.prochain_spectacle || "").trim();
     return {
@@ -155,6 +155,7 @@ document.addEventListener("DOMContentLoaded", () => {
       instagram: (ev.instagram || "").trim(),
       facebook: (ev.facebook || "").trim(),
       site: (ev.Site || ev.site || "").trim(),
+      linktree: (ev.linktree || "").trim(),
       logo: (ev.logo || "").trim(),
       description: (ev.description || "").trim(),
       hors_saison: hors_saison,
@@ -164,11 +165,14 @@ document.addEventListener("DOMContentLoaded", () => {
       jour: (ev.jour || ongletJour || "").trim().toLowerCase(),
       source: ongletJour,
       masquer: (ev.masquer || "").trim(),
-      // Pour les spectacles Ponctuel : les 9 colonnes date_spectacle1 à
-      // date_spectacle9 contiennent toutes les dates connues de ce
+      langue: (ev.langue || "").trim(),
+      dateLimiteInscriptionStr: (ev.date_limite_inscription || "").trim(),
+      auditionPublique: (ev.audition_publique || "").trim(),
+      // Pour les spectacles Ponctuel : les 10 colonnes date_spectacle1 à
+      // date_spectacle10 contiennent toutes les dates connues de ce
       // spectacle (une seule ligne, plusieurs dates), utilisées pour
       // pré-remplir le formulaire de mise à jour au complet.
-      datesMultiplesRaw: Array.from({ length: 9 }, (_, i) => (ev[`date_spectacle${i + 1}`] || "").trim()).filter(Boolean),
+      datesMultiplesRaw: Array.from({ length: 10 }, (_, i) => (ev[`date_spectacle${i + 1}`] || "").trim()).filter(Boolean),
       // Optionnel : si rempli, indique que ce spectacle fait partie de la
       // programmation d'un festival (colonne "festival" dans le Sheet)
       festival: (ev.festival || "").trim()
@@ -198,6 +202,7 @@ document.addEventListener("DOMContentLoaded", () => {
       instagram: (ev.instagram || "").trim(),
       facebook: (ev.facebook || "").trim(),
       site: (ev.site || ev.Site || "").trim(),
+      linktree: (ev.linktree || "").trim(),
       logo: (ev.logo || "").trim()
     };
   }
@@ -279,6 +284,8 @@ document.addEventListener("DOMContentLoaded", () => {
     dateHeure: "1978334466", // champ combiné Date + heure
     lieu: "723146400",
     adresse: "1663893641",
+    dateLimiteInscription: "381550761",
+    auditionPublique: "1810270296",
     billet: "1802660762",
     prix: "1262326523",
     instagram: "1930296824",
@@ -305,6 +312,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     addParam("lieu", ev.lieu);
     addParam("adresse", ev.adresse);
+    addParam("dateLimiteInscription", toISODate(ev.dateLimiteInscriptionStr));
+    addParam("auditionPublique", ev.auditionPublique);
     addParam("billet", ev.billetRequis);
     addParam("prix", ev.prix);
     addParam("instagram", ev.instagram);
@@ -402,12 +411,15 @@ document.addEventListener("DOMContentLoaded", () => {
   function populateFilters() {
     const types = new Set();
     const villes = new Set();
+    const langues = new Set();
     window.eventsData.forEach(ev => {
       ev.types.forEach(t => types.add(t));
       if (ev.ville) villes.add(ev.ville);
+      if (ev.langue) langues.add(ev.langue);
     });
     fillSelect(document.getElementById("filter-type"), types, "Type : Tous");
     fillSelect(document.getElementById("filter-ville"), villes, "Ville : Toutes");
+    fillSelect(document.getElementById("filter-langue"), langues, "Langue : Toutes");
   }
 
   function fillSelect(select, values, placeholder) {
@@ -419,7 +431,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function wireFilterEvents() {
-    ["filter-type", "filter-ville", "filter-hs"].forEach(id => {
+    ["filter-type", "filter-ville", "filter-langue", "filter-hs"].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.addEventListener("change", rafraichirAffichage);
     });
@@ -427,14 +439,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Applique les filtres communs (type / ville / hors-saison) à un
   // ensemble d'événements déjà pré-filtré (par jour ou par plage de dates)
-  function appliquerFiltresCommuns(events) {
+ function appliquerFiltresCommuns(events) {
     const typeFilter = document.getElementById("filter-type")?.value || "";
     const villeFilter = document.getElementById("filter-ville")?.value || "";
+    const langueFilter = document.getElementById("filter-langue")?.value || "";
     const hsFilter = document.getElementById("filter-hs")?.value || "";
 
     let resultat = events;
     if (typeFilter) resultat = resultat.filter(ev => ev.types.includes(typeFilter));
     if (villeFilter) resultat = resultat.filter(ev => ev.ville === villeFilter);
+    if (langueFilter) resultat = resultat.filter(ev => ev.langue === langueFilter);
     if (hsFilter === "hide") resultat = resultat.filter(ev => !ev.hors_saison);
     if (hsFilter === "only") resultat = resultat.filter(ev => ev.hors_saison);
     return resultat;
@@ -452,20 +466,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const typeGroup = document.getElementById("type-filter-group");
     const hsGroup = document.getElementById("hs-filter-group");
+    const langueGroup = document.getElementById("langue-filter-group");
 
     if (currentDay === "festivals") {
-      // Les filtres Type et Hors saison ne s'appliquent pas aux
+      // Les filtres Type, Langue et Hors saison ne s'appliquent pas aux
       // festivals/tournois (concepts différents) — on les masque, mais on
       // garde Ville et la plage de dates, qui restent pertinents.
       if (typeGroup) typeGroup.hidden = true;
       if (hsGroup) hsGroup.hidden = true;
+      if (langueGroup) langueGroup.hidden = true;
       afficherFestivals();
       return;
     }
 
     if (typeGroup) typeGroup.hidden = false;
     if (hsGroup) hsGroup.hidden = false;
-
+    if (langueGroup) langueGroup.hidden = false;
     let base = currentDay === "tous"
       ? window.eventsData
       : window.eventsData.filter(ev => ev.jour === currentDay);
@@ -598,6 +614,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (f.instagram) liensSociaux.push(`<a href="${f.instagram}" target="_blank" rel="noopener">Instagram</a>`);
       if (f.facebook) liensSociaux.push(`<a href="${f.facebook}" target="_blank" rel="noopener">Facebook</a>`);
       if (f.site) liensSociaux.push(`<a href="${f.site}" target="_blank" rel="noopener">Site web</a>`);
+      if (f.linktree) liensSociaux.push(`<a href="${f.linktree}" target="_blank" rel="noopener">Linktree</a>`);
       const liensSociauxHtml = liensSociaux.length
         ? `<div class="social-links">${liensSociaux.join("")}</div>`
         : "";
@@ -653,6 +670,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (ev.instagram) liensSociaux.push(`<a href="${ev.instagram}" target="_blank" rel="noopener">Instagram</a>`);
       if (ev.facebook) liensSociaux.push(`<a href="${ev.facebook}" target="_blank" rel="noopener">Facebook</a>`);
       if (ev.site) liensSociaux.push(`<a href="${ev.site}" target="_blank" rel="noopener">Site web</a>`);
+      if (ev.linktree) liensSociaux.push(`<a href="${ev.linktree}" target="_blank" rel="noopener">Linktree</a>`);
       const liensSociauxHtml = liensSociaux.length
         ? `<div class="social-links">${liensSociaux.join("")}</div>`
         : "";
@@ -664,9 +682,21 @@ document.addEventListener("DOMContentLoaded", () => {
         : "";
 
       const typeTagsHtml = ev.types.map(t => `<span class="tag ${t}">${t}</span>`).join("");
+      const langueTagHtml = ev.langue ? `<span class="tag tag-langue">${ev.langue}</span>` : "";
 
       const descriptionHtml = ev.description
         ? `<p class="event-description">${tronquerTexte(ev.description, 150)}</p>`
+        : "";
+
+      const badges = [];
+      if (ev.hors_saison) badges.push(`<span class="badge badge-hors-saison">Hors saison</span>`);
+      if (estAudition(ev) && ev.auditionPublique.toLowerCase() === "oui") {
+        badges.push(`<span class="badge badge-audition-publique">Audition publique</span>`);
+      }
+      const badgesHtml = badges.length ? `<div class="badges">${badges.join("")}</div>` : "";
+
+      const deadlineHtml = (estAudition(ev) && ev.dateLimiteInscriptionStr)
+        ? `<div class="festival-deadline">📌 Date limite d'inscription : <strong>${ev.dateLimiteInscriptionStr}</strong></div>`
         : "";
 
       card.innerHTML = `
@@ -674,9 +704,10 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="event-card-body">
           <div class="tags">
             ${typeTagsHtml}
+            ${langueTagHtml}
             <span class="tag ville">${ev.ville}</span>
           </div>
-          ${ev.hors_saison ? `<div class="badges"><span class="badge badge-hors-saison">Hors saison</span></div>` : ""}
+          ${badgesHtml}
           <h3>${ev.titre}</h3>
           ${ev.festival ? `<div class="festival-badge">🎪 Fait partie de la programmation du <strong>${ev.festival}</strong></div>` : ""}
           ${descriptionHtml}
@@ -685,6 +716,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <li><span class="icon">🕒</span> ${ev.heure}</li>
             <li><span class="icon">📍</span> ${lieuHtml}</li>
           </ul>
+          ${deadlineHtml}
           ${billetTexte}
           ${liensSociauxHtml}
           ${majLienHtml}
