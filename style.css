@@ -475,6 +475,12 @@ header {
   color: #9a9aa2;
 }
 
+.badge-audition-publique {
+  background-color: transparent;
+  border: 1px solid #b388ff;
+  color: #b388ff;
+}
+
 /* ------------------------------
    MÉTADONNÉES
 ------------------------------ */
@@ -585,10 +591,12 @@ header {
   color: #b0b0b8;
 }
 
-.tag.Spectacle { border-color: #00bcd4; color: #00bcd4; }
+.tag.Spectacle { border-color: #4caf50; color: #4caf50; }
 .tag.Match     { border-color: #ffcc00; color: #ffcc00; }
 .tag.Audition  { border-color: #b388ff; color: #b388ff; }
-.tag.Jam       { border-color: #ff6b6b; color: #ff6b6b; }
+.tag.Jam       { border-color: #ff6ec7; color: #ff6ec7; }
+.tag.FR        { border-color: #00bcd4; color: #00bcd4; }
+.tag.ENG       { border-color: #ff6b6b; color: #ff6b6b; }
 
 /* ------------------------------
    LIGHTBOX (image plein écran)
