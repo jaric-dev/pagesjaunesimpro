@@ -660,11 +660,14 @@ document.addEventListener("DOMContentLoaded", () => {
         : ev.lieu;
 
       const billetLignes = [];
+      if (estAudition(ev) && ev.auditionPublique.toLowerCase() === "oui") {
+        billetLignes.push("Audition avec public");
+      }
       if (ev.billetRequis) billetLignes.push(`Billet requis : <strong>${ev.billetRequis}</strong>`);
       if (ev.prix) billetLignes.push(`Prix : <strong>${ev.prix}</strong>`);
-      const billetTexte = billetLignes.length
-        ? `<div class="billet-requis">${billetLignes.join(" — ")}</div>`
-        : "";
+      const billetTexte = (estAudition(ev) && ev.auditionPublique.toLowerCase() === "non")
+        ? `<div class="billet-requis">Audition sans public</div>`
+        : (billetLignes.length ? `<div class="billet-requis">${billetLignes.join(" - ")}</div>` : "");
 
       const liensSociaux = [];
       if (ev.instagram) liensSociaux.push(`<a href="${ev.instagram}" target="_blank" rel="noopener">Instagram</a>`);
@@ -690,9 +693,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const badges = [];
       if (ev.hors_saison) badges.push(`<span class="badge badge-hors-saison">Hors saison</span>`);
-      if (estAudition(ev) && ev.auditionPublique.toLowerCase() === "oui") {
-        badges.push(`<span class="badge badge-audition-publique">Audition publique</span>`);
-      }
       const badgesHtml = badges.length ? `<div class="badges">${badges.join("")}</div>` : "";
 
       const deadlineHtml = (estAudition(ev) && ev.dateLimiteInscriptionStr)
