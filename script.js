@@ -682,7 +682,7 @@ document.addEventListener("DOMContentLoaded", () => {
         : "";
 
       const typeTagsHtml = ev.types.map(t => `<span class="tag ${t}">${t}</span>`).join("");
-      const langueTagHtml = ev.langue ? `<span class="tag tag-langue">${ev.langue}</span>` : "";
+      const langueTagHtml = ev.langue ? `<span class="tag ${ev.langue}">${ev.langue}</span>` : "";
 
       const descriptionHtml = ev.description
         ? `<p class="event-description">${tronquerTexte(ev.description, 150)}</p>`
@@ -704,8 +704,8 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="event-card-body">
           <div class="tags">
             ${typeTagsHtml}
-            ${langueTagHtml}
             <span class="tag ville">${ev.ville}</span>
+            ${langueTagHtml}
           </div>
           ${badgesHtml}
           <h3>${ev.titre}</h3>
