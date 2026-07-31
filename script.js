@@ -290,7 +290,6 @@ document.addEventListener("DOMContentLoaded", () => {
     langue: "782551135",
     billet: "1802660762",
     prix: "1262326523",
-    prix: "1262326523",
     instagram: "1930296824",
     facebook: "1510341920",
     site: "714323841",
@@ -415,6 +414,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // Filtres (type / ville / hors-saison) — un seul jeu de contrôles,
   // partagé par les deux modes d'affichage
   // ------------------------------
+ const LANGUE_LABELS = { FR: "Français", ENG: "Anglais" };
+
   function populateFilters() {
     const types = new Set();
     const villes = new Set();
@@ -426,14 +427,15 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     fillSelect(document.getElementById("filter-type"), types, "Type : Tous");
     fillSelect(document.getElementById("filter-ville"), villes, "Ville : Toutes");
-    fillSelect(document.getElementById("filter-langue"), langues, "Langue : Toutes");
+    fillSelect(document.getElementById("filter-langue"), langues, "Langue : Toutes", v => LANGUE_LABELS[v] || v);
   }
-
-  function fillSelect(select, values, placeholder) {
+  
+  function fillSelect(select, values, placeholder, labelFn) {
     if (!select) return;
+    const getLabel = labelFn || (v => v);
     select.innerHTML = `<option value="">${placeholder}</option>`;
     [...values].sort().forEach(v => {
-      select.innerHTML += `<option value="${v}">${v}</option>`;
+      select.innerHTML += `<option value="${v}">${getLabel(v)}</option>`;
     });
   }
 
