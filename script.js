@@ -220,7 +220,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return isNaN(d.getTime()) ? null : d;
   }
 
-  function sortEvents(events) {
+ function sortEvents(events) {
     return [...events].sort((a, b) => {
       if (a.hors_saison && !b.hors_saison) return 1;
       if (!a.hors_saison && b.hors_saison) return -1;
@@ -230,6 +230,43 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!b.dateObj) return -1;
       return a.dateObj - b.dateObj;
     });
+  }
+
+  // ------------------------------
+  // Favoris personnels — stockés dans le navigateur (localStorage),
+  // aucun compte requis. Un favori identifie un SPECTACLE (titre +
+  // ville), pas une date précise : favoriser une ligue reste valide
+  // semaine après semaine, peu importe la prochaine date affichée.
+  // ------------------------------
+  const FAVORIS_KEY = "boussoleFavoris";
+
+  function favKey(ev) {
+    return `${ev.titre}::${ev.ville}`;
+  }
+
+  function getFavoris() {
+    try {
+      const brut = localStorage.getItem(FAVORIS_KEY);
+      return brut ? JSON.parse(brut) : [];
+    } catch (err) {
+      return [];
+    }
+  }
+
+  function estFavori(ev) {
+    return getFavoris().includes(favKey(ev));
+  }
+
+  function toggleFavori(ev) {
+    const cle = favKey(ev);
+    const favoris = getFavoris();
+    const index = favoris.indexOf(cle);
+    if (index === -1) {
+      favoris.push(cle);
+    } else {
+      favoris.splice(index, 1);
+    }
+    localStorage.setItem(FAVORIS_KEY, JSON.stringify(favoris));
   }
 
   // ------------------------------
@@ -493,6 +530,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (langueGroup) langueGroup.hidden = false;
     let base = currentDay === "tous"
       ? window.eventsData
+      : currentDay === "favoris"
+      ? window.eventsData.filter(ev => estFavori(ev))
       : window.eventsData.filter(ev => ev.jour === currentDay);
 
     // Règle de base non contournable : un événement à date connue et
@@ -651,12 +690,15 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  function displayEvents(events) {
+function displayEvents(events) {
     const container = document.getElementById("events");
     container.innerHTML = "";
 
     if (events.length === 0) {
-      container.innerHTML = `<p style="text-align:center; width:100%;">Aucun spectacle trouvé avec ces filtres.</p>`;
+      const messageVide = currentDay === "favoris"
+        ? "Aucun favori pour l'instant. Clique sur le ♡ d'une fiche pour l'ajouter à tes favoris."
+        : "Aucun spectacle trouvé avec ces filtres.";
+      container.innerHTML = `<p style="text-align:center; width:100%;">${messageVide}</p>`;
       return;
     }
 
@@ -708,7 +750,11 @@ document.addEventListener("DOMContentLoaded", () => {
         ? `<div class="festival-deadline">📌 Date limite d'inscription : <strong>${ev.dateLimiteInscriptionStr}</strong></div>`
         : "";
 
+      const favoriActif = estFavori(ev);
+      const favoriBtnHtml = `<button class="favori-btn${favoriActif ? " favori-btn--actif" : ""}" type="button" aria-label="${favoriActif ? "Retirer des favoris" : "Ajouter aux favoris"}">${favoriActif ? "♥" : "♡"}</button>`;
+
       card.innerHTML = `
+        ${favoriBtnHtml}
         ${logoHtml}
         <div class="event-card-body">
           <div class="tags">
@@ -731,6 +777,13 @@ document.addEventListener("DOMContentLoaded", () => {
           ${majLienHtml}
         </div>
       `;
+      const favoriBtn = card.querySelector(".favori-btn");
+      if (favoriBtn) {
+        favoriBtn.addEventListener("click", () => {
+          toggleFavori(ev);
+          rafraichirAffichage();
+        });
+      }
       container.appendChild(card);
     });
   }
