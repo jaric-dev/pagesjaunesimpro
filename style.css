@@ -127,6 +127,30 @@ header {
 }
 
 /* ------------------------------
+   PAGE DE PARTAGE (suggestions reçues)
+------------------------------ */
+
+.partage-page {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.partage-retour {
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  color: #8a8a92;
+  text-decoration: underline;
+  text-decoration-color: #3a3a40;
+}
+
+.partage-retour:hover {
+  color: #ffcc00;
+  text-decoration-color: #ffcc00;
+}
+
+/* ------------------------------
    LAYOUT GÉNÉRAL (sidebar + contenu)
 ------------------------------ */
 
@@ -493,6 +517,31 @@ header {
 
 .favori-btn--actif {
   color: #ff6b6b;
+}
+
+/* ------------------------------
+   BARRE "PARTAGER MES FAVORIS"
+------------------------------ */
+
+#partage-favoris-bar:not(:empty) {
+  margin-bottom: 1.2rem;
+}
+
+.partager-favoris-btn {
+  background-color: transparent;
+  color: #ff6b6b;
+  border: 1px solid #ff6b6b66;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.partager-favoris-btn:hover {
+  background-color: #ff6b6b1a;
+  border-color: #ff6b6b;
 }
 
 /* ------------------------------
