@@ -225,7 +225,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // plutôt qu'un jour unique, date limite d'inscription optionnelle)
   // ------------------------------
   function normalizeFestival(ev) {
-  function normalizeFestival(ev) {
     const dateDebutStr = (ev.date_debut || "").trim();
     const dateFinStr = (ev.date_fin || "").trim();
     const dateLimiteStr = (ev.date_limite_inscription || "").trim();
