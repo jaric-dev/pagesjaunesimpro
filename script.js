@@ -1,4 +1,88 @@
+// ------------------------------
+// Fonctions partagées entre index.html et partage.html — définies hors
+// du DOMContentLoaded pour être utilisables par les deux pages.
+// ------------------------------
+function parseDate(str) {
+  if (!str) return null;
+  // Tolère "-" ou "/" comme séparateur (ex: 21-07-2026 ou 21/07/2026)
+  // — filet de sécurité contre les fautes de frappe dans le Sheet,
+  // qui ne devraient plus faire disparaître un événement silencieusement.
+  const parts = str.split(/[-/]/);
+  if (parts.length !== 3) return null;
+  const [jour, mois, annee] = parts.map(p => parseInt(p, 10));
+  if (!jour || !mois || !annee) return null;
+  const d = new Date(annee, mois - 1, jour);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+function normalizeEvent(ev, ongletJour) {
+  const hors_saison = (ev.prochain_spectacle || "").trim().toLowerCase() === "hors saison";
+  const dateStr = hors_saison ? "" : (ev.prochain_spectacle || "").trim();
+  return {
+    titre: (ev.nom || "").trim(),
+    types: (ev.type || "").split(",").map(t => t.trim()).filter(Boolean),
+    ville: (ev.ville || "").trim(),
+    date: dateStr,
+    dateObj: parseDate(dateStr),
+    heure: (ev.heure || "").trim(),
+    lieu: (ev.lieu || "").trim(),
+    adresse: (ev.adresse || "").trim(),
+    billetRequis: (ev.billet || "").trim(),
+    prix: (ev.prix || "").trim(),
+    instagram: (ev.instagram || "").trim(),
+    facebook: (ev.facebook || "").trim(),
+    site: (ev.Site || ev.site || "").trim(),
+    linktree: (ev.linktree || "").trim(),
+    logo: (ev.logo || "").trim(),
+    description: (ev.description || "").trim(),
+    hors_saison: hors_saison,
+    date_debut: (ev.date_debut || "").trim(),
+    date_fin: (ev.date_fin || "").trim(),
+    frequence: (ev["fréquence"] || "").trim(),
+    jour: (ev.jour || ongletJour || "").trim().toLowerCase(),
+    source: ongletJour,
+    masquer: (ev.masquer || "").trim(),
+    langue: (ev.langue || "").trim(),
+    dateLimiteInscriptionStr: (ev.date_limite_inscription || "").trim(),
+    auditionPublique: (ev.audition_publique || "").trim(),
+    // Pour les spectacles Ponctuel : les 10 colonnes date_spectacle1 à
+    // date_spectacle10 contiennent toutes les dates connues de ce
+    // spectacle (une seule ligne, plusieurs dates), utilisées pour
+    // pré-remplir le formulaire de mise à jour au complet.
+    datesMultiplesRaw: Array.from({ length: 10 }, (_, i) => (ev[`date_spectacle${i + 1}`] || "").trim()).filter(Boolean),
+    // Optionnel : si rempli, indique que ce spectacle fait partie de la
+    // programmation d'un festival (colonne "festival" dans le Sheet)
+    festival: (ev.festival || "").trim()
+  };
+}
+
+// Identifiant stable d'un favori : titre + ville (pas la date, pour
+// qu'un spectacle récurrent reste favori semaine après semaine).
+function favKey(ev) {
+  return `${ev.titre}::${ev.ville}`;
+}
+
+// Encodage/décodage de la liste de favoris dans une URL de partage —
+// aucun backend requis, le lien est auto-suffisant.
+function encoderListePartage(cles) {
+  return btoa(encodeURIComponent(cles.join("|")));
+}
+
+function decoderListePartage(str) {
+  try {
+    return decodeURIComponent(atob(str)).split("|").filter(Boolean);
+  } catch (err) {
+    return [];
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+  // Ce fichier est aussi chargé par partage.html, pour réutiliser les
+  // fonctions partagées définies plus haut. Tout ce qui suit ne concerne
+  // que la page principale — on s'arrête ici sur la page de partage, qui
+  // a sa propre logique dans partage.js.
+  if (document.body.dataset.page === "partage") return;
+
   // ------------------------------
   // Bouton "+ Ajouter un événement" — formulaire vierge, avec seulement
   // "Nouveau spectacle à ajouter" pré-sélectionné
@@ -136,54 +220,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ------------------------------
-  // Adaptation des colonnes réelles du Google Sheet vers le format attendu
-  // ------------------------------
- function normalizeEvent(ev, ongletJour) {
-    const hors_saison = (ev.prochain_spectacle || "").trim().toLowerCase() === "hors saison";
-    const dateStr = hors_saison ? "" : (ev.prochain_spectacle || "").trim();
-    return {
-      titre: (ev.nom || "").trim(),
-      types: (ev.type || "").split(",").map(t => t.trim()).filter(Boolean),
-      ville: (ev.ville || "").trim(),
-      date: dateStr,
-      dateObj: parseDate(dateStr),
-      heure: (ev.heure || "").trim(),
-      lieu: (ev.lieu || "").trim(),
-      adresse: (ev.adresse || "").trim(),
-      billetRequis: (ev.billet || "").trim(),
-      prix: (ev.prix || "").trim(),
-      instagram: (ev.instagram || "").trim(),
-      facebook: (ev.facebook || "").trim(),
-      site: (ev.Site || ev.site || "").trim(),
-      linktree: (ev.linktree || "").trim(),
-      logo: (ev.logo || "").trim(),
-      description: (ev.description || "").trim(),
-      hors_saison: hors_saison,
-      date_debut: (ev.date_debut || "").trim(),
-      date_fin: (ev.date_fin || "").trim(),
-      frequence: (ev["fréquence"] || "").trim(),
-      jour: (ev.jour || ongletJour || "").trim().toLowerCase(),
-      source: ongletJour,
-      masquer: (ev.masquer || "").trim(),
-      langue: (ev.langue || "").trim(),
-      dateLimiteInscriptionStr: (ev.date_limite_inscription || "").trim(),
-      auditionPublique: (ev.audition_publique || "").trim(),
-      // Pour les spectacles Ponctuel : les 10 colonnes date_spectacle1 à
-      // date_spectacle10 contiennent toutes les dates connues de ce
-      // spectacle (une seule ligne, plusieurs dates), utilisées pour
-      // pré-remplir le formulaire de mise à jour au complet.
-      datesMultiplesRaw: Array.from({ length: 10 }, (_, i) => (ev[`date_spectacle${i + 1}`] || "").trim()).filter(Boolean),
-      // Optionnel : si rempli, indique que ce spectacle fait partie de la
-      // programmation d'un festival (colonne "festival" dans le Sheet)
-      festival: (ev.festival || "").trim()
-    };
-  }
-
-  // ------------------------------
   // Adaptation des données de l'onglet Festivals_Tournois — structure
   // volontairement distincte des spectacles réguliers (plage de dates
   // plutôt qu'un jour unique, date limite d'inscription optionnelle)
   // ------------------------------
+  function normalizeFestival(ev) {
   function normalizeFestival(ev) {
     const dateDebutStr = (ev.date_debut || "").trim();
     const dateFinStr = (ev.date_fin || "").trim();
@@ -207,20 +248,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
-  function parseDate(str) {
-    if (!str) return null;
-    // Tolère "-" ou "/" comme séparateur (ex: 21-07-2026 ou 21/07/2026)
-    // — filet de sécurité contre les fautes de frappe dans le Sheet,
-    // qui ne devraient plus faire disparaître un événement silencieusement.
-    const parts = str.split(/[-/]/);
-    if (parts.length !== 3) return null;
-    const [jour, mois, annee] = parts.map(p => parseInt(p, 10));
-    if (!jour || !mois || !annee) return null;
-    const d = new Date(annee, mois - 1, jour);
-    return isNaN(d.getTime()) ? null : d;
-  }
-
- function sortEvents(events) {
+  function sortEvents(events) {
     return [...events].sort((a, b) => {
       if (a.hors_saison && !b.hors_saison) return 1;
       if (!a.hors_saison && b.hors_saison) return -1;
@@ -238,11 +266,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ville), pas une date précise : favoriser une ligue reste valide
   // semaine après semaine, peu importe la prochaine date affichée.
   // ------------------------------
-  const FAVORIS_KEY = "boussoleFavoris";
-
-  function favKey(ev) {
-    return `${ev.titre}::${ev.ville}`;
-  }
+const FAVORIS_KEY = "boussoleFavoris";
 
   function getFavoris() {
     try {
@@ -267,6 +291,15 @@ document.addEventListener("DOMContentLoaded", () => {
       favoris.splice(index, 1);
     }
     localStorage.setItem(FAVORIS_KEY, JSON.stringify(favoris));
+  }
+
+  // Construit le lien de partage — partage.html lira le paramètre
+  // "liste" pour savoir quels spectacles afficher.
+  function buildLienPartage() {
+    const favoris = getFavoris();
+    const donnees = encoderListePartage(favoris);
+    const basePath = window.location.pathname.replace(/index\.html$/, "");
+    return `${window.location.origin}${basePath}partage.html?liste=${donnees}`;
   }
 
   // ------------------------------
@@ -495,9 +528,36 @@ document.addEventListener("DOMContentLoaded", () => {
     if (typeFilter) resultat = resultat.filter(ev => ev.types.includes(typeFilter));
     if (villeFilter) resultat = resultat.filter(ev => ev.ville === villeFilter);
     if (langueFilter) resultat = resultat.filter(ev => ev.langue === langueFilter);
-    if (hsFilter === "hide") resultat = resultat.filter(ev => !ev.hors_saison);
+   if (hsFilter === "hide") resultat = resultat.filter(ev => !ev.hors_saison);
     if (hsFilter === "only") resultat = resultat.filter(ev => ev.hors_saison);
     return resultat;
+  }
+
+  // Barre "Partager mes favoris" — visible seulement dans la vue Mes
+  // favoris, et seulement s'il y a au moins un favori à partager.
+  function afficherBarrePartage() {
+    const bar = document.getElementById("partage-favoris-bar");
+    if (!bar) return;
+
+    if (currentDay !== "favoris" || getFavoris().length === 0) {
+      bar.innerHTML = "";
+      return;
+    }
+
+    bar.innerHTML = `<button id="partager-favoris-btn" class="partager-favoris-btn" type="button">🔗 Partager mes favoris</button>`;
+    const btn = document.getElementById("partager-favoris-btn");
+    const texteDefaut = btn.textContent;
+    btn.addEventListener("click", () => {
+      navigator.clipboard.writeText(buildLienPartage())
+        .then(() => {
+          btn.textContent = "Lien copié ✓";
+          setTimeout(() => { btn.textContent = texteDefaut; }, 2000);
+        })
+        .catch(() => {
+          btn.textContent = "Erreur, réessaie";
+          setTimeout(() => { btn.textContent = texteDefaut; }, 2000);
+        });
+    });
   }
 
   // ------------------------------
@@ -509,6 +569,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // ------------------------------
   function rafraichirAffichage() {
     if (!window.eventsData) return;
+
+    afficherBarrePartage();
 
     const typeGroup = document.getElementById("type-filter-group");
     const hsGroup = document.getElementById("hs-filter-group");
