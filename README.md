@@ -1,6 +1,6 @@
 # La Boussole de l'Impro Qc
 
-Site web qui rassemble en un seul endroit les spectacles, matchs, jams et auditions d'improvisation à travers le Québec. L'objectif : que trouver une soirée d'impro près de chez soi devienne facile.
+Site web qui rassemble en un seul endroit les spectacles, matchs, jams, auditions, tournois et festivals d'improvisation à travers le Québec. L'objectif : que trouver une soirée d'impro près de chez soi devienne facile.
 
 Site en ligne : https://jaric-dev.github.io/pagesjaunesimpro/
 
@@ -14,7 +14,7 @@ Le site est un projet en développement actif. La mise en page, les fonctionnali
 
 Le site est entièrement statique (HTML/CSS/JS, hébergé sur GitHub Pages) et va chercher ses données dans un Google Sheet public via l'API [OpenSheet](https://opensheet.elk.sh/), qui convertit chaque onglet en JSON.
 
-**Structure des données** : le Google Sheet contient 8 onglets, un par jour de la semaine (`Impro_Lundi` à `Impro_Dimanche`) plus un onglet `Impro_Ponctuel` pour les spectacles à dates irrégulières (tournées, spectacles occasionnels dans plusieurs villes, etc.).
+**Structure des données** : le Google Sheet contient un onglet par jour de la semaine (`Impro_Lundi` à `Impro_Dimanche`), un onglet `Impro_Ponctuel` pour les spectacles à dates irrégulières (tournées, spectacles occasionnels dans plusieurs villes, etc.), et un onglet `Festivals_Tournois` pour les événements de plus grande envergure.
 
 **Ajout et mise à jour des spectacles** : les organisateur·rice·s soumettent leurs informations via un Google Form. Un script Google Apps Script (`apps-script/routage-formulaire.gs`) route automatiquement chaque soumission vers un onglet de modération (`À_Valider`) dans le Sheet, où elles sont révisées manuellement avant d'être déplacées dans les onglets finaux.
 
@@ -24,9 +24,11 @@ Chaque fiche de spectacle sur le site inclut aussi un lien "Mettre à jour" qui 
 
 ```
 index.html              Page principale (liste des spectacles, filtres)
+partage.html             Page de suggestions reçues (favoris partagés par lien)
 about.html               Page « À propos » et formulaire de contact
 style.css                 Feuille de style du site
-script.js                 Logique JS : chargement des données, filtres, affichage
+script.js                 Logique JS : chargement des données, filtres, affichage, favoris
+partage.js                Logique JS de la page de partage (lit le lien, affiche les spectacles suggérés)
 favicon.png               Icône du site
 apps-script/
   routage-formulaire.gs   Script de routage des soumissions du formulaire
@@ -35,9 +37,11 @@ logos/                     Logos des ligues et troupes
 
 ## Fonctionnalités principales
 
-- Navigation par jour de la semaine, ou par plage de dates
-- Filtres par type de spectacle, ville, et statut hors saison
-- Fiches détaillées avec logo, description, prix, lien Google Maps vers le lieu, réseaux sociaux
+- Navigation par jour de la semaine, par plage de dates, ou par mode « Festivals & Tournois »
+- Filtres par type de spectacle, ville, langue, et statut hors saison
+- Fiches détaillées avec logo (agrandissable en plein écran), description, prix, lien Google Maps vers le lieu, réseaux sociaux
+- Favoris personnels : sauvegarde ses spectacles préférés (cœur sur chaque fiche, conservé dans le navigateur) et les retrouve dans une vue dédiée « Mes favoris »
+- Partage de favoris par lien : génère un lien à envoyer qui affiche uniquement les spectacles suggérés, sans compte requis
 - Lien de mise à jour pré-rempli pour chaque spectacle
 - Bouton d'ajout d'un nouveau spectacle
 - Page « À propos » avec formulaire de contact intégré
