@@ -42,6 +42,10 @@ function normalizeEvent(ev, ongletJour) {
     jour: (ev.jour || ongletJour || "").trim().toLowerCase(),
     source: ongletJour,
     masquer: (ev.masquer || "").trim(),
+    // Calculée par le Sheet (colonne B) : "X" si ce spectacle avait de
+    // vraies dates maintenant toutes passées, "-" sinon (aucune date
+    // annoncée, ou vidées intentionnellement — signe qu'il va revenir).
+    aRetirer: (ev.a_retirer || "").trim(),
     langue: (ev.langue || "").trim(),
     dateLimiteInscriptionStr: (ev.date_limite_inscription || "").trim(),
     auditionPublique: (ev.audition_publique || "").trim(),
@@ -610,7 +614,13 @@ const FAVORIS_KEY = "boussoleFavoris";
     minuitAujourdhui.setHours(0, 0, 0, 0);
     base = base.filter(ev => {
       if (ev.hors_saison) {
-        return FREQUENCES_RECURRENTES.includes(ev.frequence.toLowerCase());
+        const estRecurrent = FREQUENCES_RECURRENTES.includes(ev.frequence.toLowerCase());
+        // Spectacle Ponctuel hors saison : reste visible (badge "Hors
+        // saison") tant que la colonne a_retirer du Sheet ne vaut pas
+        // "X" — c'est-à-dire tant qu'il n'a jamais eu de vraie date
+        // passée non renouvelée.
+        const ponctuelQuiRevient = ev.source === "ponctuel" && ev.aRetirer.toLowerCase() !== "x";
+        return estRecurrent || ponctuelQuiRevient;
       }
       if (!ev.dateObj) return true; // date illisible : on ne masque pas par prudence
       return ev.dateObj >= minuitAujourdhui;
