@@ -203,7 +203,10 @@ document.addEventListener("DOMContentLoaded", () => {
     .catch(err => console.error("Erreur de chargement des données:", err));
 
   requeteFestivals.then(festivals => {
-    window.festivalsData = festivals.filter(f => f.nom);
+    window.festivalsData = festivals
+      .filter(f => f.nom) // ignore lignes vides
+      .filter(f => f.masquer.toLowerCase() !== "oui"); // ignore lignes masquées
+    afficherStats();
     if (currentDay === "festivals") rafraichirAffichage();
   });
 
@@ -214,11 +217,28 @@ document.addEventListener("DOMContentLoaded", () => {
     const statsEl = document.getElementById("site-stats");
     if (!statsEl || !window.eventsData) return;
 
-    const spectaclesUniques = new Set(window.eventsData.map(ev => ev.titre));
+    // Un "spectacle" compté ici = Spectacle, Jam ou Match — les auditions
+    // sont comptées séparément, dans leur propre statistique.
+    const estSpectacleCompte = ev => ev.types.some(t =>
+      ["spectacle", "jam", "match"].includes(t.toLowerCase())
+    );
+
+    const spectaclesUniques = new Set(window.eventsData.filter(estSpectacleCompte).map(ev => ev.titre));
+    const auditionsUniques = new Set(window.eventsData.filter(estAudition).map(ev => ev.titre));
     const villesUniques = new Set(window.eventsData.map(ev => ev.ville).filter(Boolean));
+
+    // Les données Festivals_Tournois arrivent séparément (window.festivalsData)
+    // et peuvent ne pas encore être chargées au premier appel — afficherStats()
+    // est rappelée une fois qu'elles arrivent (voir requeteFestivals.then()).
+    const festivalsData = window.festivalsData || [];
+    const festivalsUniques = new Set(festivalsData.filter(f => f.type.toLowerCase() === "festival").map(f => f.nom));
+    const tournoisUniques = new Set(festivalsData.filter(f => f.type.toLowerCase() === "tournoi").map(f => f.nom));
 
     statsEl.innerHTML = `
       <div class="stat-item"><strong>${spectaclesUniques.size}</strong> spectacles annoncés</div>
+      <div class="stat-item"><strong>${auditionsUniques.size}</strong> auditions annoncées</div>
+      <div class="stat-item"><strong>${festivalsUniques.size}</strong> festivals annoncés</div>
+      <div class="stat-item"><strong>${tournoisUniques.size}</strong> tournois annoncés</div>
       <div class="stat-item"><strong>${villesUniques.size}</strong> villes représentées</div>
     `;
   }
@@ -247,7 +267,8 @@ document.addEventListener("DOMContentLoaded", () => {
       facebook: (ev.facebook || "").trim(),
       site: (ev.site || ev.Site || "").trim(),
       linktree: (ev.linktree || "").trim(),
-      logo: (ev.logo || "").trim()
+      logo: (ev.logo || "").trim(),
+      masquer: (ev.masquer || "").trim()
     };
   }
 
