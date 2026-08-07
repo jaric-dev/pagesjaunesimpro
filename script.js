@@ -154,8 +154,23 @@ document.addEventListener("DOMContentLoaded", () => {
     filterDateStart.value = `${jj}-${mm}-${aaaa}`;
   }
 
-  if (filterDateStart) filterDateStart.addEventListener("change", rafraichirAffichage);
+ if (filterDateStart) filterDateStart.addEventListener("change", rafraichirAffichage);
   if (filterDateEnd) filterDateEnd.addEventListener("change", rafraichirAffichage);
+
+  const filterRecherche = document.getElementById("filter-recherche");
+  if (filterRecherche) {
+    filterRecherche.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter") return;
+      e.preventDefault();
+      if (currentDay !== "tous") {
+        currentDay = "tous";
+        document.querySelectorAll(".day-btn").forEach(btn => {
+          btn.classList.toggle("active", btn.dataset.day === "tous");
+        });
+      }
+      rafraichirAffichage();
+    });
+  }
 
   // ------------------------------
   // Chargement des données (8 onglets Google Sheets via OpenSheet)
@@ -542,11 +557,18 @@ const FAVORIS_KEY = "boussoleFavoris";
 
   // Applique les filtres communs (type / ville / hors-saison) à un
   // ensemble d'événements déjà pré-filtré (par jour ou par plage de dates)
+// Terme de recherche actif, normalisé (minuscules, espaces superflus
+  // retirés) — utilisé à la fois pour les spectacles et les festivals.
+  function getTermeRecherche() {
+    return (document.getElementById("filter-recherche")?.value || "").trim().toLowerCase();
+  }
+
  function appliquerFiltresCommuns(events) {
     const typeFilter = document.getElementById("filter-type")?.value || "";
     const villeFilter = document.getElementById("filter-ville")?.value || "";
     const langueFilter = document.getElementById("filter-langue")?.value || "";
     const hsFilter = document.getElementById("filter-hs")?.value || "";
+    const terme = getTermeRecherche();
 
     let resultat = events;
     if (typeFilter) resultat = resultat.filter(ev => ev.types.includes(typeFilter));
@@ -554,6 +576,13 @@ const FAVORIS_KEY = "boussoleFavoris";
     if (langueFilter) resultat = resultat.filter(ev => ev.langue === langueFilter);
    if (hsFilter === "hide") resultat = resultat.filter(ev => !ev.hors_saison);
     if (hsFilter === "only") resultat = resultat.filter(ev => ev.hors_saison);
+    if (terme) {
+      resultat = resultat.filter(ev =>
+        ev.titre.toLowerCase().includes(terme) ||
+        ev.description.toLowerCase().includes(terme) ||
+        ev.lieu.toLowerCase().includes(terme)
+      );
+    }
     return resultat;
   }
 
@@ -664,7 +693,15 @@ const FAVORIS_KEY = "boussoleFavoris";
       });
     }
 
-    displayEvents(sortEvents(appliquerFiltresCommuns(base)));
+    const terme = getTermeRecherche();
+    const festivalsCorrespondants = terme
+      ? (window.festivalsData || []).filter(f =>
+          f.nom.toLowerCase().includes(terme) ||
+          f.description.toLowerCase().includes(terme)
+        )
+      : [];
+
+    displayEvents(sortEvents(appliquerFiltresCommuns(base)), festivalsCorrespondants);
   }
 
   window.selectDay = function (day) {
@@ -695,10 +732,18 @@ const FAVORIS_KEY = "boussoleFavoris";
     const villeFilter = document.getElementById("filter-ville")?.value || "";
     const debut = parseDate((filterDateStart?.value || "").trim());
     const fin = parseDate((filterDateEnd?.value || "").trim());
+    const terme = getTermeRecherche();
 
     let events = window.festivalsData;
 
     if (villeFilter) events = events.filter(f => f.ville === villeFilter);
+
+    if (terme) {
+      events = events.filter(f =>
+        f.nom.toLowerCase().includes(terme) ||
+        f.description.toLowerCase().includes(terme)
+      );
+    }
 
     if (debut || fin) {
       // Un festival "chevauche" la plage si sa fin n'est pas avant le
@@ -721,6 +766,60 @@ const FAVORIS_KEY = "boussoleFavoris";
     displayFestivals(events);
   }
 
+ // Construit une fiche festival (élément DOM) — utilisée par
+  // displayFestivals() (mode "Festivals & Tournois") ET par displayEvents()
+  // (résultats de recherche qui incluent des festivals correspondants).
+  function construireCarteFestival(f) {
+    const card = document.createElement("div");
+    card.className = "event-card festival-card";
+
+    const logoHtml = f.logo
+      ? `<div class="event-logo-wrapper"><img src="${f.logo}" alt="Logo ${f.nom}" loading="lazy" onerror="this.parentElement.style.display='none'"></div>`
+      : "";
+
+    const plageDates = f.dateFinStr && f.dateFinStr !== f.dateDebutStr
+      ? `${f.dateDebutStr} au ${f.dateFinStr}`
+      : f.dateDebutStr;
+
+    const deadlineHtml = f.dateLimiteStr
+      ? `<div class="festival-deadline">📌 Date limite d'inscription : <strong>${f.dateLimiteStr}</strong></div>`
+      : "";
+
+    const descriptionHtml = f.description
+      ? `<p class="event-description">${tronquerTexte(f.description, 150)}</p>`
+      : "";
+
+    const liensSociaux = [];
+    if (f.instagram) liensSociaux.push(`<a href="${f.instagram}" target="_blank" rel="noopener">Instagram</a>`);
+    if (f.facebook) liensSociaux.push(`<a href="${f.facebook}" target="_blank" rel="noopener">Facebook</a>`);
+    if (f.site) liensSociaux.push(`<a href="${f.site}" target="_blank" rel="noopener">Site web</a>`);
+    if (f.linktree) liensSociaux.push(`<a href="${f.linktree}" target="_blank" rel="noopener">Linktree</a>`);
+    const liensSociauxHtml = liensSociaux.length
+      ? `<div class="social-links">${liensSociaux.join("")}</div>`
+      : "";
+
+    const majLienHtml = `<div class="update-link"><a href="${buildFestivalUpdateLink(f)}" target="_blank" rel="noopener">Mettre à jour</a></div>`;
+
+    card.innerHTML = `
+      ${logoHtml}
+      <div class="event-card-body">
+        <div class="tags">
+          <span class="tag ${f.type}">${f.type}</span>
+          <span class="tag ville">${f.ville}</span>
+        </div>
+        <h3>${f.nom}</h3>
+        ${descriptionHtml}
+        <ul class="meta-list">
+          <li><span class="icon">📅</span> ${plageDates}</li>
+        </ul>
+        ${deadlineHtml}
+        ${liensSociauxHtml}
+        ${majLienHtml}
+      </div>
+    `;
+    return card;
+  }
+
   function displayFestivals(festivals) {
     const container = document.getElementById("events");
     container.innerHTML = "";
@@ -730,63 +829,14 @@ const FAVORIS_KEY = "boussoleFavoris";
       return;
     }
 
-    festivals.forEach(f => {
-      const card = document.createElement("div");
-      card.className = "event-card festival-card";
-
-      const logoHtml = f.logo
-        ? `<div class="event-logo-wrapper"><img src="${f.logo}" alt="Logo ${f.nom}" loading="lazy" onerror="this.parentElement.style.display='none'"></div>`
-        : "";
-
-      const plageDates = f.dateFinStr && f.dateFinStr !== f.dateDebutStr
-        ? `${f.dateDebutStr} au ${f.dateFinStr}`
-        : f.dateDebutStr;
-
-      const deadlineHtml = f.dateLimiteStr
-        ? `<div class="festival-deadline">📌 Date limite d'inscription : <strong>${f.dateLimiteStr}</strong></div>`
-        : "";
-
-      const descriptionHtml = f.description
-        ? `<p class="event-description">${tronquerTexte(f.description, 150)}</p>`
-        : "";
-
-      const liensSociaux = [];
-      if (f.instagram) liensSociaux.push(`<a href="${f.instagram}" target="_blank" rel="noopener">Instagram</a>`);
-      if (f.facebook) liensSociaux.push(`<a href="${f.facebook}" target="_blank" rel="noopener">Facebook</a>`);
-      if (f.site) liensSociaux.push(`<a href="${f.site}" target="_blank" rel="noopener">Site web</a>`);
-      if (f.linktree) liensSociaux.push(`<a href="${f.linktree}" target="_blank" rel="noopener">Linktree</a>`);
-      const liensSociauxHtml = liensSociaux.length
-        ? `<div class="social-links">${liensSociaux.join("")}</div>`
-        : "";
-
-      const majLienHtml = `<div class="update-link"><a href="${buildFestivalUpdateLink(f)}" target="_blank" rel="noopener">Mettre à jour</a></div>`;
-
-      card.innerHTML = `
-        ${logoHtml}
-        <div class="event-card-body">
-          <div class="tags">
-            <span class="tag ${f.type}">${f.type}</span>
-            <span class="tag ville">${f.ville}</span>
-          </div>
-          <h3>${f.nom}</h3>
-          ${descriptionHtml}
-          <ul class="meta-list">
-            <li><span class="icon">📅</span> ${plageDates}</li>
-          </ul>
-          ${deadlineHtml}
-          ${liensSociauxHtml}
-          ${majLienHtml}
-        </div>
-      `;
-      container.appendChild(card);
-    });
+    festivals.forEach(f => container.appendChild(construireCarteFestival(f)));
   }
 
-function displayEvents(events) {
+function displayEvents(events, festivalsSupplementaires = []) {
     const container = document.getElementById("events");
     container.innerHTML = "";
 
-    if (events.length === 0) {
+    if (events.length === 0 && festivalsSupplementaires.length === 0) {
       const messageVide = currentDay === "favoris"
         ? "Aucun favori pour l'instant. Clique sur le ♡ d'une fiche pour l'ajouter à tes favoris."
         : "Aucun spectacle trouvé avec ces filtres.";
@@ -878,5 +928,7 @@ function displayEvents(events) {
       }
       container.appendChild(card);
     });
+
+    festivalsSupplementaires.forEach(f => container.appendChild(construireCarteFestival(f)));
   }
 });
