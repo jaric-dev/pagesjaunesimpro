@@ -580,7 +580,8 @@ const FAVORIS_KEY = "boussoleFavoris";
       resultat = resultat.filter(ev =>
         ev.titre.toLowerCase().includes(terme) ||
         ev.description.toLowerCase().includes(terme) ||
-        ev.lieu.toLowerCase().includes(terme)
+        ev.lieu.toLowerCase().includes(terme) ||
+        ev.festival.toLowerCase().includes(terme)
       );
     }
     return resultat;
@@ -709,6 +710,7 @@ const FAVORIS_KEY = "boussoleFavoris";
     document.querySelectorAll(".day-btn").forEach(btn => {
       btn.classList.toggle("active", btn.dataset.day === day);
     });
+    if (filterRecherche) filterRecherche.value = "";
     rafraichirAffichage();
   };
 
