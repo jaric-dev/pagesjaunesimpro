@@ -173,6 +173,20 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ------------------------------
+  // Filtres avancés (Type/Ville/Langue/Hors saison/Plage de dates) — un
+  // <details> fermé masque son contenu peu importe le CSS du conteneur,
+  // ça dépend uniquement de l'attribut "open". On le synchronise donc
+  // avec la largeur d'écran ici (ouvert en tout temps sur desktop).
+  // ------------------------------
+  const filtresAvances = document.getElementById("filtres-avances");
+  if (filtresAvances) {
+    const mqDesktop = window.matchMedia("(min-width: 801px)");
+    const ajusterFiltresAvances = (e) => { filtresAvances.open = e.matches; };
+    ajusterFiltresAvances(mqDesktop);
+    mqDesktop.addEventListener("change", ajusterFiltresAvances);
+  }
+
+  // ------------------------------
   // Chargement des données (8 onglets Google Sheets via OpenSheet)
   // ------------------------------
   const SHEET_ID = "1cV5sqtp73WazgB6og_d4aOG4y9HYo3EGePMrBuXAbRs";
