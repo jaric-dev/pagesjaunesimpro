@@ -30,38 +30,42 @@
         <input type="text" id="filter-recherche" placeholder="Nom, description, lieu... (Enter)">
       </div>
 
-      <div class="filter-group" id="type-filter-group">
-        <label for="filter-type">Type</label>
-        <select id="filter-type"></select>
-      </div>
+      <details id="filtres-avances">
+        <summary>Filtres ▾</summary>
 
-     <div class="filter-group">
-        <label for="filter-ville">Ville</label>
-        <select id="filter-ville"></select>
-      </div>
-
-      <div class="filter-group" id="langue-filter-group">
-        <label for="filter-langue">Langue</label>
-        <select id="filter-langue"></select>
-      </div>
-
-      <div class="filter-group" id="hs-filter-group">
-        <label for="filter-hs">Hors saison</label>
-        <select id="filter-hs">
-          <option value="">Tous</option>
-          <option value="hide">Cacher les hors saison</option>
-          <option value="only">Afficher seulement hors saison</option>
-        </select>
-      </div>
-
-      <div class="filter-group" id="date-range-filter-group">
-        <label for="filter-date-start">Plage de dates</label>
-        <div class="date-range-inputs">
-          <input type="text" id="filter-date-start" placeholder="JJ-MM-AAAA" inputmode="numeric" pattern="\d{2}-\d{2}-\d{4}">
-          <span class="date-range-arrow">→</span>
-          <input type="text" id="filter-date-end" placeholder="JJ-MM-AAAA" inputmode="numeric" pattern="\d{2}-\d{2}-\d{4}">
+        <div class="filter-group" id="type-filter-group">
+          <label for="filter-type">Type</label>
+          <select id="filter-type"></select>
         </div>
-      </div>
+
+        <div class="filter-group">
+          <label for="filter-ville">Ville</label>
+          <select id="filter-ville"></select>
+        </div>
+
+        <div class="filter-group" id="langue-filter-group">
+          <label for="filter-langue">Langue</label>
+          <select id="filter-langue"></select>
+        </div>
+
+        <div class="filter-group" id="hs-filter-group">
+          <label for="filter-hs">Hors saison</label>
+          <select id="filter-hs">
+            <option value="">Tous</option>
+            <option value="hide">Cacher les hors saison</option>
+            <option value="only">Afficher seulement hors saison</option>
+          </select>
+        </div>
+
+        <div class="filter-group" id="date-range-filter-group">
+          <label for="filter-date-start">Plage de dates</label>
+          <div class="date-range-inputs">
+            <input type="text" id="filter-date-start" placeholder="JJ-MM-AAAA" inputmode="numeric" pattern="\d{2}-\d{2}-\d{4}">
+            <span class="date-range-arrow">→</span>
+            <input type="text" id="filter-date-end" placeholder="JJ-MM-AAAA" inputmode="numeric" pattern="\d{2}-\d{2}-\d{4}">
+          </div>
+        </div>
+      </details>
 
       <p class="sidebar-cta">
         Intéressé.e à t'impliquer dans la Boussole? Envoie un message dans la section <a href="about.html">À propos</a>!
