@@ -252,6 +252,16 @@ header {
   text-decoration-color: #ffcc00;
 }
 
+.sidebar-logo {
+  display: block;
+  max-width: 90px;
+  max-height: 90px;
+  object-fit: contain;
+  border-radius: 8px;
+  margin: 0 auto;
+  opacity: 0.85;
+}
+
 .filter-group {
   display: flex;
   flex-direction: column;
@@ -354,6 +364,10 @@ header {
   .sidebar {
     width: 100%;
     position: static;
+  }
+
+  .sidebar-logo {
+    display: none;
   }
 }
 
