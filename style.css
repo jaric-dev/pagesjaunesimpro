@@ -126,6 +126,17 @@ header {
   margin: 0;
 }
 
+.about-signature .signature-link {
+  color: #6a6a72;
+  text-decoration: underline;
+  text-decoration-color: #3a3a40;
+}
+
+.about-signature .signature-link:hover {
+  color: #ffcc00;
+  text-decoration-color: #ffcc00;
+}
+
 /* ------------------------------
    PAGE DE PARTAGE (suggestions reçues)
 ------------------------------ */
