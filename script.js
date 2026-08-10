@@ -56,7 +56,11 @@ function normalizeEvent(ev, ongletJour) {
     datesMultiplesRaw: Array.from({ length: 10 }, (_, i) => (ev[`date_spectacle${i + 1}`] || "").trim()).filter(Boolean),
     // Optionnel : si rempli, indique que ce spectacle fait partie de la
     // programmation d'un festival (colonne "festival" dans le Sheet)
-    festival: (ev.festival || "").trim()
+    festival: (ev.festival || "").trim(),
+    // Identifiant technique invisible (colonne "id") — utilisé pour le
+    // lien "Mettre à jour" prérempli, permet à l'automatisation de
+    // retrouver la bonne ligne sans dépendre du titre/ville.
+    id: (ev.id || "").trim()
   };
 }
 
@@ -360,9 +364,10 @@ const FAVORIS_KEY = "boussoleFavoris";
   // ------------------------------
   const UPDATE_FORM_BASE_URL = "https://docs.google.com/forms/d/e/1FAIpQLSeeG383L2VpTt35NXd0jXH4AvrzhJ96qmkB5olkguPDPA4kzg/viewform";
 
-  // Section "Spectacles et Ligues" du formulaire de mise à jour
+// Section "Spectacles et Ligues" du formulaire de mise à jour
   const UPDATE_ENTRIES_SPECTACLE = {
     typeContenu: "630150997", // valeur attendue : "Spectacles et Ligues"
+    idTechnique: "421614305", // champ commun "ID technique (NE PAS MODIFIER)"
     nom: "1747047438",
     type: "1447261349",
     description: "1367352150",
@@ -403,11 +408,13 @@ const FAVORIS_KEY = "boussoleFavoris";
 // Section "Audition" du formulaire de mise à jour
   const UPDATE_ENTRIES_AUDITION = {
     typeContenu: "630150997", // valeur attendue : "Audition"
+    idTechnique: "421614305", // champ commun "ID technique (NE PAS MODIFIER)"
     nom: "1902398208",
     description: "59675833",
     dateHeure: "1978334466", // champ combiné Date + heure
     lieu: "723146400",
     adresse: "1663893641",
+    ville: "1596443698",
     dateLimiteInscription: "381550761",
     auditionPublique: "1810270296",
     langue: "782551135",
@@ -430,6 +437,7 @@ const FAVORIS_KEY = "boussoleFavoris";
     const addParam = (key, val) => addParamTo(E, parts, key, val);
 
     addParam("typeContenu", "Audition");
+    addParam("idTechnique", ev.id);
     addParam("nom", ev.titre);
     addParam("description", ev.description);
     if (ev.date_debut) {
@@ -437,6 +445,7 @@ const FAVORIS_KEY = "boussoleFavoris";
     }
     addParam("lieu", ev.lieu);
     addParam("adresse", ev.adresse);
+    addParam("ville", ev.ville);
     addParam("dateLimiteInscription", toISODate(ev.dateLimiteInscriptionStr));
     addParam("auditionPublique", ev.auditionPublique);
     addParam("langue", ev.langue);
@@ -477,6 +486,7 @@ const FAVORIS_KEY = "boussoleFavoris";
     const addParam = (key, val) => addParamTo(E, parts, key, val);
 
     addParam("typeContenu", "Spectacles et Ligues");
+    addParam("idTechnique", ev.id);
     addParam("nom", ev.titre);
     ev.types.forEach(t => parts.push(`entry.${E.type}=${encodeURIComponent(t)}`));
     addParam("description", ev.description);
