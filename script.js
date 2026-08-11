@@ -57,6 +57,12 @@ function normalizeEvent(ev, ongletJour) {
     // Optionnel : si rempli, indique que ce spectacle fait partie de la
     // programmation d'un festival (colonne "festival" dans le Sheet)
     festival: (ev.festival || "").trim(),
+    // Point de contact interne (colonne "contacts" dans les onglets jour,
+    // "contact" dans Impro_Ponctuel — nom incohérent hérité d'avant
+    // l'automatisation, géré ici sans le changer dans le Sheet). Pas
+    // affiché publiquement, seulement utilisé pour préremplir le champ
+    // "Contact Boussole" du lien "Mettre à jour".
+    contact: (ev.contacts || ev.contact || "").trim(),
     // Identifiant technique invisible (colonne "id") — utilisé pour le
     // lien "Mettre à jour" prérempli, permet à l'automatisation de
     // retrouver la bonne ligne sans dépendre du titre/ville.
@@ -301,7 +307,11 @@ document.addEventListener("DOMContentLoaded", () => {
       site: (ev.site || ev.Site || "").trim(),
       linktree: (ev.linktree || "").trim(),
       logo: (ev.logo || "").trim(),
-      masquer: (ev.masquer || "").trim()
+      masquer: (ev.masquer || "").trim(),
+      // Nom de colonne pas encore confirmé pour cet onglet géré
+      // manuellement — "contacts" ou "contact" par cohérence avec les
+      // autres onglets ; à corriger si le préremplissage ne fonctionne pas.
+      contact: (ev.contacts || ev.contact || "").trim()
     };
   }
 
@@ -364,7 +374,7 @@ const FAVORIS_KEY = "boussoleFavoris";
   // ------------------------------
   const UPDATE_FORM_BASE_URL = "https://docs.google.com/forms/d/e/1FAIpQLSeeG383L2VpTt35NXd0jXH4AvrzhJ96qmkB5olkguPDPA4kzg/viewform";
 
-// Section "Spectacles et Ligues" du formulaire de mise à jour
+  // Section "Spectacles et Ligues" du formulaire de mise à jour
   const UPDATE_ENTRIES_SPECTACLE = {
     typeContenu: "630150997", // valeur attendue : "Spectacles et Ligues"
     idTechnique: "421614305", // champ commun "ID technique (NE PAS MODIFIER)"
@@ -386,7 +396,8 @@ const FAVORIS_KEY = "boussoleFavoris";
     facebook: "1532376572",
     site: "841564403",
     linktree: "7399501",
-    logo: "1504614778"
+    logo: "1504614778",
+    contact: "1926843148"
   };
 
   // Section "Festivals et Tournois" du formulaire de mise à jour
@@ -403,7 +414,8 @@ const FAVORIS_KEY = "boussoleFavoris";
     facebook: "76020231",
     site: "712098918",
     linktree: "4334897",
-    logo: "829401794"
+    logo: "829401794",
+    contact: "1620634128"
   };
 // Section "Audition" du formulaire de mise à jour
   const UPDATE_ENTRIES_AUDITION = {
@@ -424,7 +436,8 @@ const FAVORIS_KEY = "boussoleFavoris";
     facebook: "1510341920",
     site: "714323841",
     linktree: "262686603",
-    logo: "1209060793"
+    logo: "1209060793",
+    contact: "1502997989"
   };
 
   function estAudition(ev) {
@@ -456,6 +469,7 @@ const FAVORIS_KEY = "boussoleFavoris";
     addParam("site", ev.site);
     addParam("linktree", ev.linktree);
     addParam("logo", ev.logo);
+    addParam("contact", ev.contact);
 
     return `${UPDATE_FORM_BASE_URL}?usp=pp_url&${parts.join("&")}`;
   }
@@ -494,6 +508,7 @@ const FAVORIS_KEY = "boussoleFavoris";
     addParam("adresse", ev.adresse);
     addParam("ville", ev.ville);
     addParam("heure", ev.heure);
+    addParam("langue", ev.langue);
     addParam("billet", ev.billetRequis);
     addParam("prix", ev.prix);
     addParam("instagram", ev.instagram);
@@ -501,6 +516,7 @@ const FAVORIS_KEY = "boussoleFavoris";
     addParam("site", ev.site);
     addParam("linktree", ev.linktree);
     addParam("logo", ev.logo);
+    addParam("contact", ev.contact);
 
     const estIrregulier = ev.frequence.toLowerCase() === "ponctuel" || (ev.source === "ponctuel" && !ev.frequence);
 
@@ -539,6 +555,7 @@ const FAVORIS_KEY = "boussoleFavoris";
     addParam("site", f.site);
     addParam("linktree", f.linktree);
     addParam("logo", f.logo);
+    addParam("contact", f.contact);
 
     return `${UPDATE_FORM_BASE_URL}?usp=pp_url&${parts.join("&")}`;
   }
