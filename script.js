@@ -18,12 +18,20 @@ function parseDate(str) {
 function normalizeEvent(ev, ongletJour) {
   const hors_saison = (ev.prochain_spectacle || "").trim().toLowerCase() === "hors saison";
   const dateStr = hors_saison ? "" : (ev.prochain_spectacle || "").trim();
+  const dateObj = parseDate(dateStr);
+  // Impro_Ponctuel : le jour de la semaine est calculé automatiquement à
+  // partir de la prochaine date connue, plutôt que dépendre de la colonne
+  // "jour" remplie à la main dans le Sheet.
+  const JOURS_FR_INDEX = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
+  const jourCalcule = (ongletJour === "ponctuel" && dateObj)
+    ? JOURS_FR_INDEX[dateObj.getDay()]
+    : (ev.jour || ongletJour || "").trim().toLowerCase();
   return {
     titre: (ev.nom || "").trim(),
     types: (ev.type || "").split(",").map(t => t.trim()).filter(Boolean),
     ville: (ev.ville || "").trim(),
     date: dateStr,
-    dateObj: parseDate(dateStr),
+    dateObj: dateObj,
     heure: (ev.heure || "").trim(),
     lieu: (ev.lieu || "").trim(),
     adresse: (ev.adresse || "").trim(),
@@ -39,7 +47,7 @@ function normalizeEvent(ev, ongletJour) {
     date_debut: (ev.date_debut || "").trim(),
     date_fin: (ev.date_fin || "").trim(),
     frequence: (ev["fréquence"] || "").trim(),
-    jour: (ev.jour || ongletJour || "").trim().toLowerCase(),
+    jour: jourCalcule,
     source: ongletJour,
     masquer: (ev.masquer || "").trim(),
     // Calculée par le Sheet (colonne B) : "X" si ce spectacle avait de
