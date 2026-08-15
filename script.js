@@ -975,7 +975,7 @@ function displayEvents(events, festivalsSupplementaires = []) {
           ${descriptionHtml}
           <ul class="meta-list">
             <li><span class="icon">📅</span> ${JOURS_LABELS[ev.jour] ? JOURS_LABELS[ev.jour] + " · " : ""}${ev.date || "À venir"}</li>
-            <li><span class="icon">🕒</span> ${ev.heure}</li>
+            ${ev.heure ? `<li><span class="icon">🕒</span> ${ev.heure}</li>` : ""}
             <li><span class="icon">📍</span> ${lieuHtml}</li>
           </ul>
           ${deadlineHtml}
