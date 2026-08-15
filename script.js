@@ -434,7 +434,7 @@ const FAVORIS_KEY = "boussoleFavoris";
     dateHeure: "1978334466", // champ combiné Date + heure
     lieu: "723146400",
     adresse: "1663893641",
-    ville: "1596443698",
+    ville: "1683640709",
     dateLimiteInscription: "381550761",
     auditionPublique: "1810270296",
     langue: "782551135",
