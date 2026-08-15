@@ -445,7 +445,10 @@ const FAVORIS_KEY = "boussoleFavoris";
     site: "714323841",
     linktree: "262686603",
     logo: "1209060793",
-    contact: "1502997989"
+    contact: "1502997989",
+    plusieursJours: "470743948",
+    campSelection: "239400010"
+    
   };
 
   function estAudition(ev) {
@@ -461,9 +464,20 @@ const FAVORIS_KEY = "boussoleFavoris";
     addParam("idTechnique", ev.id);
     addParam("nom", ev.titre);
     addParam("description", ev.description);
-    if (ev.date_debut) {
+
+    // Étape 14 (2026-08-15) : une audition à dates multiples vit dans
+    // Impro_Ponctuel (jamais dans un onglet de jour) — datesMultiplesRaw
+    // contient alors ses vraies dates. On préremplit "Sur plusieurs
+    // jours?" à "Oui" et la liste de dates dans ce cas ; sinon,
+    // comportement inchangé (dateHeure combinée, une seule date).
+    const estCampSelection = ev.source === "ponctuel" && ev.datesMultiplesRaw.length > 0;
+    if (estCampSelection) {
+      addParam("plusieursJours", "Oui");
+      addParam("campSelection", ev.datesMultiplesRaw.join("\n"));
+    } else if (ev.date_debut) {
       addParam("dateHeure", `${toISODate(ev.date_debut)} ${ev.heure || ""}`.trim());
     }
+
     addParam("lieu", ev.lieu);
     addParam("adresse", ev.adresse);
     addParam("ville", ev.ville);
@@ -837,7 +851,7 @@ const FAVORIS_KEY = "boussoleFavoris";
       : "";
 
     const descriptionHtml = f.description
-      ? `<p class="event-description">${tronquerTexte(f.description, 150)}</p>`
+      ? `<p class="event-description">${tronquerTexte(f.description, 350)}</p>`
       : "";
 
     const liensSociaux = [];
