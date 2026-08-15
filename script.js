@@ -931,8 +931,8 @@ function displayEvents(events, festivalsSupplementaires = []) {
       const typeTagsHtml = ev.types.map(t => `<span class="tag ${t}">${t}</span>`).join("");
       const langueTagHtml = ev.langue ? `<span class="tag ${ev.langue}">${ev.langue}</span>` : "";
 
-      const descriptionHtml = ev.description
-        ? `<p class="event-description">${tronquerTexte(ev.description, 150)}</p>`
+     const descriptionHtml = ev.description
+        ? `<p class="event-description">${tronquerTexte(ev.description, 350)}</p>`
         : "";
 
       const badges = [];
