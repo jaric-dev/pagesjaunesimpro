@@ -98,6 +98,14 @@ function decoderListePartage(str) {
   }
 }
 
+function buildLienCarte(adresse) {
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  const encoded = encodeURIComponent(adresse);
+  return isIOS
+    ? `https://maps.apple.com/?q=${encoded}`
+    : `https://www.google.com/maps/search/?api=1&query=${encoded}`;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   // Ce fichier est aussi chargé par partage.html, pour réutiliser les
   // fonctions partagées définies plus haut. Tout ce qui suit ne concerne
@@ -914,7 +922,7 @@ function displayEvents(events, festivalsSupplementaires = []) {
       card.className = ev.hors_saison ? "event-card event-card--hors-saison" : "event-card";
 
       const lieuHtml = ev.adresse
-        ? `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ev.adresse)}" target="_blank" rel="noopener">${ev.lieu}</a>`
+        ? `<a href="${buildLienCarte(ev.adresse)}" target="_blank" rel="noopener">${ev.lieu}</a>`
         : ev.lieu;
 
       const billetLignes = [];
