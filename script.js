@@ -71,10 +71,17 @@ function normalizeEvent(ev, ongletJour) {
     // affiché publiquement, seulement utilisé pour préremplir le champ
     // "Contact Boussole" du lien "Mettre à jour".
     contact: (ev.contacts || ev.contact || "").trim(),
-    // Identifiant technique invisible (colonne "id") — utilisé pour le
+       // Identifiant technique invisible (colonne "id") — utilisé pour le
     // lien "Mettre à jour" prérempli, permet à l'automatisation de
     // retrouver la bonne ligne sans dépendre du titre/ville.
-    id: (ev.id || "").trim()
+    id: (ev.id || "").trim(),
+    // Chantier "date de dernière mise à jour" (2026-09-19) : derniere_maj
+    // est stampée automatiquement par l'automatisation (Nouveau/Mise à
+    // jour) ou par le déclencheur onEdit pour une édition manuelle —
+    // affichée près du lien "Mettre à jour". a_confirmer est une bascule
+    // manuelle (comme masquer), affichée comme badge sur la fiche.
+    derniereMaj: (ev.derniere_maj || "").trim(),
+    aConfirmer: (ev.a_confirmer || "").trim().toLowerCase() === "oui"
   };
 }
 
@@ -332,7 +339,11 @@ document.addEventListener("DOMContentLoaded", () => {
       // utilisé pour le lien "Mettre à jour" prérempli, permet à
       // l'automatisation de retrouver la bonne ligne (voir codegsappscript.gs,
       // trouverLigneParId).
-      id: (ev.id || "").trim()
+      id: (ev.id || "").trim(),
+      // Chantier "date de dernière mise à jour" (2026-09-19) — voir
+      // normalizeEvent() pour le détail du mécanisme.
+      derniereMaj: (ev.derniere_maj || "").trim(),
+      aConfirmer: (ev.a_confirmer || "").trim().toLowerCase() === "oui"
     };
   }
 
@@ -878,7 +889,13 @@ const FAVORIS_KEY = "boussoleFavoris";
       ? `<div class="social-links">${liensSociaux.join("")}</div>`
       : "";
 
-    const majLienHtml = `<div class="update-link"><a href="${buildFestivalUpdateLink(f)}" target="_blank" rel="noopener">Mettre à jour</a></div>`;
+    const derniereMajHtml = f.derniereMaj
+      ? `<span class="derniere-maj">🔄 Mis à jour le ${f.derniereMaj}</span>`
+      : "";
+    const majLienHtml = `<div class="update-link">${derniereMajHtml}<a href="${buildFestivalUpdateLink(f)}" target="_blank" rel="noopener">Mettre à jour</a></div>`;
+        const badgeAConfirmerHtml = f.aConfirmer
+      ? `<div class="badges"><span class="badge badge-a-confirmer">Information à confirmer</span></div>`
+      : "";
 
     card.innerHTML = `
       ${logoHtml}
@@ -887,6 +904,7 @@ const FAVORIS_KEY = "boussoleFavoris";
           <span class="tag ${f.type}">${f.type}</span>
           <span class="tag ville">${f.ville}</span>
         </div>
+        ${badgeAConfirmerHtml}
         <h3>${f.nom}</h3>
         ${descriptionHtml}
         <ul class="meta-list">
@@ -951,7 +969,10 @@ function displayEvents(events, festivalsSupplementaires = []) {
         ? `<div class="social-links">${liensSociaux.join("")}</div>`
         : "";
 
-      const majLienHtml = `<div class="update-link"><a href="${estAudition(ev) ? buildAuditionUpdateLink(ev) : buildUpdateLink(ev)}" target="_blank" rel="noopener">Mettre à jour</a></div>`;
+            const derniereMajHtml = ev.derniereMaj
+        ? `<span class="derniere-maj">🔄 Mis à jour le ${ev.derniereMaj}</span>`
+        : "";
+      const majLienHtml = `<div class="update-link">${derniereMajHtml}<a href="${estAudition(ev) ? buildAuditionUpdateLink(ev) : buildUpdateLink(ev)}" target="_blank" rel="noopener">Mettre à jour</a></div>`;
 
       const logoHtml = ev.logo
         ? `<div class="event-logo-wrapper"><img src="${ev.logo}" alt="Logo ${ev.titre}" loading="lazy" onerror="this.parentElement.style.display='none'"></div>`
@@ -966,6 +987,7 @@ function displayEvents(events, festivalsSupplementaires = []) {
 
       const badges = [];
       if (ev.hors_saison) badges.push(`<span class="badge badge-hors-saison">Hors saison</span>`);
+      if (ev.aConfirmer) badges.push(`<span class="badge badge-a-confirmer">Information à confirmer</span>`);
       const badgesHtml = badges.length ? `<div class="badges">${badges.join("")}</div>` : "";
 
       const deadlineHtml = (estAudition(ev) && ev.dateLimiteInscriptionStr)
