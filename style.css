@@ -638,6 +638,12 @@ header {
   color: #9a9aa2;
 }
 
+.badge-a-confirmer {
+  background-color: #2a1f10;
+  border: 1px solid #e0c568;
+  color: #e0c568;
+}
+
 /* ------------------------------
    MÉTADONNÉES
 ------------------------------ */
@@ -708,6 +714,13 @@ header {
 
 .update-link {
   margin-top: 0.7rem;
+}
+
+.derniere-maj {
+  display: inline-block;
+  margin-right: 0.8rem;
+  font-size: 0.72rem;
+  color: #5a5a62;
 }
 
 .update-link a {
