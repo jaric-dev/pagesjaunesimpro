@@ -892,7 +892,7 @@ const FAVORIS_KEY = "boussoleFavoris";
     const derniereMajHtml = f.derniereMaj
       ? `<span class="derniere-maj">🔄 Mis à jour le ${f.derniereMaj}</span>`
       : "";
-    const majLienHtml = `<div class="update-link">${derniereMajHtml}<a href="${buildFestivalUpdateLink(f)}" target="_blank" rel="noopener">Mettre à jour</a></div>`;
+    const majLienHtml = `<div class="update-link"><a href="${buildFestivalUpdateLink(f)}" target="_blank" rel="noopener">Mettre à jour</a>${derniereMajHtml}</div>`;
         const badgeAConfirmerHtml = f.aConfirmer
       ? `<div class="badges"><span class="badge badge-a-confirmer">Information à confirmer</span></div>`
       : "";
@@ -972,8 +972,7 @@ function displayEvents(events, festivalsSupplementaires = []) {
             const derniereMajHtml = ev.derniereMaj
         ? `<span class="derniere-maj">🔄 Mis à jour le ${ev.derniereMaj}</span>`
         : "";
-      const majLienHtml = `<div class="update-link">${derniereMajHtml}<a href="${estAudition(ev) ? buildAuditionUpdateLink(ev) : buildUpdateLink(ev)}" target="_blank" rel="noopener">Mettre à jour</a></div>`;
-
+      const majLienHtml = `<div class="update-link"><a href="${estAudition(ev) ? buildAuditionUpdateLink(ev) : buildUpdateLink(ev)}" target="_blank" rel="noopener">Mettre à jour</a>${derniereMajHtml}</div>`;
       const logoHtml = ev.logo
         ? `<div class="event-logo-wrapper"><img src="${ev.logo}" alt="Logo ${ev.titre}" loading="lazy" onerror="this.parentElement.style.display='none'"></div>`
         : "";
