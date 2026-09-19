@@ -717,8 +717,8 @@ header {
 }
 
 .derniere-maj {
-  display: inline-block;
-  margin-right: 0.8rem;
+  display: block;
+  margin-top: 0.35rem;
   font-size: 0.72rem;
   color: #5a5a62;
 }
