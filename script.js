@@ -327,7 +327,12 @@ document.addEventListener("DOMContentLoaded", () => {
       // Nom de colonne pas encore confirmé pour cet onglet géré
       // manuellement — "contacts" ou "contact" par cohérence avec les
       // autres onglets ; à corriger si le préremplissage ne fonctionne pas.
-      contact: (ev.contacts || ev.contact || "").trim()
+      contact: (ev.contacts || ev.contact || "").trim(),
+      // Identifiant technique invisible (colonne "id", ex-"id_soumis") —
+      // utilisé pour le lien "Mettre à jour" prérempli, permet à
+      // l'automatisation de retrouver la bonne ligne (voir codegsappscript.gs,
+      // trouverLigneParId).
+      id: (ev.id || "").trim()
     };
   }
 
@@ -417,8 +422,9 @@ const FAVORIS_KEY = "boussoleFavoris";
   };
 
   // Section "Festivals et Tournois" du formulaire de mise à jour
-  const UPDATE_ENTRIES_FESTIVAL = {
+      const UPDATE_ENTRIES_FESTIVAL = {
     typeContenu: "630150997", // valeur attendue : "Festivals et Tournois" (à confirmer)
+    idTechnique: "421614305", // champ commun "ID technique (NE PAS MODIFIER)", même entry ID que Spectacle/Audition
     nom: "1383275963",
     type: "486472793",
     description: "555071293",
@@ -573,6 +579,7 @@ const FAVORIS_KEY = "boussoleFavoris";
     const addParam = (key, val) => addParamTo(E, parts, key, val);
 
     addParam("typeContenu", "Festivals et Tournois");
+    addParam("idTechnique", f.id);
     addParam("nom", f.nom);
     addParam("type", f.type);
     addParam("description", f.description);
