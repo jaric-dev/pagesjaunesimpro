@@ -3,6 +3,7 @@
 Site web qui rassemble en un seul endroit les spectacles, matchs, jams, auditions, tournois et festivals d'improvisation à travers le Québec. L'objectif : que trouver une soirée d'impro près de chez soi devienne facile.
 
 Site en ligne : https://jaric-dev.github.io/pagesjaunesimpro/
+https://boussole.projetsoh.ca/
 
 ## À propos du projet
 
