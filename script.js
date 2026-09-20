@@ -575,7 +575,7 @@ const FAVORIS_KEY = "boussoleFavoris";
       // (colonnes date_spectacle1 à date_spectacle9) — on les prend
       // directement, plus besoin de chercher ailleurs dans les données.
       const dates = ev.datesMultiplesRaw.length ? ev.datesMultiplesRaw : (ev.date ? [ev.date] : []);
-      const lignes = dates.map(d => `${d} | ${ev.heure} | ${ev.lieu} | ${ev.adresse}`);
+      const lignes = dates.map(d => `${d} | ${ev.heure} | ${ev.lieu} | ${ev.ville} | ${ev.adresse}`);
       addParam("datesMultiples", lignes.join("\n"));
     } else {
       addParam("frequence", ev.frequence);
