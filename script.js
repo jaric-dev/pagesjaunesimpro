@@ -80,8 +80,9 @@ function normalizeEvent(ev, ongletJour) {
     // jour) ou par le déclencheur onEdit pour une édition manuelle —
     // affichée près du lien "Mettre à jour". a_confirmer est une bascule
     // manuelle (comme masquer), affichée comme badge sur la fiche.
-    derniereMaj: (ev.derniere_maj || "").trim(),
-    aConfirmer: (ev.a_confirmer || "").trim().toLowerCase() === "oui"
+        derniereMaj: (ev.derniere_maj || "").trim(),
+    aConfirmer: (ev.a_confirmer || "").trim().toLowerCase() === "oui",
+    aConfirmerDetails: (ev.a_confirmer_details || "").trim()
   };
 }
 
@@ -343,7 +344,8 @@ document.addEventListener("DOMContentLoaded", () => {
       // Chantier "date de dernière mise à jour" (2026-09-19) — voir
       // normalizeEvent() pour le détail du mécanisme.
       derniereMaj: (ev.derniere_maj || "").trim(),
-      aConfirmer: (ev.a_confirmer || "").trim().toLowerCase() === "oui"
+      aConfirmer: (ev.a_confirmer || "").trim().toLowerCase() === "oui",
+      aConfirmerDetails: (ev.a_confirmer_details || "").trim()
     };
   }
 
@@ -893,8 +895,8 @@ const FAVORIS_KEY = "boussoleFavoris";
       ? `<span class="derniere-maj">🔄 Mis à jour le ${f.derniereMaj}</span>`
       : "";
     const majLienHtml = `<div class="update-link"><a href="${buildFestivalUpdateLink(f)}" target="_blank" rel="noopener">Mettre à jour</a>${derniereMajHtml}</div>`;
-        const badgeAConfirmerHtml = f.aConfirmer
-      ? `<div class="badges"><span class="badge badge-a-confirmer">Information à confirmer</span></div>`
+          const badgeAConfirmerHtml = f.aConfirmer
+      ? `<div class="badges"><span class="badge badge-a-confirmer">Information à confirmer${f.aConfirmerDetails ? ` : ${f.aConfirmerDetails}` : ""}</span></div>`
       : "";
 
     card.innerHTML = `
@@ -986,7 +988,7 @@ function displayEvents(events, festivalsSupplementaires = []) {
 
       const badges = [];
       if (ev.hors_saison) badges.push(`<span class="badge badge-hors-saison">Hors saison</span>`);
-      if (ev.aConfirmer) badges.push(`<span class="badge badge-a-confirmer">Information à confirmer</span>`);
+      if (ev.aConfirmer) badges.push(`<span class="badge badge-a-confirmer">Information à confirmer${ev.aConfirmerDetails ? ` : ${ev.aConfirmerDetails}` : ""}</span>`);
       const badgesHtml = badges.length ? `<div class="badges">${badges.join("")}</div>` : "";
 
       const deadlineHtml = (estAudition(ev) && ev.dateLimiteInscriptionStr)
