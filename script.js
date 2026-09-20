@@ -80,7 +80,7 @@ function normalizeEvent(ev, ongletJour) {
     // jour) ou par le déclencheur onEdit pour une édition manuelle —
     // affichée près du lien "Mettre à jour". a_confirmer est une bascule
     // manuelle (comme masquer), affichée comme badge sur la fiche.
-        derniereMaj: (ev.derniere_maj || "").trim(),
+    derniereMaj: (ev.derniere_maj || "").trim(),
     aConfirmer: (ev.a_confirmer || "").trim().toLowerCase() === "oui",
     aConfirmerDetails: (ev.a_confirmer_details || "").trim()
   };
@@ -286,7 +286,20 @@ document.addEventListener("DOMContentLoaded", () => {
       ["spectacle", "jam", "match"].includes(t.toLowerCase())
     );
 
+    // "À venir" = date connue et non passée — exclut les ligues hors saison
+    // (reviendront, mais sans prochaine date confirmée pour l'instant) et
+    // les dates déjà passées. Sous-ensemble du total ci-dessous, pour
+    // distinguer la scène active en ce moment du total de spectacles
+    // actifs recensés (une ligue entre deux saisons compte dans le total
+    // mais pas dans "à venir").
+    const minuitAujourdhui = new Date();
+    minuitAujourdhui.setHours(0, 0, 0, 0);
+    const aDateAVenir = ev => ev.dateObj && ev.dateObj >= minuitAujourdhui;
+
     const spectaclesUniques = new Set(window.eventsData.filter(estSpectacleCompte).map(ev => ev.titre));
+    const spectaclesAVenirUniques = new Set(
+      window.eventsData.filter(ev => estSpectacleCompte(ev) && aDateAVenir(ev)).map(ev => ev.titre)
+    );
     const auditionsUniques = new Set(window.eventsData.filter(estAudition).map(ev => ev.titre));
     const villesUniques = new Set(window.eventsData.map(ev => ev.ville).filter(Boolean));
 
@@ -298,6 +311,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const tournoisUniques = new Set(festivalsData.filter(f => f.type.toLowerCase() === "tournoi").map(f => f.nom));
 
     statsEl.innerHTML = `
+      <div class="stat-item"><strong>${spectaclesAVenirUniques.size}</strong> spectacles à venir</div>
       <div class="stat-item"><strong>${spectaclesUniques.size}</strong> spectacles annoncés</div>
       <div class="stat-item"><strong>${auditionsUniques.size}</strong> auditions annoncées</div>
       <div class="stat-item"><strong>${festivalsUniques.size}</strong> festivals annoncés</div>
@@ -895,7 +909,7 @@ const FAVORIS_KEY = "boussoleFavoris";
       ? `<span class="derniere-maj">🔄 Mis à jour le ${f.derniereMaj}</span>`
       : "";
     const majLienHtml = `<div class="update-link"><a href="${buildFestivalUpdateLink(f)}" target="_blank" rel="noopener">Mettre à jour</a>${derniereMajHtml}</div>`;
-          const badgeAConfirmerHtml = f.aConfirmer
+      const badgeAConfirmerHtml = f.aConfirmer
       ? `<div class="badges"><span class="badge badge-a-confirmer">Information à confirmer${f.aConfirmerDetails ? ` : ${f.aConfirmerDetails}` : ""}</span></div>`
       : "";
 
