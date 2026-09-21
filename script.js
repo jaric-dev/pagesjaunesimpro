@@ -234,13 +234,14 @@ document.addEventListener("DOMContentLoaded", () => {
     dimanche: "Impro_Dimanche",
     ponctuel: "Impro_Ponctuel"
   };
-
+  let erreursChargement = 0;
   const requetes = Object.entries(ONGLETS).map(([jour, onglet]) =>
     fetch(`https://opensheet.elk.sh/${SHEET_ID}/${onglet}`)
       .then(r => r.json())
       .then(rows => rows.map(ev => normalizeEvent(ev, jour)))
-      .catch(err => {
+         .catch(err => {
         console.error(`Erreur de chargement de l'onglet ${onglet}:`, err);
+        erreursChargement++;
         return [];
       })
   );
@@ -253,11 +254,21 @@ document.addEventListener("DOMContentLoaded", () => {
       return [];
     });
 
-  Promise.all(requetes)
+    Promise.all(requetes)
     .then(resultats => {
       window.eventsData = resultats.flat()
         .filter(ev => ev.titre) // ignore lignes vides
         .filter(ev => ev.masquer.toLowerCase() !== "oui"); // ignore lignes masquées
+
+      // Si les 8 onglets ont échoué, c'est presque toujours une absence de
+      // connexion (le service worker sert le squelette du site depuis le
+      // cache, mais les données en direct ne peuvent jamais venir du
+      // cache) — message clair plutôt qu'une grille vide silencieuse.
+      if (erreursChargement === Object.keys(ONGLETS).length) {
+        afficherMessageHorsLigne();
+        return;
+      }
+
       populateFilters();
       wireFilterEvents();
       afficherStats();
@@ -272,7 +283,15 @@ document.addEventListener("DOMContentLoaded", () => {
     afficherStats();
     if (currentDay === "festivals") rafraichirAffichage();
   });
-
+ 
+  function afficherMessageHorsLigne() {
+    const container = document.getElementById("events");
+    if (container) {
+      container.innerHTML = `<p style="text-align:center; width:100%;">📡 Pas de connexion internet. Connecte-toi pour voir les spectacles à jour.</p>`;
+    }
+    const statsEl = document.getElementById("site-stats");
+    if (statsEl) statsEl.innerHTML = "";
+  }
   // Compte les spectacles distincts (par nom) et les villes distinctes
   // représentées, tous jours et toute saison confondus (pas juste ce qui
   // est affiché à l'écran présentement)
