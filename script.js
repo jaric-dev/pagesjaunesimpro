@@ -287,7 +287,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function afficherMessageHorsLigne() {
     const container = document.getElementById("events");
     if (container) {
-      container.innerHTML = `<p style="text-align:center; width:100%;">📡 Pas de connexion internet. Connecte-toi pour voir les spectacles à jour.</p>`;
+        container.innerHTML = `<p style="text-align:center; width:100%;">📡 Pas de connexion internet. Connecte-toi pour voir le contenu du site.</p>`;
     }
     const statsEl = document.getElementById("site-stats");
     if (statsEl) statsEl.innerHTML = "";
