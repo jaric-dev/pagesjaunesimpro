@@ -79,5 +79,12 @@
       <p>Présenté par <a href="https://www.facebook.com/profile.php?id=61591695937931" target="_blank" rel="noopener" class="signature-link">Les Projets Oh?</a></p>
     </footer>
   </main>
+  <script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("sw.js");
+    });
+  }
+</script>
 </body>
 </html>
