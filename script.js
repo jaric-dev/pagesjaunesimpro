@@ -656,30 +656,50 @@ const FAVORIS_KEY = "boussoleFavoris";
         ? `${item.dateDebutStr} au ${item.dateFinStr}`
         : item.dateDebutStr;
       return {
-        titre: item.nom,
-        tag: item.type,
         logo: item.logo,
+        tagsHtml: `<span class="tag ${item.type}">${item.type}</span><span class="tag ville">${item.ville}</span>`,
+        titre: item.nom,
         description: item.description,
-        meta: [
-          plageDates ? `📅 ${plageDates}` : null,
-          item.ville ? `📍 ${item.ville}` : null
-        ].filter(Boolean)
+        meta: plageDates ? [`<li><span class="icon">📅</span> ${plageDates}</li>`] : [],
+        deadlineHtml: item.dateLimiteStr
+          ? `📌 Date limite d'inscription : <strong>${item.dateLimiteStr}</strong>`
+          : "",
+        billetHtml: ""
       };
     }
-    const billetTexte = item.billetRequis
-      ? `🎟️ Billet requis${item.prix ? ` — ${item.prix}` : ""}`
-      : (item.prix ? `🎟️ ${item.prix}` : "🎟️ Entrée libre");
+
+    const typeTagsHtml = item.types.map(t => `<span class="tag ${t}">${t}</span>`).join("");
+    const langueTagHtml = item.langue ? `<span class="tag ${item.langue}">${item.langue}</span>` : "";
+    const tagsHtml = `${typeTagsHtml}<span class="tag ville">${item.ville}</span>${langueTagHtml}`;
+
+    const lieuHtml = item.adresse
+      ? `<a href="${buildLienCarte(item.adresse)}">${item.lieu}</a>`
+      : item.lieu;
+
+    const meta = [];
+    if (item.date) meta.push(`<li><span class="icon">📅</span> ${JOURS_LABELS[item.jour] ? JOURS_LABELS[item.jour] + " · " : ""}${item.date}</li>`);
+    if (item.heure) meta.push(`<li><span class="icon">🕒</span> ${item.heure}</li>`);
+    if (item.lieu) meta.push(`<li><span class="icon">📍</span> ${lieuHtml}</li>`);
+
+    const estAud = estAudition(item);
+    const billetLignes = [];
+    if (estAud && item.auditionPublique.toLowerCase() === "oui") billetLignes.push("Audition avec public");
+    if (item.billetRequis) billetLignes.push(`Billet requis : <strong>${item.billetRequis}</strong>`);
+    if (item.prix) billetLignes.push(`Prix : <strong>${item.prix}</strong>`);
+    const billetHtml = (estAud && item.auditionPublique.toLowerCase() === "non")
+      ? "Audition sans public"
+      : billetLignes.join(" - ");
+
     return {
-      titre: item.titre,
-      tag: item.types[0] || "",
       logo: item.logo,
+      tagsHtml,
+      titre: item.titre,
       description: item.description,
-      meta: [
-        item.date ? `📅 ${JOURS_LABELS[item.jour] ? JOURS_LABELS[item.jour] + " · " : ""}${item.date}` : null,
-        item.heure ? `🕒 ${item.heure}` : null,
-        item.lieu ? `📍 ${item.lieu}` : null,
-        billetTexte
-      ].filter(Boolean)
+      meta,
+      deadlineHtml: (estAud && item.dateLimiteInscriptionStr)
+        ? `📌 Date limite d'inscription : <strong>${item.dateLimiteInscriptionStr}</strong>`
+        : "",
+      billetHtml
     };
   }
 
@@ -687,10 +707,12 @@ const FAVORIS_KEY = "boussoleFavoris";
     const template = document.getElementById("story-template");
     const topEl = document.getElementById("story-top");
     const logoImg = document.getElementById("story-logo");
-    const tagEl = document.getElementById("story-tag");
+    const tagsEl = document.getElementById("story-tags");
     const titreEl = document.getElementById("story-titre");
     const descEl = document.getElementById("story-desc");
     const metaEl = document.getElementById("story-meta");
+    const deadlineEl = document.getElementById("story-deadline");
+    const billetEl = document.getElementById("story-billet");
 
     if (data.logo) {
       logoImg.src = data.logo;
@@ -701,12 +723,15 @@ const FAVORIS_KEY = "boussoleFavoris";
       template.classList.add("story-template--sans-logo");
     }
 
-    tagEl.textContent = data.tag || "";
-    tagEl.hidden = !data.tag;
+    tagsEl.innerHTML = data.tagsHtml || "";
     titreEl.textContent = data.titre || "";
-    descEl.textContent = data.description ? tronquerTexte(data.description, 180) : "";
+    descEl.textContent = data.description ? tronquerTexte(data.description, 280) : "";
     descEl.hidden = !data.description;
-    metaEl.innerHTML = data.meta.map(m => `<li>${m}</li>`).join("");
+    metaEl.innerHTML = data.meta.join("");
+    deadlineEl.innerHTML = data.deadlineHtml || "";
+    deadlineEl.hidden = !data.deadlineHtml;
+    billetEl.innerHTML = data.billetHtml || "";
+    billetEl.hidden = !data.billetHtml;
   }
 
   function genererStory(item, estFestival, bouton) {
@@ -1063,7 +1088,7 @@ const FAVORIS_KEY = "boussoleFavoris";
       ? `<span class="derniere-maj">🔄 Mis à jour le ${f.derniereMaj}</span>`
       : "";
     const majLienHtml = `<div class="update-link"><a href="${buildFestivalUpdateLink(f)}" target="_blank" rel="noopener">Mettre à jour</a>${derniereMajHtml}</div>`;
-    const storyBtnHtml = `<button class="story-btn" type="button">📸 Créer une story</button>`;
+    const storyBtnHtml = `<button class="story-link-btn" type="button">📸 Créer une story</button>`;
     const badgeAConfirmerHtml = f.aConfirmer
       ? `<div class="badges"><span class="badge badge-a-confirmer">Information à confirmer${f.aConfirmerDetails ? ` : ${f.aConfirmerDetails}` : ""}</span></div>`
       : "";
@@ -1087,7 +1112,7 @@ const FAVORIS_KEY = "boussoleFavoris";
         ${storyBtnHtml}
       </div>
     `;
-    const storyBtnFestival = card.querySelector(".story-btn");
+    const storyBtnFestival = card.querySelector(".story-link-btn");
     if (storyBtnFestival) {
       storyBtnFestival.addEventListener("click", () => genererStory(f, true, storyBtnFestival));
     }
@@ -1149,7 +1174,7 @@ function displayEvents(events, festivalsSupplementaires = []) {
         ? `<span class="derniere-maj">🔄 Mis à jour le ${ev.derniereMaj}</span>`
         : "";
       const majLienHtml = `<div class="update-link"><a href="${estAudition(ev) ? buildAuditionUpdateLink(ev) : buildUpdateLink(ev)}" target="_blank" rel="noopener">Mettre à jour</a>${derniereMajHtml}</div>`;
-      const storyBtnHtml = `<button class="story-btn" type="button">📸 Créer une story</button>`;
+      const storyBtnHtml = `<button class="story-link-btn" type="button">📸 Créer une story</button>`;
       const logoHtml = ev.logo
         ? `<div class="event-logo-wrapper"><img src="${ev.logo}" alt="Logo ${ev.titre}" loading="lazy" onerror="this.parentElement.style.display='none'"></div>`
         : "";
@@ -1205,7 +1230,7 @@ function displayEvents(events, festivalsSupplementaires = []) {
           rafraichirAffichage();
         });
       }
-      const storyBtn = card.querySelector(".story-btn");
+      const storyBtn = card.querySelector(".story-link-btn");
       if (storyBtn) {
         storyBtn.addEventListener("click", () => genererStory(ev, false, storyBtn));
       }
