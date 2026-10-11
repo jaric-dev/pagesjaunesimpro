@@ -858,14 +858,10 @@ header {
   width: 100%;
   height: 380px;
   background-color: #1c1c20;
+  background-size: cover;
+  background-position: center;
   overflow: hidden;
   flex-shrink: 0;
-}
-
-.story-top img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
 
 .story-template--sans-logo .story-body {
@@ -957,12 +953,6 @@ header {
   font-family: 'Montserrat', sans-serif;
   font-size: 0.95rem;
   color: #ffcc00;
-}
-
-.story-footer-text span {
-  display: block;
-  font-size: 0.8rem;
-  color: #8a8a92;
 }
 
 .story-footer-text span {
