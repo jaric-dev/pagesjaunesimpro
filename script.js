@@ -644,11 +644,146 @@ const FAVORIS_KEY = "boussoleFavoris";
   }
 
   // ------------------------------
-  // Filtres (type / ville / hors-saison) — un seul jeu de contrôles,
-  // partagé par les deux modes d'affichage
+  // Export de fiche en image "story" (format vertical, partageable) —
+  // capture le gabarit caché #story-template avec html2canvas, pensé
+  // pour être envoyé aux groupes annoncés ou publié sur les réseaux.
   // ------------------------------
- const LANGUE_LABELS = { FR: "Français", ENG: "Anglais" };
+  let storyObjectUrl = null;
 
+  function construireDonneesStory(item, estFestival) {
+    if (estFestival) {
+      const plageDates = item.dateFinStr && item.dateFinStr !== item.dateDebutStr
+        ? `${item.dateDebutStr} au ${item.dateFinStr}`
+        : item.dateDebutStr;
+      return {
+        titre: item.nom,
+        tag: item.type,
+        logo: item.logo,
+        description: item.description,
+        meta: [
+          plageDates ? `📅 ${plageDates}` : null,
+          item.ville ? `📍 ${item.ville}` : null
+        ].filter(Boolean)
+      };
+    }
+    const billetTexte = item.billetRequis
+      ? `🎟️ Billet requis${item.prix ? ` — ${item.prix}` : ""}`
+      : (item.prix ? `🎟️ ${item.prix}` : "🎟️ Entrée libre");
+    return {
+      titre: item.titre,
+      tag: item.types[0] || "",
+      logo: item.logo,
+      description: item.description,
+      meta: [
+        item.date ? `📅 ${JOURS_LABELS[item.jour] ? JOURS_LABELS[item.jour] + " · " : ""}${item.date}` : null,
+        item.heure ? `🕒 ${item.heure}` : null,
+        item.lieu ? `📍 ${item.lieu}` : null,
+        billetTexte
+      ].filter(Boolean)
+    };
+  }
+
+  function remplirGabaritStory(data) {
+    const template = document.getElementById("story-template");
+    const topEl = document.getElementById("story-top");
+    const logoImg = document.getElementById("story-logo");
+    const tagEl = document.getElementById("story-tag");
+    const titreEl = document.getElementById("story-titre");
+    const descEl = document.getElementById("story-desc");
+    const metaEl = document.getElementById("story-meta");
+
+    if (data.logo) {
+      logoImg.src = data.logo;
+      topEl.hidden = false;
+      template.classList.remove("story-template--sans-logo");
+    } else {
+      topEl.hidden = true;
+      template.classList.add("story-template--sans-logo");
+    }
+
+    tagEl.textContent = data.tag || "";
+    tagEl.hidden = !data.tag;
+    titreEl.textContent = data.titre || "";
+    descEl.textContent = data.description ? tronquerTexte(data.description, 180) : "";
+    descEl.hidden = !data.description;
+    metaEl.innerHTML = data.meta.map(m => `<li>${m}</li>`).join("");
+  }
+
+  function genererStory(item, estFestival, bouton) {
+    if (typeof html2canvas === "undefined") {
+      alert("La génération d'image n'est pas disponible pour l'instant. Réessaie dans un instant.");
+      return;
+    }
+
+    const data = construireDonneesStory(item, estFestival);
+    remplirGabaritStory(data);
+
+    const texteOriginal = bouton.textContent;
+    bouton.disabled = true;
+    bouton.textContent = "Génération...";
+
+    const template = document.getElementById("story-template");
+    html2canvas(template, { scale: 2, useCORS: true, backgroundColor: "#0a0a0c" })
+      .then(canvas => canvas.toBlob(blob => {
+        bouton.disabled = false;
+        bouton.textContent = texteOriginal;
+        if (!blob) return;
+        ouvrirStoryModal(blob, data.titre);
+      }))
+      .catch(err => {
+        console.error("Erreur de génération de la story:", err);
+        bouton.disabled = false;
+        bouton.textContent = texteOriginal;
+        alert("La génération de l'image a échoué. Réessaie, ou vérifie que le logo se charge bien.");
+      });
+  }
+
+  function ouvrirStoryModal(blob, titre) {
+    if (storyObjectUrl) URL.revokeObjectURL(storyObjectUrl);
+    storyObjectUrl = URL.createObjectURL(blob);
+
+    const modal = document.getElementById("story-modal");
+    const img = document.getElementById("story-preview-img");
+    const downloadBtn = document.getElementById("story-download-btn");
+    const shareBtn = document.getElementById("story-share-btn");
+
+    img.src = storyObjectUrl;
+    const nomFichier = `boussole-${(titre || "spectacle").toLowerCase().replace(/[^a-z0-9]+/g, "-")}.png`;
+
+    downloadBtn.onclick = () => {
+      const a = document.createElement("a");
+      a.href = storyObjectUrl;
+      a.download = nomFichier;
+      a.click();
+    };
+
+    const fichierPartage = new File([blob], nomFichier, { type: "image/png" });
+    if (navigator.canShare && navigator.canShare({ files: [fichierPartage] })) {
+      shareBtn.hidden = false;
+      shareBtn.onclick = () => {
+        navigator.share({ files: [fichierPartage], title: titre || "La Boussole de l'Impro" }).catch(() => {});
+      };
+    } else {
+      shareBtn.hidden = true;
+    }
+
+    modal.classList.add("open");
+  }
+
+  function fermerStoryModal() {
+    document.getElementById("story-modal").classList.remove("open");
+  }
+
+  const storyModal = document.getElementById("story-modal");
+  if (storyModal) {
+    storyModal.addEventListener("click", (e) => {
+      if (e.target.matches(".story-modal-close") || e.target === storyModal) {
+        fermerStoryModal();
+      }
+    });
+  }
+
+  const LANGUE_LABELS = { FR: "Français", ENG: "Anglais" };
   function populateFilters() {
     const types = new Set();
     const villes = new Set();
@@ -928,7 +1063,8 @@ const FAVORIS_KEY = "boussoleFavoris";
       ? `<span class="derniere-maj">🔄 Mis à jour le ${f.derniereMaj}</span>`
       : "";
     const majLienHtml = `<div class="update-link"><a href="${buildFestivalUpdateLink(f)}" target="_blank" rel="noopener">Mettre à jour</a>${derniereMajHtml}</div>`;
-      const badgeAConfirmerHtml = f.aConfirmer
+    const storyBtnHtml = `<button class="story-btn" type="button">📸 Créer une story</button>`;
+    const badgeAConfirmerHtml = f.aConfirmer
       ? `<div class="badges"><span class="badge badge-a-confirmer">Information à confirmer${f.aConfirmerDetails ? ` : ${f.aConfirmerDetails}` : ""}</span></div>`
       : "";
 
@@ -946,10 +1082,15 @@ const FAVORIS_KEY = "boussoleFavoris";
           <li><span class="icon">📅</span> ${plageDates}</li>
         </ul>
         ${deadlineHtml}
-        ${liensSociauxHtml}
+               ${liensSociauxHtml}
         ${majLienHtml}
+        ${storyBtnHtml}
       </div>
     `;
+    const storyBtnFestival = card.querySelector(".story-btn");
+    if (storyBtnFestival) {
+      storyBtnFestival.addEventListener("click", () => genererStory(f, true, storyBtnFestival));
+    }
     return card;
   }
 
@@ -1008,6 +1149,7 @@ function displayEvents(events, festivalsSupplementaires = []) {
         ? `<span class="derniere-maj">🔄 Mis à jour le ${ev.derniereMaj}</span>`
         : "";
       const majLienHtml = `<div class="update-link"><a href="${estAudition(ev) ? buildAuditionUpdateLink(ev) : buildUpdateLink(ev)}" target="_blank" rel="noopener">Mettre à jour</a>${derniereMajHtml}</div>`;
+      const storyBtnHtml = `<button class="story-btn" type="button">📸 Créer une story</button>`;
       const logoHtml = ev.logo
         ? `<div class="event-logo-wrapper"><img src="${ev.logo}" alt="Logo ${ev.titre}" loading="lazy" onerror="this.parentElement.style.display='none'"></div>`
         : "";
@@ -1053,6 +1195,7 @@ function displayEvents(events, festivalsSupplementaires = []) {
           ${billetTexte}
           ${liensSociauxHtml}
           ${majLienHtml}
+          ${storyBtnHtml}
         </div>
       `;
       const favoriBtn = card.querySelector(".favori-btn");
@@ -1061,6 +1204,10 @@ function displayEvents(events, festivalsSupplementaires = []) {
           toggleFavori(ev);
           rafraichirAffichage();
         });
+      }
+      const storyBtn = card.querySelector(".story-btn");
+      if (storyBtn) {
+        storyBtn.addEventListener("click", () => genererStory(ev, false, storyBtn));
       }
       container.appendChild(card);
     });
