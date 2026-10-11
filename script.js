@@ -706,7 +706,6 @@ const FAVORIS_KEY = "boussoleFavoris";
   function remplirGabaritStory(data) {
     const template = document.getElementById("story-template");
     const topEl = document.getElementById("story-top");
-    const logoImg = document.getElementById("story-logo");
     const tagsEl = document.getElementById("story-tags");
     const titreEl = document.getElementById("story-titre");
     const descEl = document.getElementById("story-desc");
@@ -715,10 +714,11 @@ const FAVORIS_KEY = "boussoleFavoris";
     const billetEl = document.getElementById("story-billet");
 
     if (data.logo) {
-      logoImg.src = data.logo;
+      topEl.style.backgroundImage = `url("${data.logo}")`;
       topEl.hidden = false;
       template.classList.remove("story-template--sans-logo");
     } else {
+      topEl.style.backgroundImage = "";
       topEl.hidden = true;
       template.classList.add("story-template--sans-logo");
     }
