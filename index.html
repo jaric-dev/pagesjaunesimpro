@@ -119,10 +119,12 @@
       <img id="story-logo" src="" alt="">
     </div>
     <div class="story-body">
-      <div class="story-tag" id="story-tag"></div>
+      <div class="tags" id="story-tags"></div>
       <h2 id="story-titre"></h2>
       <p class="story-desc" id="story-desc"></p>
-      <ul class="story-meta" id="story-meta"></ul>
+      <ul class="meta-list" id="story-meta"></ul>
+      <div class="festival-deadline" id="story-deadline" hidden></div>
+      <div class="billet-requis" id="story-billet" hidden></div>
     </div>
     <div class="story-footer">
       <img src="icon-192.png" alt="" class="story-footer-logo">
@@ -132,8 +134,7 @@
       </div>
     </div>
   </div>
-
-  <div id="story-modal" class="story-modal">
+   <div id="story-modal" class="story-modal">
     <div class="story-modal-content">
       <span class="story-modal-close" aria-label="Fermer">&times;</span>
       <img id="story-preview-img" src="" alt="Aperçu de la story">
@@ -143,7 +144,7 @@
       </div>
     </div>
   </div>
-
+  
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="script.js"></script>
   <script>
