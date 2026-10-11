@@ -114,6 +114,37 @@
     <img id="lightbox-img" src="" alt="">
   </div>
 
+  <div id="story-template" class="story-template">
+    <div class="story-top" id="story-top">
+      <img id="story-logo" src="" alt="">
+    </div>
+    <div class="story-body">
+      <div class="story-tag" id="story-tag"></div>
+      <h2 id="story-titre"></h2>
+      <p class="story-desc" id="story-desc"></p>
+      <ul class="story-meta" id="story-meta"></ul>
+    </div>
+    <div class="story-footer">
+      <img src="icon-192.png" alt="" class="story-footer-logo">
+      <div class="story-footer-text">
+        <strong>Vu sur La Boussole de l'Impro</strong>
+        <span>boussole.projetsoh.ca</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="story-modal" class="story-modal">
+    <div class="story-modal-content">
+      <span class="story-modal-close" aria-label="Fermer">&times;</span>
+      <img id="story-preview-img" src="" alt="Aperçu de la story">
+      <div class="story-modal-actions">
+        <button id="story-download-btn" type="button">Télécharger</button>
+        <button id="story-share-btn" type="button" hidden>Partager</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="script.js"></script>
   <script>
   if ("serviceWorker" in navigator) {
