@@ -815,26 +815,27 @@ header {
    EXPORT EN STORY
 ------------------------------ */
 
-.story-btn {
+.story-link-btn {
   display: inline-block;
-  margin-top: 0.6rem;
-  background-color: transparent;
-  color: #ffcc00;
-  border: 1px solid #ffcc0066;
-  font-weight: 600;
-  font-size: 0.78rem;
-  padding: 0.4rem 0.9rem;
-  border-radius: 20px;
+  margin-top: 0.5rem;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  font-size: 0.75rem;
+  color: #6a6a72;
+  text-decoration: underline;
+  text-decoration-color: #3a3a40;
   cursor: pointer;
   transition: 0.2s;
 }
 
-.story-btn:hover {
-  background-color: #ffcc001a;
-  border-color: #ffcc00;
+.story-link-btn:hover {
+  color: #ffcc00;
+  text-decoration-color: #ffcc00;
 }
 
-.story-btn:disabled {
+.story-link-btn:disabled {
   opacity: 0.6;
   cursor: wait;
 }
@@ -855,7 +856,7 @@ header {
 
 .story-top {
   width: 100%;
-  height: 540px;
+  height: 380px;
   background-color: #1c1c20;
   overflow: hidden;
   flex-shrink: 0;
@@ -874,31 +875,28 @@ header {
 
 .story-body {
   flex: 1;
-  padding: 2rem 2rem 1rem;
+  padding: 2.2rem 2rem 1.8rem;
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
   min-height: 0;
   overflow: hidden;
 }
 
-.story-tag {
-  display: inline-block;
-  align-self: flex-start;
-  padding: 0.3rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  border: 1px solid #ffcc00;
-  color: #ffcc00;
+.story-body .tags {
+  margin-bottom: 0.7rem;
+}
+
+.story-body .tag {
+  font-size: 1rem;
+  padding: 0.35rem 0.9rem;
 }
 
 #story-titre {
   font-family: 'Montserrat', sans-serif;
-  font-size: 2.3rem;
+  font-size: 2.1rem;
   color: #f5f5f5;
-  line-height: 1.15;
-  margin: 0;
+  line-height: 1.25;
+  margin: 0 0 0.6rem;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -907,30 +905,33 @@ header {
 
 .story-desc {
   font-size: 1.05rem;
-  color: #c8c8ce;
+  color: #a8a8b0;
   line-height: 1.5;
-  margin: 0;
+  margin: 0 0 0.7rem;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-.story-meta {
-  list-style: none;
-  margin: 0.4rem 0 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.55rem;
-  font-size: 1.1rem;
-  color: #e8e8ea;
+.story-body .meta-list {
+  margin-top: 0.3rem;
 }
 
-.story-meta li {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
+.story-body .meta-list li {
+  font-size: 1.1rem;
+  color: #e8e8ea;
+  margin-bottom: 0.7rem;
+}
+
+.story-body .festival-deadline {
+  font-size: 1rem;
+  margin-top: 0.5rem;
+}
+
+.story-body .billet-requis {
+  font-size: 0.95rem;
+  margin-top: 0.7rem;
 }
 
 .story-footer {
@@ -956,6 +957,12 @@ header {
   font-family: 'Montserrat', sans-serif;
   font-size: 0.95rem;
   color: #ffcc00;
+}
+
+.story-footer-text span {
+  display: block;
+  font-size: 0.8rem;
+  color: #8a8a92;
 }
 
 .story-footer-text span {
