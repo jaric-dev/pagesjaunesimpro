@@ -98,6 +98,17 @@ document.addEventListener("DOMContentLoaded", () => {
       if (ev.hors_saison) badges.push(`<span class="badge badge-hors-saison">Hors saison</span>`);
       const badgesHtml = badges.length ? `<div class="badges">${badges.join("")}</div>` : "";
 
+      // Soirée-bénéfice (2026-11-08) — même rendu que dans script.js.
+      const lienBenefice = ev.auProfitDeLien && !/^https?:\/\//i.test(ev.auProfitDeLien)
+        ? `https://${ev.auProfitDeLien}`
+        : ev.auProfitDeLien;
+      const nomBeneficiaireHtml = lienBenefice
+        ? `<a href="${lienBenefice}" target="_blank" rel="noopener">${ev.auProfitDe}</a>`
+        : ev.auProfitDe;
+      const beneficeHtml = ev.auProfitDe
+        ? `<div class="benefice-badge">💝 Au profit de <strong>${nomBeneficiaireHtml}</strong></div>`
+        : "";
+
       card.innerHTML = `
         ${logoHtml}
         <div class="event-card-body">
@@ -108,10 +119,12 @@ document.addEventListener("DOMContentLoaded", () => {
           </div>
           ${badgesHtml}
           <h3>${ev.titre}</h3>
+          ${ev.festival ? `<div class="festival-badge">🎪 Fait partie de la programmation du <strong>${ev.festival}</strong></div>` : ""}
+          ${beneficeHtml}
           ${descriptionHtml}
           <ul class="meta-list">
             <li><span class="icon">📅</span> ${JOURS_LABELS[ev.jour] ? JOURS_LABELS[ev.jour] + " · " : ""}${ev.date || "À venir"}</li>
-            <li><span class="icon">🕒</span> ${ev.heure}</li>
+            ${ev.heure ? `<li><span class="icon">🕒</span> ${ev.heure}</li>` : ""}
             <li><span class="icon">📍</span> ${lieuHtml}</li>
           </ul>
           ${liensSociauxHtml}
