@@ -476,6 +476,27 @@ header {
   color: #cbaaff;
 }
 
+.benefice-badge {
+  font-size: 0.78rem;
+  color: #ff8fab;
+  margin: -0.4rem 0 0.8rem;
+}
+
+.benefice-badge strong {
+  color: #ffb3c6;
+}
+
+.benefice-badge a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: #ff8fab66;
+  text-underline-offset: 2px;
+}
+
+.benefice-badge a:hover {
+  text-decoration-color: #ffb3c6;
+}
+
 /* ------------------------------
    CONTENU PRINCIPAL
 ------------------------------ */
