@@ -82,7 +82,11 @@ function normalizeEvent(ev, ongletJour) {
     // manuelle (comme masquer), affichée comme badge sur la fiche.
     derniereMaj: (ev.derniere_maj || "").trim(),
     aConfirmer: (ev.a_confirmer || "").trim().toLowerCase() === "oui",
-    aConfirmerDetails: (ev.a_confirmer_details || "").trim()
+    aConfirmerDetails: (ev.a_confirmer_details || "").trim(),
+    // Soirée-bénéfice (2026-11-08) : si rempli, la fiche affiche
+    // "💝 Au profit de <organisme>" (même mécanique que "festival").
+    auProfitDe: (ev.au_profit_de || "").trim(),
+    auProfitDeLien: (ev.au_profit_de_lien || "").trim()
   };
 }
 
@@ -464,7 +468,9 @@ const FAVORIS_KEY = "boussoleFavoris";
     site: "841564403",
     linktree: "7399501",
     logo: "1504614778",
-    contact: "1926843148"
+    contact: "1926843148",
+    auProfitDe: "1938634277",
+    auProfitDeLien: "1595356125"
   };
 
   // Section "Festivals et Tournois" du formulaire de mise à jour
@@ -599,6 +605,8 @@ const FAVORIS_KEY = "boussoleFavoris";
     addParam("linktree", ev.linktree);
     addParam("logo", ev.logo);
     addParam("contact", ev.contact);
+    addParam("auProfitDe", ev.auProfitDe);
+    addParam("auProfitDeLien", ev.auProfitDeLien);
 
     const estIrregulier = ev.frequence.toLowerCase() === "ponctuel" || (ev.source === "ponctuel" && !ev.frequence);
 
@@ -833,7 +841,7 @@ const FAVORIS_KEY = "boussoleFavoris";
   }
 
   function wireFilterEvents() {
-    ["filter-type", "filter-ville", "filter-langue", "filter-hs"].forEach(id => {
+    ["filter-type", "filter-ville", "filter-langue", "filter-hs", "filter-benefice"].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.addEventListener("change", rafraichirAffichage);
     });
@@ -852,6 +860,7 @@ const FAVORIS_KEY = "boussoleFavoris";
     const villeFilter = document.getElementById("filter-ville")?.value || "";
     const langueFilter = document.getElementById("filter-langue")?.value || "";
     const hsFilter = document.getElementById("filter-hs")?.value || "";
+    const beneficeFilter = document.getElementById("filter-benefice")?.value || "";
     const terme = getTermeRecherche();
 
     let resultat = events;
@@ -860,12 +869,14 @@ const FAVORIS_KEY = "boussoleFavoris";
     if (langueFilter) resultat = resultat.filter(ev => ev.langue === langueFilter);
    if (hsFilter === "hide") resultat = resultat.filter(ev => !ev.hors_saison);
     if (hsFilter === "only") resultat = resultat.filter(ev => ev.hors_saison);
+    if (beneficeFilter === "only") resultat = resultat.filter(ev => ev.auProfitDe);
     if (terme) {
       resultat = resultat.filter(ev =>
         ev.titre.toLowerCase().includes(terme) ||
         ev.description.toLowerCase().includes(terme) ||
         ev.lieu.toLowerCase().includes(terme) ||
-        ev.festival.toLowerCase().includes(terme)
+        ev.festival.toLowerCase().includes(terme) ||
+        ev.auProfitDe.toLowerCase().includes(terme)
       );
     }
     return resultat;
@@ -913,6 +924,7 @@ const FAVORIS_KEY = "boussoleFavoris";
     const typeGroup = document.getElementById("type-filter-group");
     const hsGroup = document.getElementById("hs-filter-group");
     const langueGroup = document.getElementById("langue-filter-group");
+    const beneficeGroup = document.getElementById("benefice-filter-group");
 
     if (currentDay === "festivals") {
       // Les filtres Type, Langue et Hors saison ne s'appliquent pas aux
@@ -921,6 +933,7 @@ const FAVORIS_KEY = "boussoleFavoris";
       if (typeGroup) typeGroup.hidden = true;
       if (hsGroup) hsGroup.hidden = true;
       if (langueGroup) langueGroup.hidden = true;
+      if (beneficeGroup) beneficeGroup.hidden = true;
       afficherFestivals();
       return;
     }
@@ -928,6 +941,7 @@ const FAVORIS_KEY = "boussoleFavoris";
     if (typeGroup) typeGroup.hidden = false;
     if (hsGroup) hsGroup.hidden = false;
     if (langueGroup) langueGroup.hidden = false;
+    if (beneficeGroup) beneficeGroup.hidden = false;
     let base = currentDay === "tous"
       ? window.eventsData
       : currentDay === "favoris"
@@ -979,7 +993,10 @@ const FAVORIS_KEY = "boussoleFavoris";
     }
 
     const terme = getTermeRecherche();
-    const festivalsCorrespondants = terme
+    // Un festival ne peut pas être une soirée-bénéfice : pas de résultats
+    // "bonus" festivals quand ce filtre est actif.
+    const beneficeActif = (document.getElementById("filter-benefice")?.value || "") === "only";
+    const festivalsCorrespondants = (terme && !beneficeActif)
       ? (window.festivalsData || []).filter(f =>
           f.nom.toLowerCase().includes(terme) ||
           f.description.toLowerCase().includes(terme)
@@ -1195,6 +1212,19 @@ function displayEvents(events, festivalsSupplementaires = []) {
         ? `<div class="festival-deadline">📌 Date limite d'inscription : <strong>${ev.dateLimiteInscriptionStr}</strong></div>`
         : "";
 
+      // Soirée-bénéfice (2026-11-08) — miroir de la mention festival. Le
+      // lien reçoit "https://" s'il a été soumis sans (ex. "www.organisme.org"),
+      // sinon le navigateur le traiterait comme un lien interne au site.
+      const lienBenefice = ev.auProfitDeLien && !/^https?:\/\//i.test(ev.auProfitDeLien)
+        ? `https://${ev.auProfitDeLien}`
+        : ev.auProfitDeLien;
+      const nomBeneficiaireHtml = lienBenefice
+        ? `<a href="${lienBenefice}" target="_blank" rel="noopener">${ev.auProfitDe}</a>`
+        : ev.auProfitDe;
+      const beneficeHtml = ev.auProfitDe
+        ? `<div class="benefice-badge">💝 Au profit de <strong>${nomBeneficiaireHtml}</strong></div>`
+        : "";
+
       const favoriActif = estFavori(ev);
       const favoriBtnHtml = `<button class="favori-btn${favoriActif ? " favori-btn--actif" : ""}" type="button" aria-label="${favoriActif ? "Retirer des favoris" : "Ajouter aux favoris"}">${favoriActif ? "♥" : "♡"}</button>`;
 
@@ -1210,6 +1240,7 @@ function displayEvents(events, festivalsSupplementaires = []) {
           ${badgesHtml}
           <h3>${ev.titre}</h3>
           ${ev.festival ? `<div class="festival-badge">🎪 Fait partie de la programmation du <strong>${ev.festival}</strong></div>` : ""}
+          ${beneficeHtml}
           ${descriptionHtml}
           <ul class="meta-list">
             <li><span class="icon">📅</span> ${JOURS_LABELS[ev.jour] ? JOURS_LABELS[ev.jour] + " · " : ""}${ev.date || "À venir"}</li>
