@@ -672,7 +672,9 @@ const FAVORIS_KEY = "boussoleFavoris";
         deadlineHtml: item.dateLimiteStr
           ? `📌 Date limite d'inscription : <strong>${item.dateLimiteStr}</strong>`
           : "",
-        billetHtml: ""
+        billetHtml: "",
+        festivalHtml: "",
+        beneficeHtml: ""
       };
     }
 
@@ -707,7 +709,13 @@ const FAVORIS_KEY = "boussoleFavoris";
       deadlineHtml: (estAud && item.dateLimiteInscriptionStr)
         ? `📌 Date limite d'inscription : <strong>${item.dateLimiteInscriptionStr}</strong>`
         : "",
-      billetHtml
+      billetHtml,
+      festivalHtml: item.festival
+        ? `🎪 Fait partie de la programmation du <strong>${item.festival}</strong>`
+        : "",
+      beneficeHtml: item.auProfitDe
+        ? `💝 Au profit de <strong>${item.auProfitDe}</strong>`
+        : ""
     };
   }
 
@@ -733,6 +741,12 @@ const FAVORIS_KEY = "boussoleFavoris";
 
     tagsEl.innerHTML = data.tagsHtml || "";
     titreEl.textContent = data.titre || "";
+    const festivalEl = document.getElementById("story-festival");
+    const beneficeEl = document.getElementById("story-benefice");
+    festivalEl.innerHTML = data.festivalHtml || "";
+    festivalEl.hidden = !data.festivalHtml;
+    beneficeEl.innerHTML = data.beneficeHtml || "";
+    beneficeEl.hidden = !data.beneficeHtml;
     descEl.textContent = data.description ? tronquerTexte(data.description, 280) : "";
     descEl.hidden = !data.description;
     metaEl.innerHTML = data.meta.join("");
