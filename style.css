@@ -941,6 +941,12 @@ header {
   margin-bottom: 0.7rem;
 }
 
+.story-body .festival-badge,
+.story-body .benefice-badge {
+  font-size: 1.05rem;
+  margin: 0 0 0.7rem;
+}
+
 .story-body .festival-deadline {
   font-size: 1rem;
   margin-top: 0.5rem;
