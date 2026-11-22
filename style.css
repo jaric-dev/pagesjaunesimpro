@@ -138,6 +138,73 @@ header {
 }
 
 /* ------------------------------
+   LIENS DE L'EN-TÊTE
+------------------------------ */
+
+.header-links {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0 1.2rem;
+}
+
+/* ------------------------------
+   PAGE MODE D'EMPLOI
+------------------------------ */
+
+.guide-section-title {
+  font-family: 'Montserrat', sans-serif;
+  color: #f5f5f5;
+  font-size: 1.6rem;
+  margin: 3rem 0 1.5rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid #232327;
+}
+
+.about-block ul {
+  padding-left: 1.2rem;
+}
+
+.about-block li {
+  color: #c8c8ce;
+  line-height: 1.7;
+  font-size: 0.98rem;
+  margin-bottom: 0.4rem;
+}
+
+.about-block a {
+  color: #ffcc00;
+  text-decoration: underline;
+  text-decoration-color: #ffcc0066;
+}
+
+.about-block a:hover {
+  text-decoration-color: #ffcc00;
+}
+
+.about-block details {
+  border: 1px solid #232327;
+  border-radius: 8px;
+  padding: 0.7rem 1rem;
+  margin-bottom: 0.7rem;
+}
+
+.about-block summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: #e8e8ea;
+}
+
+.about-block summary:hover,
+.about-block details[open] summary {
+  color: #ffcc00;
+}
+
+.about-block details p {
+  margin: 0.6rem 0 0;
+}
+
+/* ------------------------------
    PAGE DE PARTAGE (suggestions reçues)
 ------------------------------ */
 
