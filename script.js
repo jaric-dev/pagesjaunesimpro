@@ -829,7 +829,29 @@ const FAVORIS_KEY = "boussoleFavoris";
       }
     });
   }
-
+ 
+  // ------------------------------
+  // Publication automatique des stories (robot GitHub Actions) — permet
+  // de générer, sans clic, l'image story de chaque spectacle du jour, avec
+  // exactement le même gabarit que le bouton "📸 Créer une story".
+  // ------------------------------
+  window.storyAuto = {
+    evenementsDuJour() {
+      if (!window.eventsData) return null;
+      const aujourdhui = new Date();
+      aujourdhui.setHours(0, 0, 0, 0);
+      return window.eventsData.filter(ev =>
+        !ev.hors_saison && ev.dateObj && ev.dateObj.getTime() === aujourdhui.getTime()
+      );
+    },
+    genererImage(index) {
+      const ev = this.evenementsDuJour()[index];
+      remplirGabaritStory(construireDonneesStory(ev, false));
+      const template = document.getElementById("story-template");
+      return html2canvas(template, { scale: 2, useCORS: true, backgroundColor: "#0a0a0c" })
+        .then(canvas => canvas.toDataURL("image/png"));
+    }
+  };
   const LANGUE_LABELS = { FR: "Français", ENG: "Anglais" };
   function populateFilters() {
     const types = new Set();
