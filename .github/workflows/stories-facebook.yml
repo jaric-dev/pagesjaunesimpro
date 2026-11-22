@@ -1,0 +1,46 @@
+# Publication automatique des stories du jour sur la Page Facebook Projets Oh?
+# Voir scripts/publier-stories.mjs pour le détail.
+name: Stories Facebook du jour
+
+on:
+  schedule:
+    # Heure en UTC : 5 h 17 UTC = 0 h 17 à Québec l'hiver (1 h 17 l'été)
+    - cron: "17 5 * * *"
+  workflow_dispatch:
+    inputs:
+      mode_test:
+        description: "Mode test : générer les images sans publier sur Facebook"
+        type: boolean
+        default: true
+
+jobs:
+  publier:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Installer Puppeteer
+        run: npm install --no-save puppeteer@23
+
+      - name: Générer et publier les stories
+        env:
+          TZ: America/Toronto
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+          FB_PAGE_TOKEN: ${{ secrets.FB_PAGE_TOKEN }}
+          # Exécution automatique (cron) : publication réelle.
+          # Exécution manuelle : selon la case "Mode test".
+          MODE_TEST: ${{ github.event_name == 'workflow_dispatch' && inputs.mode_test }}
+        run: node scripts/publier-stories.mjs
+
+      - name: Conserver les images (mode test)
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.mode_test }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: stories-generees
+          path: stories-generees/
+          if-no-files-found: warn
