@@ -911,6 +911,7 @@ const FAVORIS_KEY = "boussoleFavoris";
         ev.titre.toLowerCase().includes(terme) ||
         ev.description.toLowerCase().includes(terme) ||
         ev.lieu.toLowerCase().includes(terme) ||
+        ev.ville.toLowerCase().includes(terme) ||
         ev.festival.toLowerCase().includes(terme) ||
         ev.auProfitDe.toLowerCase().includes(terme)
       );
@@ -1035,7 +1036,8 @@ const FAVORIS_KEY = "boussoleFavoris";
     const festivalsCorrespondants = (terme && !beneficeActif)
       ? (window.festivalsData || []).filter(f =>
           f.nom.toLowerCase().includes(terme) ||
-          f.description.toLowerCase().includes(terme)
+          f.description.toLowerCase().includes(terme) ||
+          f.ville.toLowerCase().includes(terme)
         )
       : [];
 
@@ -1080,7 +1082,8 @@ const FAVORIS_KEY = "boussoleFavoris";
     if (terme) {
       events = events.filter(f =>
         f.nom.toLowerCase().includes(terme) ||
-        f.description.toLowerCase().includes(terme)
+        f.description.toLowerCase().includes(terme) ||
+        f.ville.toLowerCase().includes(terme)
       );
     }
 
