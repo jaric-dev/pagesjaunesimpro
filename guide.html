@@ -20,9 +20,12 @@
   <header>
     <h1 class="site-title">La Boussole de l'Impro</h1>
     <p class="site-subtitle">L'outil pour toujours savoir où aller voir de l'impro.</p>
-    <a href="index.html" class="about-link">← Retour aux spectacles</a>
+    <div class="header-links">
+      <a href="index.html" class="about-link">← Retour aux spectacles</a>
+      <a href="about.html" class="about-link">À propos</a>
+    </div>
   </header>
-
+  
   <main class="about-page">
     <section class="about-block">
       <h2>Mode d'emploi</h2>
@@ -54,28 +57,38 @@
       <h2>Rechercher et filtrer</h2>
       <p>
         Tape un nom, un mot de la description ou un lieu dans la
-        <strong>Recherche</strong>, puis appuie sur Entrée.
+        <strong>Recherche</strong>, puis appuie sur Entrée. La recherche se
+        fait sur tous les jours à la fois, et inclut aussi les festivals
+        correspondants. Changer de jour efface la recherche.
       </p>
       <p>
         Le menu <strong>Filtres</strong> te permet de raffiner par type
-        d'événement, ville, langue ou plage de dates (format JJ-MM-AAAA). Tu peux
-        aussi cacher les événements hors saison ou n'afficher que les
-        soirées-bénéfice.
+        d'événement, ville, langue ou plage de dates (format JJ-MM-AAAA). La
+        date de début est remplie avec la date du jour : vide-la ou change-la
+        pour regarder plus loin. Tu peux aussi cacher les événements hors
+        saison ou n'afficher que les soirées-bénéfice.
+      </p>
+      <p>
+        Dans <strong>Festivals &amp; Tournois</strong>, seuls les filtres de
+        ville et de dates s'appliquent.
       </p>
     </section>
 
     <section class="about-block" id="fiche">
       <h2>Lire une fiche</h2>
       <ul>
-        <li><strong>Prochaine date</strong> : calculée automatiquement pour les événements réguliers (hebdomadaires, aux deux semaines, mensuels).</li>
-        <li><strong>Hors saison</strong> : aucune date à venir n'est connue pour le moment.</li>
-        <li><strong>Dernière mise à jour</strong> : la date à laquelle l'info a été vérifiée ou modifiée la dernière fois.</li>
-        <!-- À VÉRIFIER : formulation exacte affichée sur la fiche pour « à confirmer » -->
-        <li><strong>À confirmer</strong> : une partie de l'info n'est pas encore confirmée par l'organisation.</li>
-        <li><strong>Soirée-bénéfice</strong> et <strong>billet requis</strong> : indiqués par une mention sur la fiche.</li>
+        <li><strong>📅 Prochaine date</strong> : calculée automatiquement pour les événements réguliers (hebdomadaires, aux deux semaines, mensuels).</li>
+        <li><strong>📍 Lieu</strong> : touche-le pour ouvrir l'adresse dans ton application de cartes.</li>
+        <li><strong>Hors saison</strong> : la ligue ou le spectacle existe, mais aucune date à venir n'est connue pour le moment.</li>
+        <li><strong>Information à confirmer</strong> : une partie de l'info n'est pas encore confirmée. Le détail est indiqué dans le badge.</li>
+        <li><strong>🔄 Mis à jour le…</strong> : la date à laquelle l'info a été modifiée la dernière fois.</li>
+        <li><strong>💝 Au profit de…</strong> : une soirée-bénéfice, avec l'organisme qui en profite.</li>
+        <li><strong>🎪 Fait partie de la programmation du…</strong> : le spectacle est présenté dans le cadre d'un festival.</li>
+        <li><strong>📌 Date limite d'inscription</strong> : pour les auditions, festivals et tournois.</li>
+        <li><strong>Billet requis</strong> et <strong>Prix</strong> : quand l'organisation les a indiqués.</li>
       </ul>
       <p>
-        Touche une affiche pour l'agrandir.
+        Touche le logo d'une fiche pour l'agrandir.
       </p>
       <p>
         L'info peut parfois changer à la dernière minute : en cas de doute,
@@ -85,15 +98,16 @@
 
     <section class="about-block" id="favoris">
       <h2>Mes favoris</h2>
-      <!-- À VÉRIFIER : comment on ajoute un favori sur une fiche (icône ♥ ?) -->
       <p>
-        Appuie sur le ♥ d'une fiche pour l'ajouter à tes favoris. Tu les
-        retrouves ensuite dans l'onglet <strong>♥ Mes favoris</strong>.
+        Touche le ♡ en haut à droite d'une fiche pour l'ajouter à tes
+        favoris (il devient ♥). Tu les retrouves ensuite dans l'onglet
+        <strong>♥ Mes favoris</strong>. Un spectacle régulier reste dans tes
+        favoris d'une semaine à l'autre.
       </p>
-      <!-- À VÉRIFIER : fonctionnement exact du partage de la liste de favoris -->
       <p>
-        Depuis cet onglet, tu peux aussi partager ta liste de favoris avec
-        quelqu'un, pour planifier une sortie ensemble.
+        Dans cet onglet, le bouton <strong>🔗 Partager mes favoris</strong>
+        copie un lien vers ta liste. Envoie-le à quelqu'un pour planifier une
+        sortie ensemble.
       </p>
       <p>
         Tes favoris sont gardés dans ton navigateur : ils ne te suivent pas
@@ -103,12 +117,11 @@
 
     <section class="about-block" id="story">
       <h2>Partager en story</h2>
-      <!-- À VÉRIFIER : libellé exact du bouton story sur la fiche -->
       <p>
-        Chaque fiche peut être transformée en image au format story, prête à
-        publier sur Instagram ou Facebook. Tu peux la
-        <strong>télécharger</strong>, ou la <strong>partager</strong>
-        directement si ton téléphone le permet.
+        Le lien <strong>📸 Créer une story</strong>, au bas de chaque fiche,
+        en fait une image au format story, prête à publier sur Instagram ou
+        Facebook. Tu peux ensuite la <strong>télécharger</strong>, ou la
+        <strong>partager</strong> directement si ton appareil le permet.
       </p>
     </section>
 
@@ -123,8 +136,7 @@
       <h2>Sans connexion internet</h2>
       <p>
         Sans connexion, la Boussole affiche un message plutôt que des horaires :
-        c'est voulu! On préfère ne rien montrer que de te montrer un spectacle
-        qui a changé de date.
+        Musure pour éviter de présenter de l'information qui n'est pas à jour.
       </p>
     </section>
 
@@ -160,10 +172,18 @@
 
     <section class="about-block" id="delai">
       <h2>Quand mes changements apparaissent-ils?</h2>
-      <!-- À VÉRIFIER : délai réel à indiquer -->
+           <p>
+        <strong>Mise à jour d'une fiche</strong> : les changements apparaissent
+        normalement tout de suite. Recharge la page pour les voir. S'il un champs 
+        problématique dans le formulaire, la mise à jour est mise de côté le temps
+        d'être validée.
+      </p>
       <p>
-        Les ajouts et mises à jour ne sont pas toujours instantanés.
-        Si rien n'a changé après quelques jours, écris-nous dans la section
+        <strong>Nouvel événement</strong> : chaque ajout est validé par l'administrateur
+        avant d'être publié, habituellement rapidement.
+      </p>
+      <p>
+        Si rien n'a changé après 1 ou 2 jours, écris-nous dans la section
         <a href="about.html">À propos</a>.
       </p>
     </section>
