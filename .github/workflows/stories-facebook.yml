@@ -3,9 +3,8 @@
 name: Stories Facebook du jour
 
 on:
-  schedule:
-    # Heure en UTC : 5 h 17 UTC = 0 h 17 à Québec l'hiver (1 h 17 l'été)
-    - cron: "17 5 * * *"
+  # Déclenché chaque nuit par Apps Script (declencherStoriesFacebook),
+  # plus fiable que le cron de GitHub, qui arrivait des heures en retard.
   workflow_dispatch:
     inputs:
       mode_test:
