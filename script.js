@@ -433,11 +433,20 @@ const FAVORIS_KEY = "boussoleFavoris";
 
   // Construit le lien de partage — partage.html lira le paramètre
   // "liste" pour savoir quels spectacles afficher.
+  // Lien court (2026-11-24) : les 8 premiers caractères de l'id technique
+  // de chaque fiche favorite, séparés par des points (ex. ?f=4963ff26.a1b2c3d4).
+  // Repli sur l'ancien format "liste=" si aucune fiche favorite n'a d'id.
   function buildLienPartage() {
     const favoris = getFavoris();
-    const donnees = encoderListePartage(favoris);
     const basePath = window.location.pathname.replace(/index\.html$/, "");
-    return `${window.location.origin}${basePath}partage.html?liste=${donnees}`;
+    const base = `${window.location.origin}${basePath}partage.html`;
+    const idsCourts = [...new Set(
+      (window.eventsData || [])
+        .filter(ev => ev.id && favoris.includes(favKey(ev)))
+        .map(ev => ev.id.slice(0, 8))
+    )];
+    if (idsCourts.length) return `${base}?f=${idsCourts.join(".")}`;
+    return `${base}?liste=${encoderListePartage(favoris)}`;
   }
 
   // ------------------------------
