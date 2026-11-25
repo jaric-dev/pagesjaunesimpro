@@ -4,14 +4,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const params = new URLSearchParams(window.location.search);
   const donnees = params.get("liste");
+  // Nouveau format court (2026-11-24) : ?f=id1.id2 (8 premiers caractères
+  // de l'id technique). L'ancien format ?liste= reste compris.
+  const idsCourts = (params.get("f") || "").split(".").filter(Boolean);
 
-  if (!donnees) {
+  if (!donnees && idsCourts.length === 0) {
     container.innerHTML = `<p style="text-align:center; width:100%;">Ce lien ne contient aucune suggestion — demande à la personne qui te l'a envoyé de te renvoyer un nouveau lien depuis sa vue "Mes favoris".</p>`;
     return;
   }
 
-  const clesRecues = decoderListePartage(donnees);
-  if (clesRecues.length === 0) {
+  const clesRecues = donnees ? decoderListePartage(donnees) : [];
+  if (clesRecues.length === 0 && idsCourts.length === 0) {
     container.innerHTML = `<p style="text-align:center; width:100%;">Ce lien ne contient aucune suggestion valide.</p>`;
     return;
   }
@@ -44,7 +47,10 @@ document.addEventListener("DOMContentLoaded", () => {
         .filter(ev => ev.titre)
         .filter(ev => ev.masquer.toLowerCase() !== "oui");
 
-      const evenementsPartages = tousLesEvenements.filter(ev => clesRecues.includes(favKey(ev)));
+      const evenementsPartages = tousLesEvenements.filter(ev =>
+        clesRecues.includes(favKey(ev)) ||
+        (ev.id && idsCourts.includes(ev.id.slice(0, 8)))
+      );
 
       afficherSuggestions(evenementsPartages);
     })
